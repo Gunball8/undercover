@@ -1,0 +1,935 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#31106b" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Undercover" />
+  <title>Undercover / Mr White — Configurable</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg1:#31106b; --bg2:#0f0533;
+      --card:#221055; --panel:#160a40; --edge:#5a35c9;
+      --ink:#f7f2ff; --mut:#bcaaf0;
+      --pink:#ff3d81; --pink-d:#b81f56;
+      --yellow:#ffd23f; --yellow-d:#cf9f00;
+      --cyan:#2de1fc; --lime:#8aff5e; --red:#ff5d6c;
+    }
+    * { -webkit-tap-highlight-color: transparent; }
+    body {
+      margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      background: linear-gradient(160deg, var(--bg1), var(--bg2) 70%) fixed;
+      color:var(--ink); min-height:100vh;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 18px; }
+    .card {
+      background:var(--card); border:2px solid var(--edge); border-radius:22px;
+      padding:18px; box-shadow: 0 8px 0 rgba(0,0,0,.35);
+    }
+    h1, h2 { margin:0 0 10px; text-transform:uppercase; letter-spacing:.06em; font-weight:900; }
+    h1 { color:var(--yellow); text-shadow: 3px 3px 0 var(--pink); font-size:26px; }
+    h2 { color:var(--cyan); text-shadow: 2px 2px 0 rgba(0,0,0,.45); font-size:19px; }
+    p { line-height:1.4; }
+    input, select {
+      width:100%; padding:12px; border-radius:14px; border:2px solid var(--edge);
+      background:var(--panel); color:var(--ink); font-size:16px; font-weight:600; box-sizing:border-box;
+    }
+    button {
+      width:100%; padding:14px 12px; border-radius:16px; border:none; box-sizing:border-box;
+      background:var(--pink); color:#fff; font-size:16px; font-weight:800;
+      text-transform:uppercase; letter-spacing:.04em; cursor:pointer;
+      box-shadow: 0 5px 0 var(--pink-d);
+      transition: transform .06s ease, box-shadow .06s ease, filter .15s ease;
+    }
+    button:hover { filter:brightness(1.08); }
+    button:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--pink-d); }
+    button:disabled { filter:grayscale(.6) brightness(.7); box-shadow:none; transform:none; cursor:default; }
+    button:focus-visible, input:focus-visible, select:focus-visible { outline:3px solid var(--cyan); outline-offset:2px; }
+    .row { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+    .row4 { display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:10px; }
+    .mt { margin-top: 12px; }
+    .muted { color:var(--mut); font-size: 14px; }
+    .pill {
+      display:inline-block; padding:6px 12px; border-radius:999px;
+      background:var(--panel); border:2px solid var(--edge); color:var(--cyan);
+      font-size:13px; font-weight:800;
+    }
+    .big { font-size: 30px; font-weight: 900; letter-spacing:.02em; }
+    #secretWord {
+      display:inline-block; padding:12px 18px; border-radius:16px;
+      background:var(--yellow); color:#2a0e5e; transform:rotate(-2deg);
+      box-shadow: 0 5px 0 var(--yellow-d);
+    }
+    .center { text-align:center; }
+    .hidden { display:none !important; }
+    .timerBar { height:16px; background:var(--panel); border:2px solid var(--edge); border-radius:999px; overflow:hidden; }
+    .timerFill {
+      height:100%; width:100%;
+      background: linear-gradient(90deg, var(--cyan), var(--lime), var(--yellow));
+      transition: width .25s linear, background .3s ease;
+    }
+    .timerFill.danger { background: var(--red); }
+    #timerText { font-size:44px; }
+    #timerText.danger { color:var(--red); animation: pulse .5s ease infinite alternate; }
+    @keyframes pulse { from { transform:scale(1); } to { transform:scale(1.15); } }
+    .list { display:grid; gap:8px; }
+    .choice {
+      display:flex; gap:10px; align-items:center; padding:12px 14px; border-radius:14px;
+      border:2px solid var(--edge); background:var(--panel); font-size:16px;
+    }
+    .choice input { width:auto; accent-color: var(--pink); }
+    .choice:has(input:checked) { border-color:var(--yellow); background:#2c1670; }
+    .hr { height:2px; background:var(--edge); border-radius:2px; margin:14px 0; }
+    .warn { border:2px solid var(--yellow); background:#33260a; padding:12px; border-radius:14px; color:#ffe9a8; font-weight:600; }
+    .ok   { border:2px solid var(--lime);  background:#0e3318; padding:12px; border-radius:14px; color:#d2ffc6; }
+    .bad  { border:2px solid var(--red);   background:#3a0d1c; padding:12px; border-radius:14px; color:#ffc9d2; }
+    .toggle {
+      display:flex; gap:10px; align-items:center; padding:12px; border-radius:14px;
+      border:2px solid var(--edge); background:var(--panel);
+    }
+    .toggle input { width:auto; accent-color: var(--cyan); }
+    .badge { font-weight:800; }
+    ol.order { margin:8px 0 0; padding-left:24px; font-weight:700; font-size:17px; }
+    ol.order li { padding:4px 0; }
+    ol.order li::marker { color:var(--yellow); font-weight:900; }
+    .catGrid { display:grid; grid-template-columns: 1fr 1fr; gap:8px; }
+    @media (min-width: 640px) { .catGrid { grid-template-columns: 1fr 1fr 1fr; } }
+    .cat {
+      display:flex; gap:8px; align-items:center; padding:10px 12px; border-radius:14px;
+      border:2px solid var(--edge); background:var(--panel); cursor:pointer;
+      user-select:none; font-size:14px; font-weight:700;
+      transition: transform .06s ease;
+    }
+    .cat:active { transform:scale(.97); }
+    .cat input { width:auto; accent-color: var(--lime); }
+    .cat.on { border-color:var(--lime); background:#153a1e; }
+    .cat .count { margin-left:auto; color:var(--mut); font-size:12px; font-weight:800; }
+    .catActions { display:flex; gap:8px; }
+    .catActions button {
+      padding:9px; font-size:13px; background:var(--panel);
+      border:2px solid var(--edge); color:var(--cyan); box-shadow:0 3px 0 rgba(0,0,0,.35);
+    }
+    details.help { border:2px solid var(--edge); background:var(--panel); border-radius:14px; padding:10px 12px; }
+    details.help summary { cursor:pointer; font-weight:800; color:var(--yellow); }
+    details.help p { margin:8px 0 0; font-size:14px; color:var(--mut); }
+    .ghost { background:var(--panel); border:2px solid var(--edge); color:var(--mut); box-shadow:0 3px 0 rgba(0,0,0,.35); text-transform:none; font-size:14px; }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation:none !important; transition:none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Party Game — Configurable</h1>
+      <p class="muted">Choisis #Citizens / #Undercover / #Mr White, et le jeu s'adapte (multi-rounds jusqu'à victoire).</p>
+      <details class="help mt">
+        <summary>Comment jouer ?</summary>
+        <p>1. Chacun regarde son mot en privé. Les Citizens ont le même mot, l'Undercover un mot proche (sans le savoir), Mr White n'a rien.</p>
+        <p>2. À tour de rôle, chacun donne un indice court sur son mot : assez clair pour les alliés, assez flou pour ne pas se faire griller.</p>
+        <p>3. Débat, puis vote : le groupe élimine un suspect. Si Mr White est éliminé, il peut deviner le mot → victoire instantanée.</p>
+        <p>4. Citizens gagnent en éliminant tous les imposteurs. Les imposteurs gagnent en survivant jusqu'à la parité.</p>
+      </details>
+    </div>
+
+    <!-- SETUP -->
+    <div id="screen-setup" class="card mt">
+      <h2>1) Configuration</h2>
+      <div class="row4 mt">
+        <div>
+          <p class="muted">Joueurs</p>
+          <input id="cfgPlayers" type="number" min="3" max="12" value="4" />
+        </div>
+        <div>
+          <p class="muted">Citizens</p>
+          <input id="cfgCitizens" type="number" min="1" max="12" value="3" />
+        </div>
+        <div>
+          <p class="muted">Undercover</p>
+          <input id="cfgUndercover" type="number" min="0" max="12" value="1" />
+        </div>
+        <div>
+          <p class="muted">Mr White</p>
+          <input id="cfgMrWhite" type="number" min="0" max="12" value="0" />
+        </div>
+      </div>
+
+      <div class="row mt">
+        <select id="discussionSeconds">
+          <option value="45">Discussion : 45 s</option>
+          <option value="60" selected>Discussion : 60 s</option>
+          <option value="90">Discussion : 90 s</option>
+        </select>
+        <select id="clueRule">
+          <option value="1">Indice : 1 mot</option>
+          <option value="2" selected>Indice : 1–2 mots</option>
+        </select>
+      </div>
+
+      <div class="toggle mt">
+        <input id="hideRoles" type="checkbox" checked />
+        <div>
+          <div class="badge">Masquer les rôles (reveal = mot seulement)</div>
+          <div class="muted">Mr White voit "AUCUN MOT". Undercover voit un mot différent sans le savoir.</div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+      <div class="row" style="align-items:center;">
+        <h2 style="margin:0;">Thèmes <span class="pill" id="poolCount"></span></h2>
+        <div class="catActions">
+          <button id="btnAllCats" type="button">Tout</button>
+          <button id="btnNoCats" type="button">Aucun</button>
+        </div>
+      </div>
+      <div id="catGrid" class="catGrid mt"></div>
+
+      <div id="setupMsg" class="warn mt hidden"></div>
+
+      <button class="mt" id="btnBuildNames">Valider et entrer les noms</button>
+    </div>
+
+    <!-- NAMES -->
+    <div id="screen-names" class="card mt hidden">
+      <h2>2) Noms des joueurs</h2>
+      <div id="namesGrid" class="row mt"></div>
+      <button class="mt" id="btnStart">Démarrer la partie</button>
+      <p class="muted mt">Le reveal est privé (passe le téléphone).</p>
+    </div>
+
+    <!-- REVEAL -->
+    <div id="screen-reveal" class="card mt hidden">
+      <div class="row">
+        <div>
+          <div class="pill" id="roundPill"></div>
+          <h2 class="mt">3) Reveal privé</h2>
+          <p class="muted">Téléphone à <b id="revealPlayerName"></b> → clique pour voir.</p>
+        </div>
+        <div class="center">
+          <div class="pill" id="modePill"></div>
+        </div>
+      </div>
+
+      <button class="mt" id="btnShowSecret">Afficher</button>
+
+      <div id="secretBox" class="mt hidden">
+        <div class="hr"></div>
+        <p class="muted">Ne montre pas l'écran.</p>
+        <div class="big" id="secretRoleLine"></div>
+        <p class="mt">Ton info :</p>
+        <div class="big" id="secretWord"></div>
+        <p class="muted mt" id="secretHint"></p>
+        <button class="mt" id="btnHideSecret">Cacher et passer au suivant</button>
+      </div>
+    </div>
+
+    <!-- CLUES -->
+    <div id="screen-clues" class="card mt hidden">
+      <h2>4) Indices</h2>
+      <p class="muted">Chacun donne <b>1 indice</b> (max <span id="clueMax"></span> mot(s)). Pas de phrases.</p>
+      <div class="warn mt">
+        Pas de définition directe / pas le nom exact. Mr White doit bluffer.
+      </div>
+      <p class="mt"><b>Ordre de parole (tiré au sort) :</b></p>
+      <ol class="order" id="speakOrder"></ol>
+      <button class="mt" id="btnToDiscussion">Lancer la discussion</button>
+      <button class="mt ghost" id="btnAbandon">✖ Abandonner la partie</button>
+    </div>
+
+    <!-- DISCUSSION -->
+    <div id="screen-discussion" class="card mt hidden">
+      <h2>5) Discussion</h2>
+      <p class="muted">Débat libre. Timer → vote.</p>
+      <div class="timerBar mt"><div class="timerFill" id="timerFill"></div></div>
+      <div class="big center mt" id="timerText">60</div>
+      <div class="row mt">
+        <button class="ghost" id="btnAddTime">+30 s</button>
+        <button id="btnSkipDiscussion">Passer au vote</button>
+      </div>
+    </div>
+
+    <!-- VOTE -->
+    <div id="screen-vote" class="card mt hidden">
+      <h2>6) Vote</h2>
+      <p class="muted">Choisissez qui éliminer (résultat du vote à main levée).</p>
+      <div id="voteChoices" class="list mt"></div>
+      <button class="mt" id="btnConfirmVote">Confirmer</button>
+      <p class="muted mt">Égalité → tirage au sort entre ex-aequo.</p>
+    </div>
+
+    <!-- MR WHITE GUESS -->
+    <div id="screen-guess" class="card mt hidden">
+      <h2>Mr White — Devine le mot</h2>
+      <p class="muted"><b id="guessPlayerName"></b> était Mr White. Il/elle peut tenter un guess du mot exact.</p>
+      <input id="guessInput" placeholder="Tape le mot ici…" autocomplete="off" />
+      <button class="mt" id="btnSubmitGuess">Valider le guess</button>
+      <p class="muted mt">Accents ignorés (ex : "Évoli" = "evoli").</p>
+    </div>
+
+    <!-- ELIMINATION -->
+    <div id="screen-elim" class="card mt hidden">
+      <h2>Élimination</h2>
+      <div id="elimBox" class="mt"></div>
+      <button class="mt" id="btnContinue">Round suivant → indices</button>
+    </div>
+
+    <!-- RESULT -->
+    <div id="screen-result" class="card mt hidden">
+      <h2>Résultat</h2>
+      <div id="resultBox" class="mt"></div>
+      <button class="mt" id="btnRematch">Rejouer (mêmes joueurs, nouveau mot)</button>
+      <button class="mt" id="btnRestart">Recommencer (config)</button>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // ============================================================
+  // BANQUE DE MOTS — par catégories. Paires : [Citizens, Undercover]
+  // Règle d'or : même univers, usage proche, mais distinguable.
+  // Pas de synonymes exacts, pas d'antonymes purs.
+  // ============================================================
+  const WORD_BANK = {
+    "🏠 Quotidien": [
+      ["Table","Bureau"], ["Canapé","Fauteuil"], ["Lit","Hamac"], ["Lampe","Bougie"],
+      ["Rideau","Store"], ["Tapis","Paillasson"], ["Armoire","Commode"], ["Coussin","Oreiller"],
+      ["Miroir","Vitre"], ["Horloge","Montre"], ["Balai","Aspirateur"], ["Machine à laver","Lave-vaisselle"],
+      ["Fer à repasser","Sèche-cheveux"], ["Clé","Badge"], ["Poubelle","Bac de tri"], ["Escalier","Ascenseur"],
+      ["Balcon","Terrasse"], ["Cave","Grenier"], ["Douche","Baignoire"], ["Savon","Shampoing"],
+    ],
+    "🍕 Bouffe": [
+      ["Pizza","Tarte flambée"], ["Burger","Kebab"], ["Pâtes","Riz"], ["Croissant","Pain au chocolat"],
+      ["Baguette","Brioche"], ["Fromage","Beurre"], ["Yaourt","Fromage blanc"], ["Chocolat","Caramel"],
+      ["Glace","Sorbet"], ["Crêpe","Gaufre"], ["Sushi","Poké bowl"], ["Frites","Chips"],
+      ["Soupe","Purée"], ["Salade","Taboulé"], ["Ketchup","Mayonnaise"], ["Sel","Poivre"],
+      ["Miel","Confiture"], ["Café","Thé"], ["Jus d'orange","Limonade"], ["Steak","Escalope"],
+      ["Omelette","Œuf au plat"],
+    ],
+    "🍺 Soirée": [
+      ["Bière","Cidre"], ["Vin rouge","Vin blanc"], ["Whisky","Rhum"], ["Vodka","Tequila"],
+      ["Cocktail","Punch"], ["Champagne","Prosecco"], ["Apéro","Brunch"], ["Shot","Pinte"],
+      ["Barbecue","Raclette"], ["Anniversaire","Crémaillère"], ["Boîte de nuit","Bar"], ["Mariage","Baptême"],
+      ["Nouvel An","Réveillon de Noël"], ["Pétanque","Molkky"], ["Beer pong","Fléchettes"],
+    ],
+    "🎵 Musique": [
+      ["Guitare","Basse"], ["Piano","Orgue"], ["Batterie","Djembé"], ["Violon","Violoncelle"],
+      ["Trompette","Trombone"], ["Saxophone","Clarinette"], ["Flûte","Harmonica"], ["Micro","Casque"],
+      ["DJ","Chef d'orchestre"], ["Concert","Festival"], ["Rap","RnB"], ["Rock","Metal"],
+      ["Techno","House"], ["Karaoké","Playback"], ["Refrain","Couplet"],
+    ],
+    "📱 Tech": [
+      ["Téléphone","Talkie-walkie"], ["Ordinateur portable","Tablette"], ["Clavier","Souris"], ["Écran","Vidéoprojecteur"],
+      ["Wi-Fi","Bluetooth"], ["Chargeur","Batterie externe"], ["Câble","Adaptateur"], ["Mail","SMS"],
+      ["Photo","Vidéo"], ["Imprimante","Scanner"], ["Clé USB","Disque dur"], ["Drone","Robot"],
+      ["Console","PC gamer"], ["Selfie","Portrait"], ["Emoji","GIF"],
+    ],
+    "🚗 Transport": [
+      ["Voiture","Camionnette"], ["Vélo","Trottinette"], ["Moto","Scooter"], ["Bus","Tramway"],
+      ["Train","Métro"], ["Avion","Hélicoptère"], ["Bateau","Ferry"], ["Parking","Garage"],
+      ["Essence","Électrique"], ["Autoroute","Nationale"], ["Volant","Guidon"], ["Feu rouge","Stop"],
+      ["Péage","Radar"], ["Taxi","VTC"], ["Casque","Ceinture de sécurité"],
+    ],
+    "👕 Vêtements": [
+      ["T-shirt","Chemise"], ["Jean","Jogging"], ["Veste","Manteau"], ["Basket","Mocassin"],
+      ["Casquette","Bonnet"], ["Ceinture","Bretelles"], ["Chaussettes","Collants"], ["Sweat","Gilet"],
+      ["Costume","Smoking"], ["Pyjama","Peignoir"], ["Écharpe","Foulard"], ["Gants","Moufles"],
+      ["Short","Bermuda"], ["Robe","Jupe"], ["Lunettes de soleil","Lunettes de vue"],
+    ],
+    "⚽ Sport": [
+      ["Football","Futsal"], ["Basket","Handball"], ["Tennis","Badminton"], ["Rugby","Football américain"],
+      ["Natation","Plongée"], ["Marathon","Sprint"], ["Musculation","Crossfit"], ["Yoga","Pilates"],
+      ["Ski","Snowboard"], ["Boxe","Judo"], ["Golf","Mini-golf"], ["Ping-pong","Squash"],
+      ["Escalade","Accrobranche"], ["Surf","Paddle"], ["Bowling","Billard"], ["Équitation","Course hippique"],
+      ["Arbitre","Coach"], ["Stade","Gymnase"], ["Médaille","Trophée"], ["Cyclisme","Triathlon"],
+    ],
+    "🌍 Nature": [
+      ["Plage","Piscine"], ["Montagne","Colline"], ["Forêt","Jungle"], ["Rivière","Fleuve"],
+      ["Lac","Étang"], ["Soleil","Lune"], ["Vent","Tempête"], ["Pluie","Orage"],
+      ["Neige","Grêle"], ["Désert","Savane"], ["Volcan","Geyser"], ["Île","Presqu'île"],
+      ["Cascade","Fontaine"], ["Arc-en-ciel","Aurore boréale"], ["Étoile","Comète"],
+    ],
+    "🐶 Animaux": [
+      ["Chien","Loup"], ["Chat","Panthère"], ["Cheval","Âne"], ["Vache","Buffle"],
+      ["Mouton","Chèvre"], ["Cochon","Sanglier"], ["Poule","Canard"], ["Lapin","Lièvre"],
+      ["Souris","Hamster"], ["Pigeon","Mouette"], ["Aigle","Faucon"], ["Requin","Dauphin"],
+      ["Baleine","Orque"], ["Serpent","Lézard"], ["Grenouille","Crapaud"], ["Abeille","Guêpe"],
+      ["Fourmi","Termite"], ["Papillon","Libellule"], ["Araignée","Scorpion"], ["Ours","Panda"],
+    ],
+    "💼 Métiers": [
+      ["Médecin","Infirmier"], ["Chirurgien","Dentiste"], ["Avocat","Notaire"], ["Policier","Gendarme"],
+      ["Pompier","Ambulancier"], ["Professeur","Surveillant"], ["Boulanger","Pâtissier"], ["Boucher","Charcutier"],
+      ["Coiffeur","Barbier"], ["Plombier","Électricien"], ["Architecte","Ingénieur"], ["Pilote","Hôtesse de l'air"],
+      ["Serveur","Barman"], ["Journaliste","Écrivain"], ["Acteur","Chanteur"], ["Banquier","Trader"],
+      ["Agriculteur","Jardinier"], ["Chauffeur","Livreur"], ["Maire","Député"], ["Vétérinaire","Toiletteur"],
+    ],
+    "✈️ Voyage": [
+      ["Hôtel","Auberge de jeunesse"], ["Camping","Glamping"], ["Valise","Sac à dos"], ["Passeport","Carte d'identité"],
+      ["Douane","Contrôle de sécurité"], ["Croisière","Safari"], ["Carte","GPS"], ["Souvenir","Carte postale"],
+      ["Tour Eiffel","Arc de Triomphe"], ["Paris","Lyon"], ["New York","Los Angeles"], ["Japon","Chine"],
+      ["Espagne","Italie"], ["Guide","Interprète"], ["Visa","Billet d'avion"],
+    ],
+    "🎓 École": [
+      ["École","Collège"], ["Lycée","Université"], ["Contrôle","Examen"], ["Cahier","Classeur"],
+      ["Stylo","Feutre"], ["Crayon","Craie"], ["Cartable","Trousse"], ["Récré","Pause déjeuner"],
+      ["Devoirs","Révisions"], ["Tableau","Paperboard"], ["Bulletin","Diplôme"], ["Maths","Physique"],
+      ["Histoire","Géographie"], ["Anglais","Espagnol"], ["Cantine","Self"],
+    ],
+    "❤️ Amour": [
+      ["Rendez-vous","Speed dating"], ["Bisou","Câlin"], ["Fiançailles","PACS"], ["Saint-Valentin","Anniversaire de couple"],
+      ["Crush","Ex"], ["Bague","Collier"], ["Rose","Tulipe"], ["Déclaration","Demande en mariage"],
+      ["Premier rendez-vous","Rencontre en ligne"], ["Lune de miel","Week-end en amoureux"], ["Divorce","Rupture"], ["Beaux-parents","Témoins"],
+    ],
+    "💰 Argent": [
+      ["Billet","Pièce"], ["Carte bancaire","Chèque"], ["Banque","Assurance"], ["Salaire","Prime"],
+      ["Impôts","Amende"], ["Loyer","Crédit"], ["Bourse","Casino"], ["Bitcoin","Or"],
+      ["Héritage","Loterie"], ["Tirelire","Coffre-fort"], ["Riche","Célèbre"], ["Soldes","Black Friday"],
+    ],
+    "📱 Réseaux & apps": [
+      ["TikTok","Reels"], ["Instagram","Snapchat"], ["BeReal","Story"], ["Twitch","YouTube"],
+      ["Discord","WhatsApp"], ["Vinted","Leboncoin"], ["Tinder","Hinge"], ["X","Threads"],
+      ["LinkedIn","Indeed"], ["Uber Eats","Deliveroo"], ["Airbnb","Booking"], ["BlaBlaCar","Flixbus"],
+      ["Spotify","Deezer"], ["Netflix","Prime Video"], ["Doctolib","Ameli"], ["Revolut","Lydia"],
+      ["Shein","Temu"], ["Waze","Google Maps"], ["Vocal","Pavé"], ["Vu","Répondu 3 jours après"],
+    ],
+    "🤖 IA & brainrot": [
+      ["ChatGPT","Gemini"], ["Prompt","Recherche Google"], ["Deepfake","Filtre"], ["Aura","Charisme"],
+      ["Rizz","Game"], ["Sigma","Alpha"], ["NPC","Bot"], ["POV","Vlog"],
+      ["Cringe","Malaise"], ["Ratio","Clash"], ["Main character","Figurant"], ["6-7","Quoicoubeh"],
+      ["Delulu","Optimiste"], ["Mid","Bof"], ["GOAT","Légende"], ["Hype","Buzz"],
+      ["Flop","Bide"], ["Glow up","Makeover"], ["Doomscrolling","Binge-watching"], ["Mewing","Looksmaxxing"],
+    ],
+    "🤌 Trends & conso": [
+      ["Labubu","Sonny Angel"], ["Matcha","Chai latte"], ["Chocolat Dubaï","Pistache"], ["Air fryer","Friteuse"],
+      ["Padel","Squash"], ["Hyrox","Spartan Race"], ["Run club","Salle de sport"], ["Stanley Cup","Gourde"],
+      ["Skincare","Make-up"], ["Crocs","Birkenstock"], ["Tote bag","Sac banane"], ["Vinyle","CD"],
+      ["Y2K","Vintage"], ["Quiet luxury","Streetwear"], ["Ice bath","Cryothérapie"], ["Protéine","Créatine"],
+      ["Kombucha","Kéfir"], ["Coachella","Tomorrowland"], ["Podcast","Livre audio"], ["Seconde main","Outlet"],
+    ],
+    "🎤 Célébrités FR": [
+      ["Squeezie","Inoxtag"], ["Kameto","ZeratoR"], ["Mister V","Mcfly et Carlito"], ["Cyprien","Norman"],
+      ["Léna Situations","EnjoyPhoenix"], ["Tibo InShape","Juju Fitcats"], ["HugoDécrypte","Gaspard G"], ["Michou","AmineMaTue"],
+      ["Jul","SCH"], ["Ninho","Niska"], ["Damso","Hamza"], ["Orelsan","Vald"],
+      ["Gazo","Tiakola"], ["PNL","Bigflo et Oli"], ["Aya Nakamura","Shay"], ["Mbappé","Haaland"],
+      ["Griezmann","Giroud"], ["Zidane","Deschamps"], ["Cristiano Ronaldo","Messi"], ["Teddy Riner","Léon Marchand"],
+      ["Antoine Dupont","Romain Ntamack"], ["PSG","OM"],
+    ],
+    "🧠 Piégeux": [
+      ["Jour","Matin"], ["Chaud","Tiède"], ["Rapide","Pressé"], ["Fort","Costaud"],
+      ["Lourd","Massif"], ["Ouvert","Entrouvert"], ["Début","Milieu"], ["Avant","Pendant"],
+      ["Intérieur","Sous-sol"], ["Simple","Facile"], ["Rêve","Souvenir"], ["Chance","Hasard"],
+      ["Secret","Mensonge"], ["Peur","Stress"], ["Rire","Sourire"], ["Silence","Chuchotement"],
+      ["Vieux","Ancien"], ["Propre","Neuf"], ["Vide","Creux"], ["Doux","Moelleux"],
+    ],
+  };
+
+  const $ = (id) => document.getElementById(id);
+
+  // Stockage tolérant : marche dans un navigateur, se dégrade sans erreur ailleurs
+  const store = {
+    get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  };
+
+  // Empêche l'écran de s'éteindre pendant la partie (si supporté)
+  let wakeLock = null;
+  async function keepAwake() { try { wakeLock = await navigator.wakeLock?.request("screen"); } catch (e) {} }
+  function releaseWake() { try { wakeLock?.release(); wakeLock = null; } catch (e) {} }
+  const screens = {
+    setup: $("screen-setup"),
+    names: $("screen-names"),
+    reveal: $("screen-reveal"),
+    clues: $("screen-clues"),
+    discussion: $("screen-discussion"),
+    vote: $("screen-vote"),
+    guess: $("screen-guess"),
+    elim: $("screen-elim"),
+    result: $("screen-result"),
+  };
+
+  function showScreen(name) {
+    Object.values(screens).forEach(s => s.classList.add("hidden"));
+    screens[name].classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function shuffle(a) { for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+  function normalize(s) {
+    return (s || "")
+      .toString()
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, " ");
+  }
+
+  // State
+  const state = {
+    cfg: {
+      players: 4, citizens: 3, undercover: 1, mrwhite: 0,
+      hideRoles: true, discussionSeconds: 60, clueMaxWords: 2,
+    },
+    selectedCats: new Set(Object.keys(WORD_BANK)),  // tout coché par défaut
+    usedPairs: new Set(),      // clés "cat|index" déjà jouées (pas de répétition dans la session)
+    players: [],
+    alive: [],
+    roles: [],
+    citizenWord: "",
+    undercoverWord: "",
+    revealIndex: 0,
+    eliminatedIndex: null,
+    round: 1,
+  };
+
+  // ---------- Thèmes ----------
+  function buildCategoryToggles() {
+    const grid = $("catGrid");
+    grid.innerHTML = "";
+    for (const cat of Object.keys(WORD_BANK)) {
+      const label = document.createElement("label");
+      label.className = "cat" + (state.selectedCats.has(cat) ? " on" : "");
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = state.selectedCats.has(cat);
+      cb.addEventListener("change", () => {
+        if (cb.checked) state.selectedCats.add(cat);
+        else state.selectedCats.delete(cat);
+        label.classList.toggle("on", cb.checked);
+        updatePoolCount();
+      });
+      const name = document.createElement("span");
+      name.textContent = cat;
+      const count = document.createElement("span");
+      count.className = "count";
+      count.textContent = WORD_BANK[cat].length;
+      label.append(cb, name, count);
+      grid.appendChild(label);
+    }
+    updatePoolCount();
+  }
+
+  function poolSize() {
+    let n = 0;
+    for (const cat of state.selectedCats) n += WORD_BANK[cat].length;
+    return n;
+  }
+
+  function updatePoolCount() {
+    $("poolCount").textContent = `${poolSize()} paires`;
+  }
+
+  $("btnAllCats").addEventListener("click", () => {
+    state.selectedCats = new Set(Object.keys(WORD_BANK));
+    buildCategoryToggles();
+  });
+  $("btnNoCats").addEventListener("click", () => {
+    state.selectedCats.clear();
+    buildCategoryToggles();
+  });
+
+  // Tirage : jamais deux fois la même paire dans la session.
+  // Si tout le pool a été joué, on remet le compteur à zéro.
+  function pickWords() {
+    let candidates = [];
+    for (const cat of state.selectedCats) {
+      WORD_BANK[cat].forEach((pair, i) => {
+        const key = `${cat}|${i}`;
+        if (!state.usedPairs.has(key)) candidates.push({ key, pair });
+      });
+    }
+    if (candidates.length === 0) {
+      state.usedPairs.clear();
+      for (const cat of state.selectedCats) {
+        WORD_BANK[cat].forEach((pair, i) => candidates.push({ key: `${cat}|${i}`, pair }));
+      }
+    }
+    const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+    state.usedPairs.add(chosen.key);
+    // 50/50 : le mot Undercover peut être celui de gauche ou de droite
+    // (sinon les habitués savent que "gauche = Citizens")
+    if (Math.random() < 0.5) {
+      state.citizenWord = chosen.pair[0];
+      state.undercoverWord = chosen.pair[1];
+    } else {
+      state.citizenWord = chosen.pair[1];
+      state.undercoverWord = chosen.pair[0];
+    }
+  }
+
+  // ---------- Setup ----------
+  function validateConfig() {
+    const p = state.cfg.players, c = state.cfg.citizens, u = state.cfg.undercover, m = state.cfg.mrwhite;
+    let msg = "";
+    if (![p,c,u,m].every(n => Number.isFinite(n) && n >= 0)) msg = "Paramètres invalides.";
+    else if (p < 3 || p > 12) msg = "Joueurs : entre 3 et 12.";
+    else if (c + u + m !== p) msg = "La somme Citizens + Undercover + Mr White doit = nombre de joueurs.";
+    else if (c < 1) msg = "Il faut au moins 1 Citizen (mot de référence).";
+    else if (u + m < 1) msg = "Il faut au moins 1 Undercover ou 1 Mr White, sinon rien à trouver.";
+    else if (u + m >= c) msg = "Trop d'imposteurs : ils gagneraient dès le départ (il faut plus de Citizens que d'imposteurs).";
+    else if (state.selectedCats.size === 0) msg = "Coche au moins un thème.";
+
+    const box = $("setupMsg");
+    if (msg) { box.textContent = msg; box.classList.remove("hidden"); return false; }
+    box.classList.add("hidden");
+    return true;
+  }
+
+  function buildNameInputs(n) {
+    const grid = $("namesGrid");
+    grid.innerHTML = "";
+    for (let i=0;i<n;i++) {
+      const input = document.createElement("input");
+      input.placeholder = `Joueur ${i+1}`;
+      const saved = store.get("uc_save");
+      input.value = (saved && Array.isArray(saved.names) && saved.names[i]) ? saved.names[i] : `Joueur ${i+1}`;
+      input.id = `name_${i}`;
+      grid.appendChild(input);
+    }
+  }
+
+  function syncCitizens() {
+    const p = parseInt($("cfgPlayers").value, 10);
+    const u = parseInt($("cfgUndercover").value, 10) || 0;
+    const m = parseInt($("cfgMrWhite").value, 10) || 0;
+    if (Number.isFinite(p)) $("cfgCitizens").value = Math.max(p - u - m, 0);
+  }
+  ["cfgPlayers","cfgUndercover","cfgMrWhite"].forEach(id => $(id).addEventListener("input", syncCitizens));
+
+  $("btnBuildNames").addEventListener("click", () => {
+    state.cfg.players = parseInt($("cfgPlayers").value, 10);
+    state.cfg.citizens = parseInt($("cfgCitizens").value, 10);
+    state.cfg.undercover = parseInt($("cfgUndercover").value, 10);
+    state.cfg.mrwhite = parseInt($("cfgMrWhite").value, 10);
+    state.cfg.hideRoles = $("hideRoles").checked;
+    state.cfg.discussionSeconds = parseInt($("discussionSeconds").value, 10);
+    state.cfg.clueMaxWords = parseInt($("clueRule").value, 10);
+
+    if (!validateConfig()) return;
+    buildNameInputs(state.cfg.players);
+    showScreen("names");
+  });
+
+  // ---------- Init partie ----------
+  function assignRoles() {
+    const roles = [];
+    for (let i=0;i<state.cfg.citizens;i++) roles.push("CITIZEN");
+    for (let i=0;i<state.cfg.undercover;i++) roles.push("UNDERCOVER");
+    for (let i=0;i<state.cfg.mrwhite;i++) roles.push("MRWHITE");
+    shuffle(roles);
+    state.roles = roles;
+  }
+
+  function startNewGame() {
+    state.alive = Array(state.cfg.players).fill(true);
+    state.eliminatedIndex = null;
+    state.round = 1;
+
+    assignRoles();
+    pickWords();
+
+    state.revealIndex = nextAliveIndex(-1);
+    $("modePill").textContent = state.cfg.hideRoles ? "Reveal : mot seulement" : "Reveal : rôle + mot";
+    $("clueMax").textContent = String(state.cfg.clueMaxWords);
+
+    updateRevealScreen();
+    showScreen("reveal");
+  }
+
+  $("btnStart").addEventListener("click", () => {
+    const names = [];
+    for (let i=0;i<state.cfg.players;i++) {
+      const v = (document.getElementById(`name_${i}`)?.value || "").trim();
+      if (!v) { alert("Mets tous les noms."); return; }
+      names.push(v);
+    }
+    if (new Set(names.map(normalize)).size !== names.length) { alert("Deux joueurs ont le même nom."); return; }
+    state.players = names;
+    store.set("uc_save", { cfg: state.cfg, names, cats: [...state.selectedCats] });
+    keepAwake();
+    startNewGame();
+  });
+
+  // ---------- Helpers ----------
+  function aliveCount(role) {
+    let count = 0;
+    for (let i=0;i<state.roles.length;i++) if (state.alive[i] && state.roles[i] === role) count++;
+    return count;
+  }
+  function totalAlive() { return state.alive.filter(Boolean).length; }
+  function nextAliveIndex(from) {
+    for (let i=from+1; i<state.alive.length; i++) if (state.alive[i]) return i;
+    return -1;
+  }
+
+  function revealFor(i) {
+    const role = state.roles[i];
+    if (role === "MRWHITE") {
+      return { roleLabel: "MR WHITE", display: "AUCUN MOT", hint: "Bluff. Récupère le mot via les indices." };
+    }
+    if (role === "UNDERCOVER") {
+      return { roleLabel: "UNDERCOVER", display: state.undercoverWord, hint: "Tu as un mot différent. Reste crédible." };
+    }
+    return { roleLabel: "CITIZEN", display: state.citizenWord, hint: "Tu as le mot de base. Donne un indice court." };
+  }
+
+  // ---------- Reveal (une seule fois, en début de partie) ----------
+  function updateRevealScreen() {
+    $("secretBox").classList.add("hidden");
+    $("btnShowSecret").disabled = false;
+    $("secretWord").textContent = "";
+    $("secretHint").textContent = "";
+    $("secretRoleLine").textContent = "";
+    const aliveIdx = state.alive.map((a,i) => a ? i : -1).filter(i => i >= 0);
+    $("roundPill").textContent = `Joueur ${aliveIdx.indexOf(state.revealIndex) + 1}/${aliveIdx.length}`;
+    $("revealPlayerName").textContent = state.players[state.revealIndex];
+    const nxt = nextAliveIndex(state.revealIndex);
+    $("btnHideSecret").textContent = nxt === -1
+      ? "Cacher — tout le monde a vu ✔"
+      : `Cacher — au tour de ${state.players[nxt]}`;
+  }
+
+  $("btnShowSecret").addEventListener("click", () => {
+    const r = revealFor(state.revealIndex);
+    $("secretRoleLine").textContent = state.cfg.hideRoles ? "" : r.roleLabel;
+    $("secretWord").textContent = r.display;
+    $("secretHint").textContent = state.cfg.hideRoles
+      ? (r.roleLabel === "MR WHITE" ? "⚠️ Tu n'as pas de mot. Bluff." : "⚠️ Ton rôle est masqué. Joue au feeling.")
+      : r.hint;
+    if (navigator.vibrate) navigator.vibrate(30);
+    $("secretBox").classList.remove("hidden");
+    $("btnShowSecret").disabled = true;
+  });
+
+  $("guessInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") $("btnSubmitGuess").click();
+  });
+
+  $("btnHideSecret").addEventListener("click", () => {
+    const next = nextAliveIndex(state.revealIndex);
+    if (next === -1) {
+      goToClues();
+    } else {
+      state.revealIndex = next;
+      updateRevealScreen();
+    }
+  });
+
+  // ---------- Indices ----------
+  function goToClues() {
+    const aliveIdx = [];
+    for (let i=0;i<state.players.length;i++) if (state.alive[i]) aliveIdx.push(i);
+    shuffle(aliveIdx);
+    const ol = $("speakOrder");
+    ol.innerHTML = "";
+    aliveIdx.forEach(i => {
+      const li = document.createElement("li");
+      li.textContent = state.players[i];
+      ol.appendChild(li);
+    });
+    showScreen("clues");
+  }
+
+  $("btnToDiscussion").addEventListener("click", () => {
+    startDiscussion();
+    showScreen("discussion");
+  });
+
+  // ---------- Discussion ----------
+  let timer = null, remaining = 0;
+  function stopTimer() { if (timer) { clearInterval(timer); timer = null; } }
+
+  function renderTimer() {
+    $("timerText").textContent = String(Math.max(remaining, 0));
+    const pct = (remaining / state.cfg.discussionSeconds) * 100;
+    $("timerFill").style.width = `${Math.min(Math.max(pct, 0), 100)}%`;
+    $("timerFill").classList.toggle("danger", remaining <= 10);
+    $("timerText").classList.toggle("danger", remaining <= 10);
+  }
+
+  function startDiscussion() {
+    stopTimer();
+    remaining = state.cfg.discussionSeconds;
+    renderTimer();
+    timer = setInterval(() => {
+      remaining--;
+      renderTimer();
+      if (remaining <= 0) { stopTimer(); buildVote(); showScreen("vote"); }
+    }, 1000);
+  }
+
+  $("btnAddTime").addEventListener("click", () => { remaining += 30; renderTimer(); });
+
+  $("btnSkipDiscussion").addEventListener("click", () => {
+    stopTimer();
+    buildVote();
+    showScreen("vote");
+  });
+
+  // ---------- Vote ----------
+  function buildVote() {
+    const box = $("voteChoices");
+    box.innerHTML = "";
+    for (let i=0;i<state.players.length;i++) {
+      if (!state.alive[i]) continue;
+      const div = document.createElement("label");
+      div.className = "choice";
+      div.innerHTML = `<input type="radio" name="vote" value="${i}"><div><b>${escapeHtml(state.players[i])}</b></div>`;
+      box.appendChild(div);
+    }
+  }
+
+  $("btnConfirmVote").addEventListener("click", () => {
+    const picked = document.querySelector('input[name="vote"]:checked');
+    if (!picked) { alert("Choisis quelqu'un."); return; }
+    const selected = parseInt(picked.value, 10);
+
+    state.eliminatedIndex = selected;
+    state.alive[selected] = false;
+
+    if (state.roles[selected] === "MRWHITE") {
+      $("guessInput").value = "";
+      $("guessPlayerName").textContent = state.players[selected];
+      showScreen("guess");
+      return;
+    }
+
+    afterElimination();
+  });
+
+  // ---------- Mr White guess ----------
+  $("btnSubmitGuess").addEventListener("click", () => {
+    const guess = $("guessInput").value || "";
+    if (!guess.trim()) { alert("Tape un mot (ou n'importe quoi si tu ne sais pas)."); return; }
+
+    if (normalize(guess) === normalize(state.citizenWord)) {
+      showResult({
+        winner: "MR WHITE",
+        reason: "Mr White a été éliminé mais a deviné le mot. Win instant.",
+        extra: `Guess : <b>${escapeHtml(guess)}</b>`,
+      });
+      return;
+    }
+    afterElimination({ extra: `Guess raté de Mr White : <b>${escapeHtml(guess)}</b>` });
+  });
+
+  // ---------- Après élimination ----------
+  function afterElimination(ctx = {}) {
+    const outcome = evaluateWin();
+    if (outcome.over) {
+      if (ctx.extra) outcome.extra = ctx.extra;
+      showResult(outcome);
+      return;
+    }
+    const elimName = state.players[state.eliminatedIndex];
+    const elimRole = state.roles[state.eliminatedIndex];
+    state.round++;
+    $("elimBox").innerHTML = `
+      <div class="bad">
+        <div class="big">${escapeHtml(elimName)}</div>
+        <p>était <b>${escapeHtml(elimRole)}</b>. La partie continue.</p>
+      </div>
+      ${ctx.extra ? `<p class="muted mt">${ctx.extra}</p>` : ""}
+      <p class="muted mt">Round ${state.round} — ${totalAlive()} joueurs restants. Les mots ne changent pas : pas de nouveau reveal.</p>
+    `;
+    showScreen("elim");
+  }
+
+  $("btnContinue").addEventListener("click", goToClues);
+
+  // ---------- Conditions de victoire ----------
+  function evaluateWin() {
+    const c = aliveCount("CITIZEN");
+    const u = aliveCount("UNDERCOVER");
+    const w = aliveCount("MRWHITE");
+
+    if (u === 0 && w === 0) {
+      return { over: true, winner: "CITIZENS", reason: "Tous les imposteurs ont été éliminés." };
+    }
+    if (u + w >= c) {
+      if (u > 0) return { over: true, winner: "UNDERCOVER", reason: "Les imposteurs atteignent la parité avec les Citizens." };
+      return { over: true, winner: "MR WHITE", reason: "Mr White a survécu jusqu'à la parité." };
+    }
+    return { over: false };
+  }
+
+  // ---------- Résultat final ----------
+  function showResult(outcome) {
+    stopTimer();
+    releaseWake();
+    const elimName = state.players[state.eliminatedIndex];
+    const elimRole = state.roles[state.eliminatedIndex];
+
+    const rolesList = state.players.map((p,i) =>
+      `<p>${state.alive[i] ? "🟢" : "⚫"} <b>${escapeHtml(p)}</b> — ${escapeHtml(state.roles[i])}</p>`
+    ).join("");
+
+    $("resultBox").innerHTML = `
+      <div class="${outcome.winner === "CITIZENS" ? "ok" : "bad"}">
+        <div class="big">${escapeHtml(outcome.winner)} WIN</div>
+        <p>${escapeHtml(outcome.reason)}</p>
+      </div>
+      <div class="hr"></div>
+      <p><span class="pill">Dernier éliminé</span> <b>${escapeHtml(elimName)}</b> <span class="pill">${escapeHtml(elimRole)}</span></p>
+      <p><span class="pill">Mot Citizens</span> <b>${escapeHtml(state.citizenWord)}</b></p>
+      ${state.cfg.undercover > 0 ? `<p><span class="pill">Mot Undercover</span> <b>${escapeHtml(state.undercoverWord)}</b></p>` : ""}
+      ${outcome.extra ? `<p class="muted">${outcome.extra}</p>` : ""}
+      <div class="hr"></div>
+      <p class="muted">Récap des rôles :</p>
+      ${rolesList}
+    `;
+    showScreen("result");
+  }
+
+  $("btnRematch").addEventListener("click", () => { keepAwake(); startNewGame(); });
+
+  $("btnRestart").addEventListener("click", () => {
+    stopTimer();
+    releaseWake();
+    showScreen("setup");
+  });
+
+  $("btnAbandon").addEventListener("click", () => {
+    if (typeof confirm === "function" && !confirm("Abandonner la partie en cours ?")) return;
+    stopTimer();
+    releaseWake();
+    showScreen("setup");
+  });
+
+  function escapeHtml(s) {
+    return (s ?? "").toString()
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#39;");
+  }
+
+  // Init : restaurer la dernière config si dispo
+  (function restore() {
+    const s = store.get("uc_save");
+    if (!s || !s.cfg) return;
+    try {
+      $("cfgPlayers").value = s.cfg.players;
+      $("cfgCitizens").value = s.cfg.citizens;
+      $("cfgUndercover").value = s.cfg.undercover;
+      $("cfgMrWhite").value = s.cfg.mrwhite;
+      $("discussionSeconds").value = String(s.cfg.discussionSeconds);
+      $("clueRule").value = String(s.cfg.clueMaxWords);
+      $("hideRoles").checked = !!s.cfg.hideRoles;
+      if (Array.isArray(s.cats)) {
+        const valid = s.cats.filter(c => WORD_BANK[c]);
+        if (valid.length) state.selectedCats = new Set(valid);
+      }
+    } catch (e) {}
+  })();
+  buildCategoryToggles();
+
+})();
+</script>
+</body>
+</html>
