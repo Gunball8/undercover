@@ -53,7 +53,7 @@ Parapluie (tenu à la main, protège, s'ouvre…) → on garde « on le tient po
 | Trop loin | Pizza / Voiture |
 
 La banque (`WORD_BANK` dans `index.html`) compte 22 thèmes, et chacun peut ajouter
-ses propres paires depuis l'app (« ✏️ Mes paires »).
+ses propres paires depuis l'app (« Mes paires »).
 
 ## Pratique
 
@@ -61,5 +61,5 @@ ses propres paires depuis l'app (« ✏️ Mes paires »).
 - Partie reprise automatiquement après un rechargement ou un appel.
 - Le bouton retour ouvre le menu au lieu de quitter la partie ; l'écran reste allumé.
 - « Revoir mon mot » dans le menu pour ceux qui ont oublié.
-- Polices embarquées dans `fonts/` (Instrument Serif et Inter, licence SIL Open Font License) :
+- Polices embarquées dans `fonts/` (Press Start 2P, Jersey 10 et Inter, licence SIL Open Font License) :
   aucune dépendance réseau.

@@ -1,9 +1,9 @@
 // Service worker : réseau d'abord (toujours la dernière version en ligne),
 // cache en secours pour pouvoir jouer sans connexion.
-const CACHE = "undercover-v3";
+const CACHE = "undercover-v4";
 const CORE = [
   "./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png",
-  "./fonts/instrument-serif-latin-400-normal.woff2", "./fonts/instrument-serif-latin-400-italic.woff2", "./fonts/inter-latin-wght-normal.woff2",
+  "./fonts/press-start-2p-latin-400-normal.woff2", "./fonts/jersey-10-latin-400-normal.woff2", "./fonts/inter-latin-wght-normal.woff2",
 ];
 
 self.addEventListener("install", (e) => {
