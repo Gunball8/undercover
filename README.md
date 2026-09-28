@@ -24,9 +24,28 @@ quand ils sont aussi nombreux que les Citizens. Points : Citizen +2, Mr White +6
 Chaque paire reste dans **le même univers** mais n'est **jamais le jumeau évident** :
 Sel / Farine plutôt que Sel / Poivre, Ketchup / Nutella plutôt que Ketchup / Mayo.
 L'Undercover peut bluffer un tour, mais les indices finissent par le trahir.
-Test pour ajouter une paire : si on te donne le mot A, le mot B ne doit pas être dans tes
-3 premières idées. La banque (`WORD_BANK` dans `index.html`) compte 22 thèmes,
-et chacun peut ajouter ses propres paires depuis l'app (« ✏️ Mes paires »).
+
+**Méthode :** liste les traits du mot A, garde un trait *secondaire* et change tout le reste.
+Parapluie (tenu à la main, protège, s'ouvre…) → on garde « on le tient pour se protéger » → **Bouclier**.
+
+**Les 3 tests :**
+- si on te donne A, B n'est pas dans tes 3 premières idées ;
+- il existe un indice valable pour les deux (sinon c'est trop loin) ;
+- il existe un indice qui ne marche que pour un seul (sinon c'est trop proche).
+
+**Les pièges :**
+
+| Piège | Exemple à éviter |
+|---|---|
+| Le jumeau | Sel / Poivre |
+| La même fonction | Parapluie / K-way |
+| Le tout et sa partie | Montre / Bracelet |
+| Le mot et sa famille | Montre / Bijoux |
+| L'univers trop étroit | Sapin de Noël / Bûche (tout est « Noël ») |
+| Trop loin | Pizza / Voiture |
+
+La banque (`WORD_BANK` dans `index.html`) compte 22 thèmes, et chacun peut ajouter
+ses propres paires depuis l'app (« ✏️ Mes paires »).
 
 ## Pratique
 
