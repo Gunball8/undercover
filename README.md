@@ -1,6 +1,6 @@
-# 🕵️ Undercover & Mr White
+# Undercover & Mr White
 
-Le jeu d'imposteurs à jouer entre potes sur **un seul téléphone** qu'on se passe.
+Le jeu d'imposteurs à jouer entre amis sur **un seul téléphone** qu'on se passe.
 
 ## Jouer
 
@@ -18,6 +18,14 @@ d'accueil » : l'app s'ouvre en plein écran et marche même sans réseau.
 
 Victoire des Citizens quand tous les imposteurs sont éliminés ; victoire des imposteurs
 quand ils sont aussi nombreux que les Citizens. Points : Citizen +2, Mr White +6, Undercover +10.
+
+## Les rôles
+
+Comme les imposteurs gagnent à égalité, il faut toujours plus de Citizens que d'imposteurs :
+1 imposteur maximum à 3 ou 4 joueurs, 2 à 5 ou 6, 3 à 7 ou 8, et ainsi de suite.
+Au maximum, « + » sur un rôle échange un imposteur de l'autre rôle (à 4 joueurs,
+« + » sur Mr White remplace l'Undercover par un Mr White). Un appui impossible affiche
+toujours la raison.
 
 ## Les mots
 
@@ -53,3 +61,5 @@ ses propres paires depuis l'app (« ✏️ Mes paires »).
 - Partie reprise automatiquement après un rechargement ou un appel.
 - Le bouton retour ouvre le menu au lieu de quitter la partie ; l'écran reste allumé.
 - « Revoir mon mot » dans le menu pour ceux qui ont oublié.
+- Polices embarquées dans `fonts/` (Instrument Serif et Inter, licence SIL Open Font License) :
+  aucune dépendance réseau.
