@@ -3,932 +3,1901 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#31106b" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#2a0d63" />
+  <meta name="description" content="Undercover & Mr White : le jeu d'imposteurs à jouer entre potes sur un seul téléphone." />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Undercover" />
-  <title>Undercover / Mr White — Configurable</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" />
+  <title>Undercover · Mr White</title>
   <style>
     :root {
       color-scheme: dark;
-      --bg1:#31106b; --bg2:#0f0533;
-      --card:#221055; --panel:#160a40; --edge:#5a35c9;
-      --ink:#f7f2ff; --mut:#bcaaf0;
+      --bg1:#3b1487; --bg2:#10052f;
+      --card:#23105c; --card-2:#2c1672; --panel:#170a45; --edge:#4a2aa6; --edge-2:#6b48dc;
+      --ink:#f7f2ff; --mut:#bcaaf0; --dim:#8c7bcc;
       --pink:#ff3d81; --pink-d:#b81f56;
-      --yellow:#ffd23f; --yellow-d:#cf9f00;
-      --cyan:#2de1fc; --lime:#8aff5e; --red:#ff5d6c;
+      --yellow:#ffd23f; --yellow-d:#c99700;
+      --cyan:#2de1fc; --cyan-d:#0a9fb8;
+      --lime:#8aff5e; --lime-d:#46b31f;
+      --red:#ff5d6c;
+      --cit:#2de1fc; --und:#ff3d81; --mrw:#f1ecff;
+      --display:"Lilita One","Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
+      --shadow:0 6px 0 rgba(0,0,0,.35);
+      --st:env(safe-area-inset-top,0px);
+      --sb:env(safe-area-inset-bottom,0px);
+      --dock-h:120px;
     }
-    * { -webkit-tap-highlight-color: transparent; }
+    * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    html { height:100%; }
     body {
-      margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      background: linear-gradient(160deg, var(--bg1), var(--bg2) 70%) fixed;
-      color:var(--ink); min-height:100vh;
+      margin:0; min-height:100%; color:var(--ink); background:var(--bg2);
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      -webkit-font-smoothing:antialiased;
+      overscroll-behavior-y:none; /* pas de pull-to-refresh accidentel en pleine partie */
     }
-    .wrap { max-width: 920px; margin: 0 auto; padding: 18px; }
-    .card {
-      background:var(--card); border:2px solid var(--edge); border-radius:22px;
-      padding:18px; box-shadow: 0 8px 0 rgba(0,0,0,.35);
+    body::before {
+      content:""; position:fixed; inset:0; z-index:-1;
+      background:
+        radial-gradient(rgba(255,255,255,.045) 1px, transparent 1.6px) 0 0/22px 22px,
+        radial-gradient(900px 600px at 0% -10%, #5a1fb8 0%, transparent 60%),
+        radial-gradient(800px 600px at 110% 0%, #7a1a74 0%, transparent 55%),
+        linear-gradient(170deg, var(--bg1), var(--bg2) 75%);
     }
-    h1, h2 { margin:0 0 10px; text-transform:uppercase; letter-spacing:.06em; font-weight:900; }
-    h1 { color:var(--yellow); text-shadow: 3px 3px 0 var(--pink); font-size:26px; }
-    h2 { color:var(--cyan); text-shadow: 2px 2px 0 rgba(0,0,0,.45); font-size:19px; }
-    p { line-height:1.4; }
-    input, select {
-      width:100%; padding:12px; border-radius:14px; border:2px solid var(--edge);
-      background:var(--panel); color:var(--ink); font-size:16px; font-weight:600; box-sizing:border-box;
-    }
-    button {
-      width:100%; padding:14px 12px; border-radius:16px; border:none; box-sizing:border-box;
-      background:var(--pink); color:#fff; font-size:16px; font-weight:800;
-      text-transform:uppercase; letter-spacing:.04em; cursor:pointer;
-      box-shadow: 0 5px 0 var(--pink-d);
-      transition: transform .06s ease, box-shadow .06s ease, filter .15s ease;
-    }
-    button:hover { filter:brightness(1.08); }
-    button:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--pink-d); }
-    button:disabled { filter:grayscale(.6) brightness(.7); box-shadow:none; transform:none; cursor:default; }
-    button:focus-visible, input:focus-visible, select:focus-visible { outline:3px solid var(--cyan); outline-offset:2px; }
-    .row { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
-    .row4 { display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:10px; }
-    .mt { margin-top: 12px; }
-    .muted { color:var(--mut); font-size: 14px; }
-    .pill {
-      display:inline-block; padding:6px 12px; border-radius:999px;
-      background:var(--panel); border:2px solid var(--edge); color:var(--cyan);
-      font-size:13px; font-weight:800;
-    }
-    .big { font-size: 30px; font-weight: 900; letter-spacing:.02em; }
-    #secretWord {
-      display:inline-block; padding:12px 18px; border-radius:16px;
-      background:var(--yellow); color:#2a0e5e; transform:rotate(-2deg);
-      box-shadow: 0 5px 0 var(--yellow-d);
-    }
-    .center { text-align:center; }
+    body.locked { overflow:hidden; }
+    #app { max-width:560px; margin:0 auto; padding:calc(12px + var(--st)) 16px calc(var(--dock-h) + 24px); }
+    button { font:inherit; color:inherit; border:0; background:none; padding:0; margin:0; cursor:pointer; touch-action:manipulation; }
+    input { font:inherit; }
+    :focus-visible { outline:3px solid var(--cyan); outline-offset:2px; }
     .hidden { display:none !important; }
-    .timerBar { height:16px; background:var(--panel); border:2px solid var(--edge); border-radius:999px; overflow:hidden; }
-    .timerFill {
-      height:100%; width:100%;
-      background: linear-gradient(90deg, var(--cyan), var(--lime), var(--yellow));
-      transition: width .25s linear, background .3s ease;
+    .center { text-align:center; }
+    .muted { color:var(--mut); }
+    .note { font-size:13px; color:var(--mut); margin:10px 0 0; line-height:1.45; }
+
+    /* ---------- Boutons ---------- */
+    .btn {
+      display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
+      min-height:56px; padding:12px 18px; border-radius:18px;
+      background:var(--pink); color:#fff; box-shadow:0 6px 0 var(--pink-d), 0 12px 24px rgba(0,0,0,.3);
+      font-family:var(--display); font-size:21px; letter-spacing:.03em; line-height:1.1; text-align:center;
+      transition:transform .08s ease, box-shadow .08s ease, filter .15s ease;
     }
-    .timerFill.danger { background: var(--red); }
-    #timerText { font-size:44px; }
-    #timerText.danger { color:var(--red); animation: pulse .5s ease infinite alternate; }
-    @keyframes pulse { from { transform:scale(1); } to { transform:scale(1.15); } }
-    .list { display:grid; gap:8px; }
-    .choice {
-      display:flex; gap:10px; align-items:center; padding:12px 14px; border-radius:14px;
-      border:2px solid var(--edge); background:var(--panel); font-size:16px;
+    .btn:active:not(:disabled) { transform:translateY(5px); box-shadow:0 1px 0 var(--pink-d); }
+    .btn:disabled { filter:grayscale(.75) brightness(.6); cursor:default; }
+    .btn.yellow { background:var(--yellow); color:#2a0e5e; box-shadow:0 6px 0 var(--yellow-d), 0 12px 24px rgba(0,0,0,.3); }
+    .btn.yellow:active:not(:disabled) { box-shadow:0 1px 0 var(--yellow-d); }
+    .btn.cyan { background:var(--cyan); color:#10053a; box-shadow:0 5px 0 var(--cyan-d); }
+    .btn.cyan:active:not(:disabled) { box-shadow:0 1px 0 var(--cyan-d); }
+    .btn.ghost {
+      background:var(--panel); color:var(--ink); border:2px solid var(--edge); box-shadow:0 4px 0 rgba(0,0,0,.35);
+      font-family:inherit; font-weight:800; font-size:15px; letter-spacing:0; min-height:48px;
     }
-    .choice input { width:auto; accent-color: var(--pink); }
-    .choice:has(input:checked) { border-color:var(--yellow); background:#2c1670; }
-    .hr { height:2px; background:var(--edge); border-radius:2px; margin:14px 0; }
-    .warn { border:2px solid var(--yellow); background:#33260a; padding:12px; border-radius:14px; color:#ffe9a8; font-weight:600; }
-    .ok   { border:2px solid var(--lime);  background:#0e3318; padding:12px; border-radius:14px; color:#d2ffc6; }
-    .bad  { border:2px solid var(--red);   background:#3a0d1c; padding:12px; border-radius:14px; color:#ffc9d2; }
-    .toggle {
-      display:flex; gap:10px; align-items:center; padding:12px; border-radius:14px;
-      border:2px solid var(--edge); background:var(--panel);
+    .btn.ghost:active:not(:disabled) { box-shadow:none; transform:translateY(4px); }
+    .btn.ghost:disabled { filter:none; opacity:.4; }
+    .btn.sm { min-height:46px; font-size:16px; padding:8px 14px; border-radius:14px; }
+    .btn.ghost.sm { font-size:14px; }
+    .btn.big { min-height:64px; font-size:24px; }
+    .iconbtn {
+      width:46px; height:46px; flex:none; border-radius:14px; display:grid; place-items:center;
+      background:var(--panel); border:2px solid var(--edge); font-size:20px; box-shadow:0 4px 0 rgba(0,0,0,.35);
     }
-    .toggle input { width:auto; accent-color: var(--cyan); }
-    .badge { font-weight:800; }
-    ol.order { margin:8px 0 0; padding-left:24px; font-weight:700; font-size:17px; }
-    ol.order li { padding:4px 0; }
-    ol.order li::marker { color:var(--yellow); font-weight:900; }
-    .catGrid { display:grid; grid-template-columns: 1fr 1fr; gap:8px; }
-    @media (min-width: 640px) { .catGrid { grid-template-columns: 1fr 1fr 1fr; } }
-    .cat {
-      display:flex; gap:8px; align-items:center; padding:10px 12px; border-radius:14px;
-      border:2px solid var(--edge); background:var(--panel); cursor:pointer;
-      user-select:none; font-size:14px; font-weight:700;
-      transition: transform .06s ease;
+    .iconbtn:active { transform:translateY(3px); box-shadow:none; }
+    .linkbtn { color:var(--mut); font-weight:700; font-size:14px; text-decoration:underline; text-underline-offset:3px; padding:10px; display:block; margin:6px auto 0; }
+    .mini {
+      font-size:13px; font-weight:800; color:var(--cyan); padding:7px 11px; border-radius:11px;
+      background:var(--panel); border:2px solid var(--edge);
     }
-    .cat:active { transform:scale(.97); }
-    .cat input { width:auto; accent-color: var(--lime); }
-    .cat.on { border-color:var(--lime); background:#153a1e; }
-    .cat .count { margin-left:auto; color:var(--mut); font-size:12px; font-weight:800; }
-    .catActions { display:flex; gap:8px; }
-    .catActions button {
-      padding:9px; font-size:13px; background:var(--panel);
-      border:2px solid var(--edge); color:var(--cyan); box-shadow:0 3px 0 rgba(0,0,0,.35);
+    .mini:active { transform:scale(.96); }
+
+    /* ---------- Accueil ---------- */
+    .hero { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 0 10px; }
+    .logo {
+      margin:0; min-width:0; font-family:var(--display); font-weight:400; font-size:clamp(28px, 10.5vw, 42px); line-height:.9; letter-spacing:.02em;
+      color:var(--yellow); text-shadow:3px 3px 0 var(--pink), 6px 6px 0 rgba(0,0,0,.25); transform:rotate(-3deg);
     }
-    details.help { border:2px solid var(--edge); background:var(--panel); border-radius:14px; padding:10px 12px; }
-    details.help summary { cursor:pointer; font-weight:800; color:var(--yellow); }
-    details.help p { margin:8px 0 0; font-size:14px; color:var(--mut); }
-    .ghost { background:var(--panel); border:2px solid var(--edge); color:var(--mut); box-shadow:0 3px 0 rgba(0,0,0,.35); text-transform:none; font-size:14px; }
+    .logo small { display:block; font-size:16px; color:var(--cyan); text-shadow:2px 2px 0 rgba(0,0,0,.4); letter-spacing:.14em; margin-top:6px; }
+    .hero-actions { display:flex; gap:8px; flex:none; }
+    @media (max-width:360px) { .hero-actions { gap:6px; } .hero-actions .iconbtn { width:40px; height:40px; font-size:18px; } }
+    .card {
+      margin-top:14px; padding:16px; border-radius:24px;
+      background:linear-gradient(180deg, var(--card-2), var(--card)); border:2px solid var(--edge); box-shadow:var(--shadow);
+    }
+    .card-h { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+    .card-h h2 { margin:0; font-family:var(--display); font-weight:400; font-size:23px; letter-spacing:.03em; color:var(--cyan); text-shadow:2px 2px 0 rgba(0,0,0,.4); }
+    .pill {
+      display:inline-flex; align-items:center; gap:6px; padding:5px 11px; border-radius:999px; white-space:nowrap;
+      background:var(--panel); border:2px solid var(--edge); color:var(--mut); font-size:13px; font-weight:800;
+    }
+    .resume {
+      margin-top:6px; padding:14px; border-radius:20px; display:grid; gap:12px;
+      background:linear-gradient(135deg, #5b1a8f, #3a1380); border:2px solid var(--yellow); box-shadow:var(--shadow);
+      animation:pop .35s ease both;
+    }
+    .resume b { font-family:var(--display); font-weight:400; font-size:21px; color:var(--yellow); }
+
+    /* Joueurs */
+    .plist { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; }
+    .prow { min-width:0; display:flex; align-items:center; gap:6px; padding:5px 5px 5px 7px; border-radius:16px; background:var(--panel); border:2px solid var(--edge); animation:fadeUp .2s ease both; }
+    .prow:focus-within { border-color:var(--edge-2); }
+    .prow.dup { border-color:var(--red); }
+    .avbtn { border-radius:50%; }
+    .avbtn:active { transform:scale(.9); }
+    .pname { flex:1; width:0; min-width:0; background:transparent; border:0; outline:none; color:var(--ink); font-size:17px; font-weight:700; padding:10px 4px; }
+    .x { width:40px; height:40px; flex:none; border-radius:12px; color:var(--mut); font-size:16px; display:grid; place-items:center; }
+    .x:hover, .x:active { background:rgba(255,93,108,.15); color:var(--red); }
+    .padd { display:flex; gap:8px; margin-top:10px; }
+    .padd input {
+      flex:1; min-width:0; padding:12px 14px; border-radius:16px; outline:none;
+      border:2px dashed var(--edge-2); background:rgba(0,0,0,.2); color:var(--ink); font-size:17px; font-weight:600;
+    }
+    .padd input:focus { border-style:solid; border-color:var(--cyan); }
+    .padd .btn { width:auto; flex:none; }
+    .empty { color:var(--mut); font-size:14px; text-align:center; padding:12px; border:2px dashed var(--edge); border-radius:16px; }
+
+    /* Avatars */
+    .av {
+      display:inline-grid; place-items:center; flex:none; border-radius:50%; line-height:1;
+      background:hsl(var(--h,260) 75% 60% / .22); border:2px solid hsl(var(--h,260) 85% 68%);
+    }
+    .av, .ric, .comp, .bemo, .bigemo, .re, .be, .drum, .rinfo .e, .mi, .rank {
+      font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",var(--display);
+    }
+    .av-sm { width:30px; height:30px; font-size:16px; }
+    .av-md { width:44px; height:44px; font-size:24px; }
+    .av-lg { width:60px; height:60px; font-size:32px; }
+    .av-xl { width:96px; height:96px; font-size:54px; border-width:3px; }
+
+    /* Rôles */
+    .comp {
+      display:flex; flex-wrap:wrap; justify-content:center; gap:4px; min-height:54px; align-items:center;
+      padding:10px; margin-bottom:6px; border-radius:16px; background:rgba(0,0,0,.22); font-size:24px;
+    }
+    .comp span { animation:pop .25s ease both; }
+    .rrow { display:flex; align-items:center; gap:12px; padding:10px 2px; }
+    .rrow + .rrow { border-top:1px dashed rgba(255,255,255,.1); }
+    .ric { font-size:30px; width:38px; text-align:center; flex:none; }
+    .rtxt { flex:1; min-width:0; }
+    .rtxt b { display:block; font-size:17px; }
+    .rtxt small { color:var(--mut); font-size:13px; }
+    .rrow.cit b { color:var(--cit); } .rrow.und b { color:var(--und); } .rrow.mrw b { color:var(--mrw); }
+    .stepper { display:flex; align-items:center; gap:2px; padding:3px; border-radius:14px; background:var(--panel); border:2px solid var(--edge); }
+    .stepper button { width:42px; height:40px; border-radius:10px; font-size:24px; font-weight:900; color:var(--yellow); }
+    .stepper button:disabled { color:var(--dim); opacity:.35; cursor:default; }
+    .stepper button:not(:disabled):active { background:rgba(255,255,255,.1); }
+    .stepper output { min-width:26px; text-align:center; font-family:var(--display); font-size:23px; }
+    .cnum { min-width:96px; text-align:center; font-family:var(--display); font-size:25px; color:var(--cit); }
+
+    /* Thèmes */
+    .chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .chip {
+      display:inline-flex; align-items:center; gap:6px; padding:9px 12px; border-radius:999px;
+      background:var(--panel); border:2px solid var(--edge); color:var(--mut); font-weight:700; font-size:14px;
+      transition:transform .08s ease, background .15s ease;
+    }
+    .chip:active { transform:scale(.94); }
+    .chip.on { background:#173d2a; border-color:var(--lime); color:var(--ink); }
+    .chip-n { font-size:11px; font-weight:900; padding:2px 6px; border-radius:999px; background:rgba(0,0,0,.3); color:var(--mut); }
+    .chip.on .chip-n { color:var(--lime); }
+    .row-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+
+    /* Options */
+    .opt + .opt { margin-top:14px; }
+    .opt-l { font-weight:800; font-size:15px; margin-bottom:8px; }
+    .seg { display:flex; gap:4px; padding:4px; border-radius:16px; background:var(--panel); border:2px solid var(--edge); overflow-x:auto; scrollbar-width:none; }
+    .seg::-webkit-scrollbar { display:none; }
+    .seg button { flex:1 0 auto; padding:10px 8px; border-radius:11px; font-weight:800; font-size:14px; color:var(--mut); white-space:nowrap; }
+    .seg button.on { background:var(--yellow); color:#2a0e5e; box-shadow:0 3px 0 var(--yellow-d); }
+    .switch-row { display:flex; align-items:center; gap:12px; margin-top:12px; padding:12px; border-radius:16px; background:var(--panel); border:2px solid var(--edge); cursor:pointer; }
+    .sw-txt { flex:1; }
+    .sw-txt b { display:block; font-size:15px; }
+    .sw-txt small { display:block; margin-top:3px; color:var(--mut); font-size:13px; line-height:1.35; }
+    .sw {
+      appearance:none; -webkit-appearance:none; position:relative; flex:none; margin:0; cursor:pointer;
+      width:54px; height:32px; border-radius:999px; background:#3b2a73; border:2px solid var(--edge); transition:background .2s;
+    }
+    .sw::before { content:""; position:absolute; top:2px; left:2px; width:24px; height:24px; border-radius:50%; background:#fff; box-shadow:0 2px 4px rgba(0,0,0,.4); transition:transform .2s; }
+    .sw:checked { background:var(--lime-d); border-color:var(--lime); }
+    .sw:checked::before { transform:translateX(22px); }
+    .foot { text-align:center; color:var(--dim); font-size:13px; margin:18px 0 0; line-height:1.4; }
+
+    /* ---------- Dock (actions en bas) ---------- */
+    .dock {
+      position:fixed; left:0; right:0; bottom:0; z-index:20; pointer-events:none;
+      padding:22px 16px calc(14px + var(--sb));
+      background:linear-gradient(to top, rgba(16,5,47,.97) 62%, rgba(16,5,47,0));
+    }
+    .dock-in { max-width:560px; margin:0 auto; display:grid; gap:10px; pointer-events:auto; }
+    .dock-msg { text-align:center; font-size:14px; font-weight:800; color:var(--yellow); }
+    .dock-row { display:grid; grid-template-columns:auto 1fr; gap:10px; }
+    .dock-row > .btn.ghost:first-child { width:64px; font-size:20px; }
+    .two { display:grid; grid-template-columns:repeat(auto-fit, minmax(0,1fr)); gap:10px; }
+
+    /* ---------- En jeu ---------- */
+    .topbar { display:flex; align-items:center; gap:12px; padding:4px 0 12px; }
+    .tb-txt { flex:1; min-width:0; }
+    .tb-kick { font-size:12px; font-weight:800; letter-spacing:.07em; text-transform:uppercase; color:var(--mut); }
+    .tb-title { margin:3px 0 0; font-family:var(--display); font-weight:400; font-size:32px; line-height:1; color:var(--yellow); text-shadow:2px 2px 0 var(--pink); }
+    .phases { display:flex; gap:6px; margin-bottom:14px; }
+    .phases span {
+      flex:1; text-align:center; padding:7px 4px; border-radius:999px; white-space:nowrap;
+      background:var(--panel); border:2px solid var(--edge); color:var(--dim); font-size:12px; font-weight:800;
+    }
+    .phases span.on { background:var(--cyan); border-color:var(--cyan); color:#10053a; }
+    .phases span.done { color:var(--mut); }
+    .lead { margin:0 0 16px; font-size:16px; line-height:1.45; color:var(--mut); }
+    .lead b { color:var(--ink); }
+
+    .pgrid { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:12px; }
+    .pcard {
+      position:relative; display:flex; flex-direction:column; align-items:center; gap:8px; text-align:center;
+      padding:16px 10px 14px; border-radius:20px; border:2px solid var(--edge); box-shadow:var(--shadow);
+      background:linear-gradient(180deg, var(--card-2), var(--card));
+      transition:transform .12s ease, border-color .15s ease, background .15s ease, opacity .2s ease;
+    }
+    .pcard:active:not(:disabled) { transform:translateY(3px) scale(.98); }
+    .pcard .nm { font-weight:800; font-size:17px; line-height:1.15; overflow-wrap:anywhere; }
+    .pcard .st { font-size:11px; font-weight:900; letter-spacing:.06em; text-transform:uppercase; color:var(--mut); }
+    .pcard.done { opacity:.55; box-shadow:none; background:var(--panel); }
+    .pcard.done .st { color:var(--lime); }
+    .pcard.next { border-color:var(--yellow); animation:glow 1.4s ease-in-out infinite; }
+    .pcard.sel { border-color:var(--pink); background:linear-gradient(180deg, #5d1752, #3a0f45); transform:translateY(-3px); }
+    .pcard.sel::after { content:"🎯"; position:absolute; top:8px; right:10px; font-size:20px; }
+    .pcard.tie.sel::after { content:"⚖️"; }
+    .pcard.spin { border-color:var(--yellow); background:linear-gradient(180deg, #6b4f0c, #3d2a05); transform:scale(1.04); }
+    .pcard:disabled { cursor:default; }
+    .pgrid.dense { grid-template-columns:repeat(auto-fill, minmax(100px,1fr)); gap:10px; }
+    .pgrid.dense .pcard { padding:12px 6px 10px; gap:6px; }
+    .pgrid.dense .av-lg { width:48px; height:48px; font-size:26px; }
+    .pgrid.dense .nm { font-size:15px; }
+
+    /* Indices */
+    .spot {
+      display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center;
+      padding:22px 16px; border-radius:28px; border:3px solid var(--yellow); box-shadow:0 8px 0 rgba(0,0,0,.35);
+      background:radial-gradient(circle at 50% 0%, #4d2cb8, var(--card) 70%);
+      animation:pop .35s cubic-bezier(.3,1.5,.5,1) both;
+    }
+    .spot .kick { font-size:13px; font-weight:900; letter-spacing:.1em; text-transform:uppercase; color:var(--yellow); }
+    .spot .who { font-family:var(--display); font-size:clamp(36px, 11vw, 52px); line-height:1; overflow-wrap:anywhere; }
+    .spot .rule { font-size:15px; font-weight:600; color:var(--mut); }
+    .spot .bigemo { font-size:64px; line-height:1; }
+    .order { list-style:none; margin:16px 0 0; padding:0; display:grid; gap:6px; }
+    .order li { display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:14px; background:var(--panel); border:2px solid transparent; font-weight:700; }
+    .order li .n { width:22px; font-family:var(--display); color:var(--dim); }
+    .order li.cur { border-color:var(--yellow); background:#3a2a0a; }
+    .order li.cur .n { color:var(--yellow); }
+    .order li.done { opacity:.5; }
+    .order li.done::after { content:"✓"; margin-left:auto; color:var(--lime); font-weight:900; }
+    .tip { margin-top:14px; padding:12px 14px; border-radius:16px; border:2px dashed var(--edge-2); color:var(--mut); font-size:14px; line-height:1.45; }
+
+    /* Débat */
+    .ring { position:relative; width:min(76vw, 290px); aspect-ratio:1; margin:4px auto 20px; }
+    .ring svg { width:100%; height:100%; transform:rotate(-90deg); }
+    .ring .trk { fill:none; stroke:var(--panel); stroke-width:16; }
+    .ring .bar { fill:none; stroke:var(--cyan); stroke-width:16; stroke-linecap:round; transition:stroke-dashoffset .3s linear, stroke .3s ease; }
+    .ring.warn .bar { stroke:var(--yellow); }
+    .ring.danger .bar { stroke:var(--red); }
+    .ring .num { position:absolute; inset:0; display:grid; place-items:center; align-content:center; gap:4px; }
+    .ring .num span { font-family:var(--display); font-size:clamp(64px, 22vw, 96px); line-height:1; }
+    .ring .num small { font-size:12px; font-weight:900; letter-spacing:.12em; text-transform:uppercase; color:var(--mut); }
+    .ring.danger .num span { color:var(--red); animation:pulse .5s ease infinite alternate; }
+    .ring.paused .num span { opacity:.45; }
+
+    /* Élimination */
+    .elim { display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; padding-top:6px; }
+    .avwrap { position:relative; }
+    .avwrap::after {
+      content:"✕"; position:absolute; inset:0; display:grid; place-items:center; font-size:70px; font-weight:900;
+      color:var(--red); text-shadow:0 3px 0 rgba(0,0,0,.45); animation:stamp .4s .25s ease both;
+    }
+    .avwrap .av { filter:grayscale(.4); }
+    .ename { font-family:var(--display); font-size:clamp(34px, 10vw, 48px); line-height:1; overflow-wrap:anywhere; }
+    .suspense { font-size:17px; font-weight:700; color:var(--mut); }
+    .drum { font-size:44px; animation:bounce .28s ease-in-out infinite alternate; }
+    .rolecard {
+      width:100%; margin-top:6px; padding:22px 16px; border-radius:26px; box-shadow:0 8px 0 rgba(0,0,0,.35);
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      animation:flipIn .6s cubic-bezier(.3,1.4,.5,1) both;
+    }
+    .rolecard .re { font-size:64px; line-height:1; }
+    .rolecard .rl { font-size:13px; font-weight:900; letter-spacing:.1em; text-transform:uppercase; opacity:.75; }
+    .rolecard .rn { font-family:var(--display); font-size:44px; line-height:1; }
+    .rolecard .rf { font-size:15px; font-weight:700; }
+    .cit-bg { background:var(--cit); color:#062a33; }
+    .und-bg { background:var(--pink); color:#fff; }
+    .mrw-bg { background:#fbf8ff; color:#2a0e5e; }
+    .guess { width:100%; display:grid; gap:10px; padding:16px; border-radius:22px; text-align:left; background:var(--card); border:2px solid var(--mrw); animation:fadeUp .3s ease both; }
+    .guess h3 { margin:0; font-family:var(--display); font-weight:400; font-size:24px; }
+    .guess .note { margin:0; }
+    .field {
+      width:100%; padding:14px 16px; border-radius:16px; outline:none;
+      border:2px solid var(--edge-2); background:var(--panel); color:var(--ink); font-size:18px; font-weight:700;
+    }
+    .field:focus { border-color:var(--cyan); }
+    .verdict { width:100%; padding:14px; border-radius:18px; font-weight:700; line-height:1.4; animation:pop .3s ease both; }
+    .verdict.ok { background:#0e3318; border:2px solid var(--lime); color:#d2ffc6; }
+    .verdict.bad { background:#3a0d1c; border:2px solid var(--red); color:#ffc9d2; }
+    .verdict .linkbtn { color:#ffc9d2; margin-top:4px; }
+    .status { margin-top:6px; font-size:15px; font-weight:800; color:var(--mut); }
+
+    /* Résultat */
+    .banner {
+      text-align:center; padding:24px 16px; border-radius:28px; box-shadow:0 8px 0 rgba(0,0,0,.35);
+      animation:pop .5s cubic-bezier(.3,1.5,.5,1) both;
+    }
+    .banner.cit { background:linear-gradient(160deg, #3ce8ff, #1596c9); color:#04202b; }
+    .banner.und { background:linear-gradient(160deg, #ff5d97, #c21e5c); color:#fff; }
+    .banner.mrw { background:linear-gradient(160deg, #ffffff, #d9ccff); color:#2a0e5e; }
+    .banner.imp { background:linear-gradient(160deg, #ff5d97, #7b2bd9); color:#fff; }
+    .banner .be { font-size:64px; line-height:1; }
+    .banner .bt { margin:8px 0 6px; font-family:var(--display); font-size:clamp(30px, 9vw, 42px); line-height:1.05; }
+    .banner .br { margin:0; font-size:15px; font-weight:700; opacity:.9; }
+    .words { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+    .wtile { padding:14px 10px; border-radius:20px; background:var(--card); border:2px solid var(--edge); text-align:center; }
+    .wtile small { display:block; font-size:11px; font-weight:900; letter-spacing:.06em; text-transform:uppercase; color:var(--mut); }
+    .wtile b { display:block; margin-top:4px; font-family:var(--display); font-weight:400; font-size:24px; overflow-wrap:break-word; }
+    .wtile.cit b { color:var(--cit); } .wtile.und b { color:var(--und); }
+    .rlist { display:grid; gap:8px; }
+    .rline { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:16px; background:var(--panel); border:2px solid var(--edge); }
+    .rline.win { border-color:var(--yellow); }
+    .rline.out .av { filter:grayscale(1); opacity:.6; }
+    .rline .rn { flex:1; min-width:0; }
+    .rline .rn b { display:block; overflow-wrap:anywhere; }
+    .rline .rn small { color:var(--mut); font-size:12px; }
+    .rank { width:28px; text-align:center; font-size:20px; font-family:var(--display); color:var(--mut); }
+    .tag { font-size:12px; font-weight:900; padding:4px 8px; border-radius:999px; white-space:nowrap; }
+    .tag.cit { background:rgba(45,225,252,.15); color:var(--cit); }
+    .tag.und { background:rgba(255,61,129,.18); color:var(--und); }
+    .tag.mrw { background:rgba(241,236,255,.14); color:var(--mrw); }
+    .pts { min-width:40px; text-align:right; font-family:var(--display); font-size:21px; color:var(--yellow); }
+
+    /* ---------- Modales ---------- */
+    .modal-wrap {
+      position:fixed; inset:0; z-index:50; display:flex; align-items:flex-end; justify-content:center;
+      background:rgba(8,2,26,.65); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+      opacity:0; transition:opacity .2s ease;
+    }
+    .modal-wrap.open { opacity:1; }
+    .modal-wrap.center { align-items:center; padding:20px; }
+    .sheet {
+      width:100%; max-width:560px; max-height:88vh; overflow:auto; overscroll-behavior:contain;
+      padding:10px 18px calc(22px + var(--sb)); border-radius:28px 28px 0 0;
+      background:linear-gradient(180deg, #2d1673, #1c0b52); border:2px solid var(--edge-2); border-bottom:0;
+      transform:translateY(40px); transition:transform .25s cubic-bezier(.2,.9,.3,1.1);
+    }
+    .modal-wrap.open .sheet { transform:none; }
+    .grab { width:44px; height:5px; margin:0 auto 14px; border-radius:9px; background:var(--edge-2); }
+    .sheet h2, .dialog h2 { margin:0 0 12px; font-family:var(--display); font-weight:400; font-size:27px; color:var(--yellow); text-shadow:2px 2px 0 var(--pink); }
+    .dialog {
+      width:100%; max-width:400px; padding:22px; border-radius:26px;
+      background:linear-gradient(180deg, #2d1673, #1c0b52); border:2px solid var(--edge-2);
+      transform:scale(.92); transition:transform .2s cubic-bezier(.2,.9,.3,1.3);
+    }
+    .modal-wrap.open .dialog { transform:none; }
+    .dialog p { margin:0 0 18px; color:var(--mut); line-height:1.45; }
+    .menu-item { display:flex; align-items:center; gap:14px; width:100%; margin-top:8px; padding:14px; border-radius:16px; text-align:left; background:var(--panel); border:2px solid var(--edge); }
+    .menu-item:active { transform:scale(.98); }
+    .menu-item .mi { width:32px; text-align:center; font-size:24px; flex:none; }
+    .menu-item b { display:block; font-size:16px; }
+    .menu-item small { color:var(--mut); font-size:13px; }
+    .menu-item.danger b { color:var(--red); }
+
+    /* Carte secrète */
+    .modal-wrap.secret-wrap { align-items:stretch; background:#0c0426; -webkit-backdrop-filter:none; backdrop-filter:none; }
+    .secret {
+      width:100%; max-width:560px; margin:0 auto; overflow:auto;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; text-align:center;
+      padding:calc(18px + var(--st)) 20px calc(18px + var(--sb));
+    }
+    .s-top { display:flex; flex-direction:column; align-items:center; gap:6px; }
+    .s-top h2 { margin:0; font-family:var(--display); font-weight:400; font-size:36px; line-height:1; overflow-wrap:anywhere; }
+    .s-top p { margin:0; color:var(--mut); font-weight:600; }
+    .flip { display:block; width:min(100%, 330px); height:min(48vh, 400px); perspective:1200px; }
+    .flip-in { position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform .6s cubic-bezier(.3,1.35,.5,1); }
+    .flip.on .flip-in { transform:rotateY(180deg); }
+    .face {
+      position:absolute; inset:0; border-radius:26px; padding:22px; box-shadow:0 10px 0 rgba(0,0,0,.4);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+      -webkit-backface-visibility:hidden; backface-visibility:hidden;
+    }
+    .front { background:repeating-linear-gradient(45deg, #ff3d81 0 18px, #e02a6d 18px 36px); border:4px solid rgba(255,255,255,.2); }
+    .front .fq { font-family:var(--display); font-size:110px; line-height:1; color:#fff; text-shadow:5px 5px 0 rgba(0,0,0,.25); }
+    .front .ft { font-size:14px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; padding:8px 14px; border-radius:999px; background:rgba(0,0,0,.25); }
+    .back { transform:rotateY(180deg); background:var(--yellow); color:#2a0e5e; }
+    .back .bemo { font-size:52px; line-height:1; }
+    .back .btop { font-size:13px; font-weight:900; letter-spacing:.1em; text-transform:uppercase; opacity:.75; }
+    .back .bword { max-width:100%; font-family:var(--display); font-size:clamp(30px, 10vw, 46px); line-height:1.05; overflow-wrap:break-word; hyphens:auto; }
+    .back .bhint { margin:0; font-size:14px; font-weight:600; line-height:1.4; opacity:.85; }
+    .secret-actions { width:min(100%, 360px); display:grid; gap:10px; }
+
+    /* Règles & perso */
+    .rules > p { color:var(--mut); line-height:1.5; margin:0 0 12px; }
+    .rules h3 { margin:18px 0 8px; font-family:var(--display); font-weight:400; font-size:21px; color:var(--cyan); }
+    .rinfo { display:flex; gap:12px; align-items:flex-start; padding:12px; margin-top:8px; border-radius:16px; background:var(--panel); border:2px solid var(--edge); }
+    .rinfo .e { font-size:28px; line-height:1; }
+    .rinfo b { display:block; margin-bottom:2px; }
+    .rinfo span { color:var(--mut); font-size:14px; line-height:1.4; }
+    .rinfo.cit b { color:var(--cit); } .rinfo.und b { color:var(--und); } .rinfo.mrw b { color:var(--mrw); }
+    .steps { margin:0; padding-left:22px; line-height:1.5; }
+    .steps li { margin:6px 0; color:var(--mut); }
+    .steps li b { color:var(--ink); }
+    .steps li::marker { color:var(--yellow); font-weight:900; }
+    .wins { list-style:none; margin:0; padding:0; display:grid; gap:6px; color:var(--mut); line-height:1.4; }
+    .rules .btn { margin-top:20px; }
+    .cp-form { display:grid; grid-template-columns:1fr auto 1fr; gap:8px; align-items:center; }
+    .cp-form .field { padding:12px; font-size:16px; }
+    .vs { font-family:var(--display); color:var(--pink); font-size:18px; }
+    .cp-list { display:grid; gap:6px; margin-top:14px; }
+    .cp-row { display:flex; align-items:center; gap:8px; padding:6px 6px 6px 14px; border-radius:14px; background:var(--panel); border:2px solid var(--edge); font-weight:700; }
+    .cp-row span:not(.vs) { flex:1; min-width:0; overflow-wrap:anywhere; }
+
+    /* Toast & effets */
+    #toast {
+      position:fixed; left:50%; top:calc(14px + var(--st)); z-index:80; max-width:calc(100% - 32px);
+      padding:12px 18px; border-radius:999px; background:#fff; color:#2a0e5e; font-weight:800; text-align:center;
+      box-shadow:0 8px 24px rgba(0,0,0,.4); opacity:0; pointer-events:none; transform:translate(-50%, -16px); transition:opacity .25s, transform .25s;
+    }
+    #toast.show { opacity:1; transform:translate(-50%, 0); }
+    #fx { position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:90; }
+    .enter { animation:fadeUp .3s ease both; }
+    .shake { animation:shake .35s ease; }
+
+    @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+    @keyframes pop { from { opacity:0; transform:scale(.85); } to { opacity:1; transform:none; } }
+    @keyframes pulse { from { transform:scale(1); } to { transform:scale(1.08); } }
+    @keyframes glow { 0%,100% { box-shadow:var(--shadow), 0 0 0 0 rgba(255,210,63,0); } 50% { box-shadow:var(--shadow), 0 0 0 7px rgba(255,210,63,.25); } }
+    @keyframes flipIn { from { opacity:0; transform:perspective(800px) rotateX(-90deg); } to { opacity:1; transform:none; } }
+    @keyframes stamp { from { opacity:0; transform:scale(2.3); } to { opacity:1; transform:scale(1); } }
+    @keyframes bounce { to { transform:translateY(-8px) rotate(-8deg); } }
+    @keyframes shake { 0%,100% { transform:none; } 25% { transform:translateX(-6px); } 75% { transform:translateX(6px); } }
     @media (prefers-reduced-motion: reduce) {
-      * { animation:none !important; transition:none !important; }
+      *, *::before, *::after { animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>Party Game — Configurable</h1>
-      <p class="muted">Choisis #Citizens / #Undercover / #Mr White, et le jeu s'adapte (multi-rounds jusqu'à victoire).</p>
-      <details class="help mt">
-        <summary>Comment jouer ?</summary>
-        <p>1. Chacun regarde son mot en privé. Les Citizens ont le même mot, l'Undercover un mot proche (sans le savoir), Mr White n'a rien.</p>
-        <p>2. À tour de rôle, chacun donne un indice court sur son mot : assez clair pour les alliés, assez flou pour ne pas se faire griller.</p>
-        <p>3. Débat, puis vote : le groupe élimine un suspect. Si Mr White est éliminé, il peut deviner le mot → victoire instantanée.</p>
-        <p>4. Citizens gagnent en éliminant tous les imposteurs. Les imposteurs gagnent en survivant jusqu'à la parité.</p>
-      </details>
-    </div>
-
-    <!-- SETUP -->
-    <div id="screen-setup" class="card mt">
-      <h2>1) Configuration</h2>
-      <div class="row4 mt">
-        <div>
-          <p class="muted">Joueurs</p>
-          <input id="cfgPlayers" type="number" min="3" max="12" value="4" />
-        </div>
-        <div>
-          <p class="muted">Citizens</p>
-          <input id="cfgCitizens" type="number" min="1" max="12" value="3" />
-        </div>
-        <div>
-          <p class="muted">Undercover</p>
-          <input id="cfgUndercover" type="number" min="0" max="12" value="1" />
-        </div>
-        <div>
-          <p class="muted">Mr White</p>
-          <input id="cfgMrWhite" type="number" min="0" max="12" value="0" />
-        </div>
-      </div>
-
-      <div class="row mt">
-        <select id="discussionSeconds">
-          <option value="45">Discussion : 45 s</option>
-          <option value="60" selected>Discussion : 60 s</option>
-          <option value="90">Discussion : 90 s</option>
-        </select>
-        <select id="clueRule">
-          <option value="1">Indice : 1 mot</option>
-          <option value="2" selected>Indice : 1–2 mots</option>
-        </select>
-      </div>
-
-      <div class="toggle mt">
-        <input id="hideRoles" type="checkbox" checked />
-        <div>
-          <div class="badge">Masquer les rôles (reveal = mot seulement)</div>
-          <div class="muted">Mr White voit "AUCUN MOT". Undercover voit un mot différent sans le savoir.</div>
-        </div>
-      </div>
-
-      <div class="hr"></div>
-      <div class="row" style="align-items:center;">
-        <h2 style="margin:0;">Thèmes <span class="pill" id="poolCount"></span></h2>
-        <div class="catActions">
-          <button id="btnAllCats" type="button">Tout</button>
-          <button id="btnNoCats" type="button">Aucun</button>
-        </div>
-      </div>
-      <div id="catGrid" class="catGrid mt"></div>
-
-      <div id="setupMsg" class="warn mt hidden"></div>
-
-      <button class="mt" id="btnBuildNames">Valider et entrer les noms</button>
-    </div>
-
-    <!-- NAMES -->
-    <div id="screen-names" class="card mt hidden">
-      <h2>2) Noms des joueurs</h2>
-      <div id="namesGrid" class="row mt"></div>
-      <button class="mt" id="btnStart">Démarrer la partie</button>
-      <p class="muted mt">Le reveal est privé (passe le téléphone).</p>
-    </div>
-
-    <!-- REVEAL -->
-    <div id="screen-reveal" class="card mt hidden">
-      <div class="row">
-        <div>
-          <div class="pill" id="roundPill"></div>
-          <h2 class="mt">3) Reveal privé</h2>
-          <p class="muted">Téléphone à <b id="revealPlayerName"></b> → clique pour voir.</p>
-        </div>
-        <div class="center">
-          <div class="pill" id="modePill"></div>
-        </div>
-      </div>
-
-      <button class="mt" id="btnShowSecret">Afficher</button>
-
-      <div id="secretBox" class="mt hidden">
-        <div class="hr"></div>
-        <p class="muted">Ne montre pas l'écran.</p>
-        <div class="big" id="secretRoleLine"></div>
-        <p class="mt">Ton info :</p>
-        <div class="big" id="secretWord"></div>
-        <p class="muted mt" id="secretHint"></p>
-        <button class="mt" id="btnHideSecret">Cacher et passer au suivant</button>
-      </div>
-    </div>
-
-    <!-- CLUES -->
-    <div id="screen-clues" class="card mt hidden">
-      <h2>4) Indices</h2>
-      <p class="muted">Chacun donne <b>1 indice</b> (max <span id="clueMax"></span> mot(s)). Pas de phrases.</p>
-      <div class="warn mt">
-        Pas de définition directe / pas le nom exact. Mr White doit bluffer.
-      </div>
-      <p class="mt"><b>Ordre de parole (tiré au sort) :</b></p>
-      <ol class="order" id="speakOrder"></ol>
-      <button class="mt" id="btnToDiscussion">Lancer la discussion</button>
-      <button class="mt ghost" id="btnAbandon">✖ Abandonner la partie</button>
-    </div>
-
-    <!-- DISCUSSION -->
-    <div id="screen-discussion" class="card mt hidden">
-      <h2>5) Discussion</h2>
-      <p class="muted">Débat libre. Timer → vote.</p>
-      <div class="timerBar mt"><div class="timerFill" id="timerFill"></div></div>
-      <div class="big center mt" id="timerText">60</div>
-      <div class="row mt">
-        <button class="ghost" id="btnAddTime">+30 s</button>
-        <button id="btnSkipDiscussion">Passer au vote</button>
-      </div>
-    </div>
-
-    <!-- VOTE -->
-    <div id="screen-vote" class="card mt hidden">
-      <h2>6) Vote</h2>
-      <p class="muted">Choisissez qui éliminer (résultat du vote à main levée).</p>
-      <div id="voteChoices" class="list mt"></div>
-      <button class="mt" id="btnConfirmVote">Confirmer</button>
-      <p class="muted mt">Égalité → tirage au sort entre ex-aequo.</p>
-    </div>
-
-    <!-- MR WHITE GUESS -->
-    <div id="screen-guess" class="card mt hidden">
-      <h2>Mr White — Devine le mot</h2>
-      <p class="muted"><b id="guessPlayerName"></b> était Mr White. Il/elle peut tenter un guess du mot exact.</p>
-      <input id="guessInput" placeholder="Tape le mot ici…" autocomplete="off" />
-      <button class="mt" id="btnSubmitGuess">Valider le guess</button>
-      <p class="muted mt">Accents ignorés (ex : "Évoli" = "evoli").</p>
-    </div>
-
-    <!-- ELIMINATION -->
-    <div id="screen-elim" class="card mt hidden">
-      <h2>Élimination</h2>
-      <div id="elimBox" class="mt"></div>
-      <button class="mt" id="btnContinue">Round suivant → indices</button>
-    </div>
-
-    <!-- RESULT -->
-    <div id="screen-result" class="card mt hidden">
-      <h2>Résultat</h2>
-      <div id="resultBox" class="mt"></div>
-      <button class="mt" id="btnRematch">Rejouer (mêmes joueurs, nouveau mot)</button>
-      <button class="mt" id="btnRestart">Recommencer (config)</button>
-    </div>
-  </div>
+  <div id="app"><main id="view"></main></div>
+  <div id="dock" class="dock"></div>
+  <div id="layer"></div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <canvas id="fx" aria-hidden="true"></canvas>
+  <noscript><p style="padding:20px;text-align:center">Active JavaScript pour jouer.</p></noscript>
 
 <script>
 (() => {
+  "use strict";
+
   // ============================================================
-  // BANQUE DE MOTS — par catégories. Paires : [Citizens, Undercover]
-  // Règle d'or : même univers, usage proche, mais distinguable.
-  // Pas de synonymes exacts, pas d'antonymes purs.
+  // BANQUE DE MOTS — par thèmes. Paires : [mot A, mot B]
+  // (le mot des Citizens est tiré au hasard entre A et B)
+  //
+  // Règle d'or : MÊME UNIVERS, mais PAS le jumeau évident.
+  //  ✗ Sel / Poivre, Ketchup / Mayo, Chat / Chien : on devine l'autre mot tout de suite.
+  //  ✓ Sel / Farine, Ketchup / Nutella, Chat / Hibou : quelques points communs
+  //    (de quoi bluffer un tour), mais des indices qui finissent par diverger.
+  // Test : si on te donne le mot A, le mot B ne doit pas être dans tes 3 premières idées.
   // ============================================================
   const WORD_BANK = {
     "🏠 Quotidien": [
-      ["Table","Bureau"], ["Canapé","Fauteuil"], ["Lit","Hamac"], ["Lampe","Bougie"],
-      ["Rideau","Store"], ["Tapis","Paillasson"], ["Armoire","Commode"], ["Coussin","Oreiller"],
-      ["Miroir","Vitre"], ["Horloge","Montre"], ["Balai","Aspirateur"], ["Machine à laver","Lave-vaisselle"],
-      ["Fer à repasser","Sèche-cheveux"], ["Clé","Badge"], ["Poubelle","Bac de tri"], ["Escalier","Ascenseur"],
-      ["Balcon","Terrasse"], ["Cave","Grenier"], ["Douche","Baignoire"], ["Savon","Shampoing"],
+      ["Canapé","Baignoire"], ["Frigo","Placard"], ["Lampe","Fenêtre"], ["Miroir","Balance"],
+      ["Réveil","Douche"], ["Clé","Mot de passe"], ["Aspirateur","Lave-vaisselle"], ["Poubelle","Boîte aux lettres"],
+      ["Oreiller","Doudou"], ["Télécommande","Lunettes"], ["Savon","Bougie"], ["Télé","Aquarium"],
+      ["Tapis","Pelouse"], ["Horloge","Calendrier"], ["Balcon","Toit"], ["Couette","Manteau"],
+      ["Fer à repasser","Poêle"], ["Brosse à dents","Peigne"], ["Cheminée","Barbecue"],
     ],
     "🍕 Bouffe": [
-      ["Pizza","Tarte flambée"], ["Burger","Kebab"], ["Pâtes","Riz"], ["Croissant","Pain au chocolat"],
-      ["Baguette","Brioche"], ["Fromage","Beurre"], ["Yaourt","Fromage blanc"], ["Chocolat","Caramel"],
-      ["Glace","Sorbet"], ["Crêpe","Gaufre"], ["Sushi","Poké bowl"], ["Frites","Chips"],
-      ["Soupe","Purée"], ["Salade","Taboulé"], ["Ketchup","Mayonnaise"], ["Sel","Poivre"],
-      ["Miel","Confiture"], ["Café","Thé"], ["Jus d'orange","Limonade"], ["Steak","Escalope"],
-      ["Omelette","Œuf au plat"],
+      ["Pizza","Sushi"], ["Burger","Lasagnes"], ["Pâtes","Soupe"], ["Croissant","Pancake"],
+      ["Chocolat","Fromage"], ["Glace","Smoothie"], ["Fraise","Tomate"], ["Banane","Maïs"],
+      ["Citron","Vinaigre"], ["Miel","Caramel"], ["Café","Coca"], ["Œuf","Avocat"],
+      ["Popcorn","Barbe à papa"], ["Ketchup","Nutella"], ["Sel","Farine"], ["Steak","Saumon"],
+      ["Salade","Kebab"], ["Carotte","Orange"], ["Omelette","Crêpe"], ["Yaourt","Compote"],
     ],
     "🍺 Soirée": [
-      ["Bière","Cidre"], ["Vin rouge","Vin blanc"], ["Whisky","Rhum"], ["Vodka","Tequila"],
-      ["Cocktail","Punch"], ["Champagne","Prosecco"], ["Apéro","Brunch"], ["Shot","Pinte"],
-      ["Barbecue","Raclette"], ["Anniversaire","Crémaillère"], ["Boîte de nuit","Bar"], ["Mariage","Baptême"],
-      ["Nouvel An","Réveillon de Noël"], ["Pétanque","Molkky"], ["Beer pong","Fléchettes"],
+      ["Bière","Limonade"], ["Vin","Thé"], ["Champagne","Confettis"], ["Vodka","Eau"],
+      ["Cocktail","Milkshake"], ["Apéro","Goûter"], ["Raclette","Pique-nique"], ["Anniversaire","Halloween"],
+      ["Boîte de nuit","Salle de sport"], ["Nouvel An","14 Juillet"], ["Karaoké","Blind test"], ["Pétanque","Bowling"],
+      ["Beer pong","Basket"], ["Gueule de bois","Mal de mer"], ["DJ","Barman"], ["Uber","Dernier métro"],
+      ["Videur","Douanier"], ["Afterwork","Brunch"], ["Enterrement de vie de garçon","Colonie de vacances"],
     ],
     "🎵 Musique": [
-      ["Guitare","Basse"], ["Piano","Orgue"], ["Batterie","Djembé"], ["Violon","Violoncelle"],
-      ["Trompette","Trombone"], ["Saxophone","Clarinette"], ["Flûte","Harmonica"], ["Micro","Casque"],
-      ["DJ","Chef d'orchestre"], ["Concert","Festival"], ["Rap","RnB"], ["Rock","Metal"],
-      ["Techno","House"], ["Karaoké","Playback"], ["Refrain","Couplet"],
+      ["Guitare","Trompette"], ["Piano","Xylophone"], ["Batterie","Maracas"], ["Violon","Flûte"],
+      ["Saxophone","Harmonica"], ["Micro","Mégaphone"], ["DJ","Chef d'orchestre"], ["Festival","Kermesse"],
+      ["Rap","Jazz"], ["Metal","Musique classique"], ["Refrain","Slogan"], ["Casque audio","Bonnet"],
+      ["Vinyle","Polaroid"], ["Tube de l'été","Mème"], ["Hymne national","Générique"], ["Spotify","Juke-box"],
+      ["Beatbox","Ventriloque"], ["Concert","Messe"], ["Chorale","Supporters"],
     ],
-    "📱 Tech": [
-      ["Téléphone","Talkie-walkie"], ["Ordinateur portable","Tablette"], ["Clavier","Souris"], ["Écran","Vidéoprojecteur"],
-      ["Wi-Fi","Bluetooth"], ["Chargeur","Batterie externe"], ["Câble","Adaptateur"], ["Mail","SMS"],
-      ["Photo","Vidéo"], ["Imprimante","Scanner"], ["Clé USB","Disque dur"], ["Drone","Robot"],
-      ["Console","PC gamer"], ["Selfie","Portrait"], ["Emoji","GIF"],
+    "💻 Tech": [
+      ["Smartphone","Couteau suisse"], ["Ordinateur portable","Livre"], ["Clavier","Calculatrice"], ["Souris","Stylo"],
+      ["Wi-Fi","Électricité"], ["SMS","Post-it"], ["Photo","Peinture"], ["Imprimante","Machine à café"],
+      ["Clé USB","Carte bancaire"], ["Drone","Cerf-volant"], ["Console","Jeu de société"], ["Webcam","Judas"],
+      ["Emoji","Hiéroglyphe"], ["Robot","Marionnette"], ["Code PIN","Cadenas"], ["Écran","Fenêtre"],
+      ["Batterie externe","Gourde"], ["Virus informatique","Grippe"], ["Cloud","Grenier"],
     ],
     "🚗 Transport": [
-      ["Voiture","Camionnette"], ["Vélo","Trottinette"], ["Moto","Scooter"], ["Bus","Tramway"],
-      ["Train","Métro"], ["Avion","Hélicoptère"], ["Bateau","Ferry"], ["Parking","Garage"],
-      ["Essence","Électrique"], ["Autoroute","Nationale"], ["Volant","Guidon"], ["Feu rouge","Stop"],
-      ["Péage","Radar"], ["Taxi","VTC"], ["Casque","Ceinture de sécurité"],
+      ["Vélo","Cheval"], ["Moto","Jet-ski"], ["Bus","Ascenseur"], ["Train","Téléphérique"],
+      ["Métro","Escalator"], ["Avion","Montgolfière"], ["Taxi","Ambulance"], ["Parking","Vestiaire"],
+      ["Essence","Café"], ["Autoroute","Piste d'atterrissage"], ["Volant","Gouvernail"], ["Feu rouge","Péage"],
+      ["Radar","Contrôleur"], ["Trottinette","Poussette"], ["Covoiturage","Colocation"], ["Permis de conduire","Diplôme"],
+      ["Embouteillage","File d'attente"], ["Klaxon","Sifflet"], ["Tracteur","Tank"],
     ],
     "👕 Vêtements": [
-      ["T-shirt","Chemise"], ["Jean","Jogging"], ["Veste","Manteau"], ["Basket","Mocassin"],
-      ["Casquette","Bonnet"], ["Ceinture","Bretelles"], ["Chaussettes","Collants"], ["Sweat","Gilet"],
-      ["Costume","Smoking"], ["Pyjama","Peignoir"], ["Écharpe","Foulard"], ["Gants","Moufles"],
-      ["Short","Bermuda"], ["Robe","Jupe"], ["Lunettes de soleil","Lunettes de vue"],
+      ["T-shirt","Pyjama"], ["Jean","Costume"], ["Baskets","Tongs"], ["Casquette","Couronne"],
+      ["Ceinture","Cravate"], ["Chaussettes","Gants"], ["Sweat à capuche","Cape"], ["Robe","Kilt"],
+      ["Écharpe","Collier"], ["Lunettes de soleil","Parasol"], ["Peignoir","Kimono"], ["Uniforme","Déguisement"],
+      ["Sac à main","Cartable"], ["Talons","Échasses"], ["Tablier","Bavoir"], ["Doudoune","Sac de couchage"],
+      ["Pull de Noël","Maillot de foot"], ["Maillot de bain","Combinaison de ski"],
     ],
     "⚽ Sport": [
-      ["Football","Futsal"], ["Basket","Handball"], ["Tennis","Badminton"], ["Rugby","Football américain"],
-      ["Natation","Plongée"], ["Marathon","Sprint"], ["Musculation","Crossfit"], ["Yoga","Pilates"],
-      ["Ski","Snowboard"], ["Boxe","Judo"], ["Golf","Mini-golf"], ["Ping-pong","Squash"],
-      ["Escalade","Accrobranche"], ["Surf","Paddle"], ["Bowling","Billard"], ["Équitation","Course hippique"],
-      ["Arbitre","Coach"], ["Stade","Gymnase"], ["Médaille","Trophée"], ["Cyclisme","Triathlon"],
+      ["Football","Water-polo"], ["Basket","Fléchettes"], ["Tennis","Volley"], ["Rugby","Sumo"],
+      ["Natation","Course à pied"], ["Marathon","Tour de France"], ["Musculation","Bras de fer"], ["Yoga","Gymnastique"],
+      ["Ski","Surf"], ["Boxe","Escrime"], ["Golf","Billard"], ["Escalade","Parkour"],
+      ["Arbitre","Commentateur"], ["Podium","Tapis rouge"], ["Plongée","Parachutisme"], ["Skate","Trampoline"],
+      ["Karaté","Danse"], ["Coupe du monde","Eurovision"], ["Handball","Balle aux prisonniers"],
     ],
     "🌍 Nature": [
-      ["Plage","Piscine"], ["Montagne","Colline"], ["Forêt","Jungle"], ["Rivière","Fleuve"],
-      ["Lac","Étang"], ["Soleil","Lune"], ["Vent","Tempête"], ["Pluie","Orage"],
-      ["Neige","Grêle"], ["Désert","Savane"], ["Volcan","Geyser"], ["Île","Presqu'île"],
-      ["Cascade","Fontaine"], ["Arc-en-ciel","Aurore boréale"], ["Étoile","Comète"],
+      ["Plage","Désert"], ["Montagne","Iceberg"], ["Forêt","Océan"], ["Rivière","Glacier"],
+      ["Lac","Piscine"], ["Soleil","Feu de camp"], ["Lune","Phare"], ["Étoile","Luciole"],
+      ["Orage","Feu d'artifice"], ["Pluie","Douche"], ["Neige","Sable"], ["Volcan","Tremblement de terre"],
+      ["Île","Oasis"], ["Arc-en-ciel","Coucher de soleil"], ["Grotte","Igloo"], ["Coquillage","Pomme de pin"],
+      ["Brouillard","Fumée"], ["Fleur","Papillon"],
     ],
     "🐶 Animaux": [
-      ["Chien","Loup"], ["Chat","Panthère"], ["Cheval","Âne"], ["Vache","Buffle"],
-      ["Mouton","Chèvre"], ["Cochon","Sanglier"], ["Poule","Canard"], ["Lapin","Lièvre"],
-      ["Souris","Hamster"], ["Pigeon","Mouette"], ["Aigle","Faucon"], ["Requin","Dauphin"],
-      ["Baleine","Orque"], ["Serpent","Lézard"], ["Grenouille","Crapaud"], ["Abeille","Guêpe"],
-      ["Fourmi","Termite"], ["Papillon","Libellule"], ["Araignée","Scorpion"], ["Ours","Panda"],
+      ["Chien","Cheval"], ["Chat","Hibou"], ["Vache","Zèbre"], ["Mouton","Caniche"],
+      ["Cochon","Hippopotame"], ["Poule","Pingouin"], ["Lapin","Kangourou"], ["Souris","Écureuil"],
+      ["Pigeon","Rat"], ["Aigle","Requin"], ["Dauphin","Perroquet"], ["Baleine","Éléphant"],
+      ["Serpent","Ver de terre"], ["Grenouille","Criquet"], ["Abeille","Fourmi"], ["Araignée","Pieuvre"],
+      ["Ours","Gorille"], ["Loup","Hyène"], ["Tortue","Hérisson"], ["Girafe","Autruche"],
+      ["Lion","Coq"], ["Crocodile","Dinosaure"], ["Moustique","Chauve-souris"], ["Singe","Paresseux"],
     ],
     "💼 Métiers": [
-      ["Médecin","Infirmier"], ["Chirurgien","Dentiste"], ["Avocat","Notaire"], ["Policier","Gendarme"],
-      ["Pompier","Ambulancier"], ["Professeur","Surveillant"], ["Boulanger","Pâtissier"], ["Boucher","Charcutier"],
-      ["Coiffeur","Barbier"], ["Plombier","Électricien"], ["Architecte","Ingénieur"], ["Pilote","Hôtesse de l'air"],
-      ["Serveur","Barman"], ["Journaliste","Écrivain"], ["Acteur","Chanteur"], ["Banquier","Trader"],
-      ["Agriculteur","Jardinier"], ["Chauffeur","Livreur"], ["Maire","Député"], ["Vétérinaire","Toiletteur"],
+      ["Médecin","Mécanicien"], ["Chirurgien","Couturier"], ["Avocat","Vendeur"], ["Policier","Surveillant"],
+      ["Pompier","Plombier"], ["Professeur","Coach"], ["Boulanger","Pizzaïolo"], ["Boucher","Bûcheron"],
+      ["Coiffeur","Jardinier"], ["Électricien","Informaticien"], ["Architecte","Pâtissier"], ["Pilote","Chauffeur de bus"],
+      ["Serveur","Hôtesse de l'air"], ["Journaliste","Détective"], ["Acteur","Politicien"], ["Banquier","Croupier"],
+      ["Agriculteur","Vétérinaire"], ["Livreur","Cigogne"], ["Dentiste","Bijoutier"], ["Magicien","Pickpocket"],
+      ["Astronaute","Plongeur"], ["Influenceur","Mannequin"],
     ],
     "✈️ Voyage": [
-      ["Hôtel","Auberge de jeunesse"], ["Camping","Glamping"], ["Valise","Sac à dos"], ["Passeport","Carte d'identité"],
-      ["Douane","Contrôle de sécurité"], ["Croisière","Safari"], ["Carte","GPS"], ["Souvenir","Carte postale"],
-      ["Tour Eiffel","Arc de Triomphe"], ["Paris","Lyon"], ["New York","Los Angeles"], ["Japon","Chine"],
-      ["Espagne","Italie"], ["Guide","Interprète"], ["Visa","Billet d'avion"],
+      ["Hôtel","Hôpital"], ["Camping","Cabane dans les arbres"], ["Valise","Coffre de voiture"], ["Passeport","Carnet de santé"],
+      ["Croisière","Train de nuit"], ["Carte postale","Selfie"], ["Tour Eiffel","Statue de la Liberté"], ["Paris","Venise"],
+      ["New York","Tokyo"], ["Japon","Suisse"], ["Espagne","Grèce"], ["Guide touristique","GPS"],
+      ["Jet lag","Insomnie"], ["Safari","Musée"], ["Aéroport","Centre commercial"], ["Crème solaire","Anti-moustique"],
+      ["Road trip","Pèlerinage"],
     ],
     "🎓 École": [
-      ["École","Collège"], ["Lycée","Université"], ["Contrôle","Examen"], ["Cahier","Classeur"],
-      ["Stylo","Feutre"], ["Crayon","Craie"], ["Cartable","Trousse"], ["Récré","Pause déjeuner"],
-      ["Devoirs","Révisions"], ["Tableau","Paperboard"], ["Bulletin","Diplôme"], ["Maths","Physique"],
-      ["Histoire","Géographie"], ["Anglais","Espagnol"], ["Cantine","Self"],
+      ["École","Prison"], ["Contrôle","Entretien d'embauche"], ["Cahier","Journal intime"], ["Stylo","Pinceau"],
+      ["Trousse","Boîte à outils"], ["Récré","Pause café"], ["Devoirs","Ménage"], ["Bulletin","Avis Google"],
+      ["Maths","Sudoku"], ["Histoire","Conte de fées"], ["Cantine","Buffet à volonté"], ["Professeur","Animateur de colo"],
+      ["Dictée","Karaoké"], ["Heure de colle","Garde à vue"], ["Délégué","Maire"], ["Règle","Mètre ruban"],
+      ["Cour de récré","Parc"], ["Rentrée","Lundi matin"],
     ],
     "❤️ Amour": [
-      ["Rendez-vous","Speed dating"], ["Bisou","Câlin"], ["Fiançailles","PACS"], ["Saint-Valentin","Anniversaire de couple"],
-      ["Crush","Ex"], ["Bague","Collier"], ["Rose","Tulipe"], ["Déclaration","Demande en mariage"],
-      ["Premier rendez-vous","Rencontre en ligne"], ["Lune de miel","Week-end en amoureux"], ["Divorce","Rupture"], ["Beaux-parents","Témoins"],
+      ["Premier rendez-vous","Casting"], ["Bisou","Poignée de main"], ["Fiançailles","Signature de contrat"], ["Saint-Valentin","Fête des mères"],
+      ["Crush","Idole"], ["Bague","Menottes"], ["Rose","Chocolat"], ["Déclaration","Discours"],
+      ["Lune de miel","Voyage scolaire"], ["Divorce","Démission"], ["Belle-mère","Patron"], ["Ex","Fantôme"],
+      ["Câlin","Couette"], ["Tinder","Pôle emploi"], ["Mariage","Remise de diplôme"], ["Coup de foudre","Coup de soleil"],
+      ["Lettre d'amour","Lettre de motivation"],
     ],
     "💰 Argent": [
-      ["Billet","Pièce"], ["Carte bancaire","Chèque"], ["Banque","Assurance"], ["Salaire","Prime"],
-      ["Impôts","Amende"], ["Loyer","Crédit"], ["Bourse","Casino"], ["Bitcoin","Or"],
-      ["Héritage","Loterie"], ["Tirelire","Coffre-fort"], ["Riche","Célèbre"], ["Soldes","Black Friday"],
+      ["Billet","Timbre"], ["Carte bancaire","Badge"], ["Banque","Bibliothèque"], ["Salaire","Argent de poche"],
+      ["Impôts","Loyer"], ["Bourse","Enchères"], ["Bitcoin","Carte Pokémon"], ["Tirelire","Piñata"],
+      ["Riche","Célèbre"], ["Soldes","Marché aux puces"], ["Crédit","Abonnement"], ["Porte-monnaie","Sac de billes"],
+      ["Distributeur de billets","Parcmètre"], ["Radin","Écolo"], ["Arnaque","Tour de magie"], ["Coffre-fort","Congélateur"],
+      ["Casino","Fête foraine"],
     ],
     "📱 Réseaux & apps": [
-      ["TikTok","Reels"], ["Instagram","Snapchat"], ["BeReal","Story"], ["Twitch","YouTube"],
-      ["Discord","WhatsApp"], ["Vinted","Leboncoin"], ["Tinder","Hinge"], ["X","Threads"],
-      ["LinkedIn","Indeed"], ["Uber Eats","Deliveroo"], ["Airbnb","Booking"], ["BlaBlaCar","Flixbus"],
-      ["Spotify","Deezer"], ["Netflix","Prime Video"], ["Doctolib","Ameli"], ["Revolut","Lydia"],
-      ["Shein","Temu"], ["Waze","Google Maps"], ["Vocal","Pavé"], ["Vu","Répondu 3 jours après"],
+      ["TikTok","Télé"], ["Instagram","Album photo"], ["Snapchat","Photomaton"], ["Twitch","Radio"],
+      ["Discord","Talkie-walkie"], ["Groupe WhatsApp","Repas de famille"], ["Vinted","Vide-grenier"], ["Tinder","Agence immobilière"],
+      ["LinkedIn","Carte de visite"], ["Uber Eats","Room service"], ["Airbnb","Chambre d'amis"], ["BlaBlaCar","Auto-stop"],
+      ["Netflix","Vidéoclub"], ["Temu","Pochette surprise"], ["Google Maps","Boussole"], ["Vocal","Répondeur"],
+      ["Story","Diaporama de vacances"], ["Like","Applaudissement"], ["Hashtag","Étiquette"], ["Notification","Sonnette"],
+      ["Commentaire","Graffiti"], ["Captcha","Videur"], ["Mode avion","Vacances"],
     ],
     "🤖 IA & brainrot": [
-      ["ChatGPT","Gemini"], ["Prompt","Recherche Google"], ["Deepfake","Filtre"], ["Aura","Charisme"],
-      ["Rizz","Game"], ["Sigma","Alpha"], ["NPC","Bot"], ["POV","Vlog"],
-      ["Cringe","Malaise"], ["Ratio","Clash"], ["Main character","Figurant"], ["6-7","Quoicoubeh"],
-      ["Delulu","Optimiste"], ["Mid","Bof"], ["GOAT","Légende"], ["Hype","Buzz"],
-      ["Flop","Bide"], ["Glow up","Makeover"], ["Doomscrolling","Binge-watching"], ["Mewing","Looksmaxxing"],
+      ["ChatGPT","Prof particulier"], ["Prompt","Vœu au génie"], ["Deepfake","Sosie"], ["Aura","Parfum"],
+      ["Rizz","Compliment"], ["Sigma","Moine"], ["NPC","Mannequin de vitrine"], ["POV","Narrateur"],
+      ["Cringe","Discours de mariage"], ["Ratio","Applaudimètre"], ["Main character","Star de téléréalité"], ["6-7","Dab"],
+      ["Delulu","Loto"], ["GOAT","Statue"], ["Hype","Avant-première"], ["Flop","Soufflé raté"],
+      ["Glow up","Rénovation"], ["Doomscrolling","Grignotage"], ["Mewing","Gainage"], ["Looksmaxxing","Tuning"],
+      ["Skibidi","Teletubbies"], ["Flamme Snapchat","Plante verte"], ["Filtre","Maquillage"], ["Algorithme","Horoscope"],
+      ["Bot","Télévendeur"],
     ],
     "🤌 Trends & conso": [
-      ["Labubu","Sonny Angel"], ["Matcha","Chai latte"], ["Chocolat Dubaï","Pistache"], ["Air fryer","Friteuse"],
-      ["Padel","Squash"], ["Hyrox","Spartan Race"], ["Run club","Salle de sport"], ["Stanley Cup","Gourde"],
-      ["Skincare","Make-up"], ["Crocs","Birkenstock"], ["Tote bag","Sac banane"], ["Vinyle","CD"],
-      ["Y2K","Vintage"], ["Quiet luxury","Streetwear"], ["Ice bath","Cryothérapie"], ["Protéine","Créatine"],
-      ["Kombucha","Kéfir"], ["Coachella","Tomorrowland"], ["Podcast","Livre audio"], ["Seconde main","Outlet"],
+      ["Labubu","Tamagotchi"], ["Matcha","Guacamole"], ["Chocolat Dubaï","Bubble tea"], ["Air fryer","Micro-ondes"],
+      ["Padel","Pétanque"], ["Hyrox","Koh-Lanta"], ["Run club","Speed dating"], ["Stanley Cup","Doudou"],
+      ["Skincare","Jardinage"], ["Crocs","Moon Boots"], ["Tote bag","Sac plastique"], ["Quiet luxury","Uniforme scolaire"],
+      ["Ice bath","Jeûne"], ["Protéine","Épinards"], ["Kombucha","Cidre"], ["Coachella","Fashion week"],
+      ["Podcast","Conférence"], ["Seconde main","Héritage"], ["Pilates","Danse classique"], ["Nail art","Tatouage"],
     ],
-    "🎤 Célébrités FR": [
-      ["Squeezie","Inoxtag"], ["Kameto","ZeratoR"], ["Mister V","Mcfly et Carlito"], ["Cyprien","Norman"],
-      ["Léna Situations","EnjoyPhoenix"], ["Tibo InShape","Juju Fitcats"], ["HugoDécrypte","Gaspard G"], ["Michou","AmineMaTue"],
-      ["Jul","SCH"], ["Ninho","Niska"], ["Damso","Hamza"], ["Orelsan","Vald"],
-      ["Gazo","Tiakola"], ["PNL","Bigflo et Oli"], ["Aya Nakamura","Shay"], ["Mbappé","Haaland"],
-      ["Griezmann","Giroud"], ["Zidane","Deschamps"], ["Cristiano Ronaldo","Messi"], ["Teddy Riner","Léon Marchand"],
-      ["Antoine Dupont","Romain Ntamack"], ["PSG","OM"],
+    "🎤 Célébrités": [
+      ["Inoxtag","Mike Horn"], ["Kameto","Didier Deschamps"], ["Mister V","Kev Adams"], ["Léna Situations","Emily in Paris"],
+      ["Tibo InShape","Arnold Schwarzenegger"], ["HugoDécrypte","Jean-Pierre Pernaut"], ["Jul","Johnny Hallyday"], ["Orelsan","Jean-Jacques Goldman"],
+      ["Aya Nakamura","Édith Piaf"], ["Mbappé","Usain Bolt"], ["Zidane","Yannick Noah"], ["Cristiano Ronaldo","Kim Kardashian"],
+      ["Teddy Riner","Sébastien Chabal"], ["Léon Marchand","Aquaman"], ["PSG","Lakers"], ["Thomas Pesquet","Buzz l'Éclair"],
+      ["Gims","Daft Punk"], ["Cyril Hanouna","Monsieur Loyal"], ["Squeezie","Michel Drucker"], ["Damso","Stromae"],
+    ],
+    "🎬 Ciné & séries": [
+      ["Harry Potter","Hunger Games"], ["Star Wars","Avatar"], ["Batman","Zorro"], ["Spider-Man","Tarzan"],
+      ["Titanic","Les Dents de la mer"], ["James Bond","Inspecteur Gadget"], ["Le Roi Lion","Bambi"], ["Shrek","La Belle et la Bête"],
+      ["La Reine des neiges","Narnia"], ["Friends","Les Bronzés"], ["La Casa de Papel","Robin des Bois"], ["Squid Game","Fort Boyard"],
+      ["Stranger Things","Scooby-Doo"], ["Game of Thrones","Kaamelott"], ["Les Simpson","Les Minions"], ["One Piece","Pirates des Caraïbes"],
+      ["Astérix","Les Schtroumpfs"], ["Intouchables","Forrest Gump"], ["Oscar","Ballon d'or"], ["Zombie","Somnambule"],
+      ["Cinéma","Planétarium"], ["Bande-annonce","Dégustation"], ["SOS Fantômes","Pompiers"], ["Toy Story","Chucky"],
+    ],
+    "🎮 Jeux": [
+      ["Mario","Père Noël"], ["Minecraft","Lego"], ["Fortnite","Paintball"], ["FIFA","Baby-foot"],
+      ["Pokémon","Panini"], ["Pikachu","Mickey"], ["Game Boy","Walkman"], ["Tetris","Jenga"],
+      ["Mario Kart","Autos tamponneuses"], ["League of Legends","Échecs"], ["GTA","Monopoly"], ["Among Us","Cluedo"],
+      ["Loup-garou","Poker"], ["Candy Crush","Machine à sous"], ["Uno","Twister"], ["Escape game","Chasse au trésor"],
+      ["Puzzle","Mots croisés"], ["Jeu de l'oie","Marelle"], ["Rubik's Cube","Kaléidoscope"], ["Zelda","Indiana Jones"],
+      ["Les Sims","Maison de poupée"], ["Just Dance","Zumba"], ["PlayStation","Flipper"],
     ],
     "🧠 Piégeux": [
-      ["Jour","Matin"], ["Chaud","Tiède"], ["Rapide","Pressé"], ["Fort","Costaud"],
-      ["Lourd","Massif"], ["Ouvert","Entrouvert"], ["Début","Milieu"], ["Avant","Pendant"],
-      ["Intérieur","Sous-sol"], ["Simple","Facile"], ["Rêve","Souvenir"], ["Chance","Hasard"],
-      ["Secret","Mensonge"], ["Peur","Stress"], ["Rire","Sourire"], ["Silence","Chuchotement"],
-      ["Vieux","Ancien"], ["Propre","Neuf"], ["Vide","Creux"], ["Doux","Moelleux"],
+      ["Rêve","Souvenir"], ["Chance","Talent"], ["Secret","Surprise"], ["Peur","Excitation"],
+      ["Rire","Éternuement"], ["Silence","Nuit"], ["Promesse","Pari"], ["Mensonge","Magie"],
+      ["Patience","Pêche"], ["Liberté","Vacances"], ["Colère","Volcan"], ["Temps","Argent"],
+      ["Musique","Odeur"], ["Ombre","Reflet"], ["Écho","Perroquet"], ["Début","Naissance"],
+      ["Gravité","Aimant"], ["Frisson","Chatouille"], ["Faim","Ennui"],
     ],
   };
+  // Thèmes ajoutés en v2 : actifs par défaut même pour qui avait une sélection enregistrée en v1
+  const ADDED_V2 = ["🎬 Ciné & séries", "🎮 Jeux"];
+  const RENAMED_V2 = { "📱 Tech": "💻 Tech", "🎤 Célébrités FR": "🎤 Célébrités" };
+  const CUSTOM_CAT = "✏️ Perso";
 
-  const $ = (id) => document.getElementById(id);
+  const ROLES = {
+    CITIZEN:    { name:"Citizen",    emoji:"😇", cls:"cit", pts:2 },
+    UNDERCOVER: { name:"Undercover", emoji:"🕵️", cls:"und", pts:10 },
+    MRWHITE:    { name:"Mr White",   emoji:"👻", cls:"mrw", pts:6 },
+  };
+  const AVATARS = ["🦊","🐼","🐸","🦁","🐯","🐨","🐙","🦄","🐵","🐧","🦉","🐢","🐝","🦖","🐳","🦩","🐶","🐱","🐰","🐻","🐷","🦔","🦦","🐲"];
+  const HUES = [330, 190, 48, 110, 270, 15, 165, 215, 295, 75, 0, 240, 140, 30, 200, 350, 90, 260, 180, 60];
+  const MIN_P = 3, MAX_P = 20;
+  const TIMERS = [[0,"Off"],[45,"45 s"],[60,"1 min"],[90,"1:30"],[120,"2 min"]];
+  const K = { prefs:"uc2_prefs", game:"uc2_game", scores:"uc2_scores", used:"uc2_used" };
 
   // Stockage tolérant : marche dans un navigateur, se dégrade sans erreur ailleurs
   const store = {
-    get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+    get(k) { try { const v = localStorage.getItem(k); return v == null ? null : JSON.parse(v); } catch (e) { return null; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+    del(k) { try { localStorage.removeItem(k); } catch (e) {} },
   };
 
-  // Empêche l'écran de s'éteindre pendant la partie (si supporté)
-  let wakeLock = null;
-  async function keepAwake() { try { wakeLock = await navigator.wakeLock?.request("screen"); } catch (e) {} }
-  function releaseWake() { try { wakeLock?.release(); wakeLock = null; } catch (e) {} }
-  const screens = {
-    setup: $("screen-setup"),
-    names: $("screen-names"),
-    reveal: $("screen-reveal"),
-    clues: $("screen-clues"),
-    discussion: $("screen-discussion"),
-    vote: $("screen-vote"),
-    guess: $("screen-guess"),
-    elim: $("screen-elim"),
-    result: $("screen-result"),
-  };
+  // ---------- Petits utilitaires ----------
+  const $ = (s) => document.querySelector(s);
+  const view = $("#view"), dock = $("#dock"), layer = $("#layer");
+  const rep = (n, v) => Array.from({ length: Math.max(0, n) }, () => v);
+  const plural = (n, word) => `${n} ${word}${n > 1 ? "s" : ""}`;
+  const reduced = () => window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
-  function showScreen(name) {
-    Object.values(screens).forEach(s => s.classList.add("hidden"));
-    screens[name].classList.remove("hidden");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  function shuffle(a) { for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
-
-  function normalize(s) {
-    return (s || "")
-      .toString()
-      .trim()
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/\s+/g, " ");
-  }
-
-  // State
-  const state = {
-    cfg: {
-      players: 4, citizens: 3, undercover: 1, mrwhite: 0,
-      hideRoles: true, discussionSeconds: 60, clueMaxWords: 2,
-    },
-    selectedCats: new Set(Object.keys(WORD_BANK)),  // tout coché par défaut
-    usedPairs: new Set(),      // clés "cat|index" déjà jouées (pas de répétition dans la session)
-    players: [],
-    alive: [],
-    roles: [],
-    citizenWord: "",
-    undercoverWord: "",
-    revealIndex: 0,
-    eliminatedIndex: null,
-    round: 1,
-  };
-
-  // ---------- Thèmes ----------
-  function buildCategoryToggles() {
-    const grid = $("catGrid");
-    grid.innerHTML = "";
-    for (const cat of Object.keys(WORD_BANK)) {
-      const label = document.createElement("label");
-      label.className = "cat" + (state.selectedCats.has(cat) ? " on" : "");
-      const cb = document.createElement("input");
-      cb.type = "checkbox";
-      cb.checked = state.selectedCats.has(cat);
-      cb.addEventListener("change", () => {
-        if (cb.checked) state.selectedCats.add(cat);
-        else state.selectedCats.delete(cat);
-        label.classList.toggle("on", cb.checked);
-        updatePoolCount();
-      });
-      const name = document.createElement("span");
-      name.textContent = cat;
-      const count = document.createElement("span");
-      count.className = "count";
-      count.textContent = WORD_BANK[cat].length;
-      label.append(cb, name, count);
-      grid.appendChild(label);
+  // Mini constructeur DOM : tout le texte passe par des nœuds texte (pas d'injection HTML)
+  function h(tag, props, ...kids) {
+    const el = document.createElement(tag);
+    if (props) for (const k in props) {
+      const v = props[k];
+      if (v == null || v === false) continue;
+      if (k === "class") el.className = v;
+      else if (k.startsWith("on") && typeof v === "function") el.addEventListener(k.slice(2), v);
+      else if (k === "value" || k === "checked" || k === "disabled") el[k] = v;
+      else el.setAttribute(k, v === true ? "" : String(v));
     }
-    updatePoolCount();
+    add(el, kids);
+    return el;
   }
-
-  function poolSize() {
-    let n = 0;
-    for (const cat of state.selectedCats) n += WORD_BANK[cat].length;
-    return n;
-  }
-
-  function updatePoolCount() {
-    $("poolCount").textContent = `${poolSize()} paires`;
-  }
-
-  $("btnAllCats").addEventListener("click", () => {
-    state.selectedCats = new Set(Object.keys(WORD_BANK));
-    buildCategoryToggles();
-  });
-  $("btnNoCats").addEventListener("click", () => {
-    state.selectedCats.clear();
-    buildCategoryToggles();
-  });
-
-  // Tirage : jamais deux fois la même paire dans la session.
-  // Si tout le pool a été joué, on remet le compteur à zéro.
-  function pickWords() {
-    let candidates = [];
-    for (const cat of state.selectedCats) {
-      WORD_BANK[cat].forEach((pair, i) => {
-        const key = `${cat}|${i}`;
-        if (!state.usedPairs.has(key)) candidates.push({ key, pair });
-      });
+  function add(el, kids) {
+    for (const c of kids) {
+      if (c == null || c === false) continue;
+      if (Array.isArray(c)) add(el, c);
+      else el.append(c instanceof Node ? c : String(c));
     }
-    if (candidates.length === 0) {
-      state.usedPairs.clear();
-      for (const cat of state.selectedCats) {
-        WORD_BANK[cat].forEach((pair, i) => candidates.push({ key: `${cat}|${i}`, pair }));
+  }
+  const avatar = (p, size = "md") => h("span", { class: `av av-${size}`, style: `--h:${p.hue ?? 260}`, "aria-hidden": "true" }, p.emoji || "🙂");
+
+  const normName = (s) => (s || "").trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, " ");
+  // Comparaison tolérante du guess de Mr White : accents, articles, tirets, pluriel simple
+  function normWord(s) {
+    return (s || "").toString().toLowerCase()
+      .replace(/œ/g, "oe").replace(/æ/g, "ae")
+      .normalize("NFD").replace(/[̀-ͯ]/g, "")
+      .replace(/[’`´]/g, "'")
+      .replace(/^\s*(l'|d'|(le|la|les|un|une|des|du|de la)\s+)/, "")
+      .replace(/[^a-z0-9]+/g, "");
+  }
+  function sameWord(a, b) {
+    const x = normWord(a), y = normWord(b);
+    if (!x) return false;
+    const st = (s) => (s.length > 3 ? s.replace(/[sx]$/, "") : s);
+    return x === y || st(x) === st(y);
+  }
+
+  // ---------- Préférences (joueurs, réglages, thèmes) ----------
+  function defaultPrefs() {
+    return { players: [], manual: false, undercover: 1, mrwhite: 0, timer: 60, clueWords: 2, hideRoles: true, sound: true, off: [], custom: [] };
+  }
+  function cleanPlayers(list) {
+    return list.filter((x) => x && typeof x.name === "string").slice(0, MAX_P).map((x, i) => ({
+      name: x.name.slice(0, 20),
+      emoji: typeof x.emoji === "string" && x.emoji ? x.emoji : AVATARS[i % AVATARS.length],
+      hue: Number.isFinite(x.hue) ? x.hue : HUES[i % HUES.length],
+    }));
+  }
+  function loadPrefs() {
+    const d = defaultPrefs();
+    const p = store.get(K.prefs);
+    if (p && typeof p === "object") {
+      const out = { ...d, ...p };
+      out.players = Array.isArray(p.players) ? cleanPlayers(p.players) : [];
+      out.custom = Array.isArray(p.custom) ? p.custom.filter((pr) => Array.isArray(pr) && pr.length === 2 && pr.every((s) => typeof s === "string" && s.trim())) : [];
+      out.off = Array.isArray(p.off) ? p.off.filter((c) => typeof c === "string") : [];
+      if (!TIMERS.some(([v]) => v === out.timer)) out.timer = 60;
+      if (out.clueWords !== 1 && out.clueWords !== 2) out.clueWords = 2;
+      return out;
+    }
+    // Reprise de la sauvegarde de l'ancienne version (noms, réglages, thèmes)
+    const old = store.get("uc_save");
+    if (old && typeof old === "object") {
+      if (Array.isArray(old.names)) d.players = cleanPlayers(old.names.filter((n) => typeof n === "string" && n.trim()).map((n) => ({ name: n.trim() })));
+      const c = old.cfg || {};
+      if (Number.isFinite(c.undercover) && Number.isFinite(c.mrwhite)) { d.undercover = c.undercover; d.mrwhite = c.mrwhite; d.manual = true; }
+      if (TIMERS.some(([v]) => v === c.discussionSeconds)) d.timer = c.discussionSeconds;
+      if (c.clueMaxWords === 1 || c.clueMaxWords === 2) d.clueWords = c.clueMaxWords;
+      if (typeof c.hideRoles === "boolean") d.hideRoles = c.hideRoles;
+      if (Array.isArray(old.cats) && old.cats.length) {
+        const had = new Set(old.cats.map((c) => RENAMED_V2[c] || c));
+        d.off = Object.keys(WORD_BANK).filter((k) => !had.has(k) && !ADDED_V2.includes(k));
+        if (d.off.length === Object.keys(WORD_BANK).length) d.off = [];
       }
     }
-    const chosen = candidates[Math.floor(Math.random() * candidates.length)];
-    state.usedPairs.add(chosen.key);
-    // 50/50 : le mot Undercover peut être celui de gauche ou de droite
-    // (sinon les habitués savent que "gauche = Citizens")
-    if (Math.random() < 0.5) {
-      state.citizenWord = chosen.pair[0];
-      state.undercoverWord = chosen.pair[1];
-    } else {
-      state.citizenWord = chosen.pair[1];
-      state.undercoverWord = chosen.pair[0];
-    }
+    return d;
+  }
+  let prefs = loadPrefs();
+  const savePrefs = () => store.set(K.prefs, prefs);
+
+  function bank() {
+    const b = { ...WORD_BANK };
+    if (prefs.custom.length) b[CUSTOM_CAT] = prefs.custom;
+    return b;
+  }
+  const selectedCats = () => Object.keys(bank()).filter((c) => !prefs.off.includes(c));
+  const poolSize = () => { const b = bank(); return selectedCats().reduce((n, c) => n + b[c].length, 0); };
+
+  // ---------- Composition ----------
+  // Les imposteurs gagnent à la parité : il faut donc strictement moins d'imposteurs que de Citizens.
+  const maxImpostors = (n) => Math.max(1, Math.floor((Math.max(n, MIN_P) - 1) / 2));
+  function clampComp(n, u, w) {
+    u = Math.max(0, u | 0); w = Math.max(0, w | 0);
+    const m = maxImpostors(n);
+    while (u + w > m) { if (w > 0 && w >= u) w--; else u--; }
+    if (u + w < 1) u = 1;
+    return { c: n - u - w, u, w };
+  }
+  function recommended(n) {
+    return clampComp(n, Math.max(1, Math.floor(n / 4)), n >= 13 ? 2 : n >= 5 ? 1 : 0);
+  }
+  const comp = () => {
+    const n = prefs.players.length;
+    return prefs.manual ? clampComp(n, prefs.undercover, prefs.mrwhite) : recommended(n);
+  };
+
+  // Tirage : jamais deux fois la même paire tant que le pool n'est pas épuisé (mémorisé entre les sessions)
+  function pickWords() {
+    const b = bank();
+    const used = new Set(store.get(K.used) || []);
+    const all = [];
+    for (const cat of selectedCats()) for (const pair of b[cat]) all.push({ cat, pair, key: `${pair[0]}|${pair[1]}` });
+    let cand = all.filter((x) => !used.has(x.key));
+    if (!cand.length) { all.forEach((x) => used.delete(x.key)); cand = all; }
+    const ch = cand[Math.floor(Math.random() * cand.length)];
+    used.add(ch.key);
+    store.set(K.used, [...used].slice(-800));
+    // 50/50 : sinon les habitués savent que « gauche = Citizens »
+    const swap = Math.random() < 0.5;
+    return { citizen: ch.pair[swap ? 1 : 0], undercover: ch.pair[swap ? 0 : 1], cat: ch.cat };
   }
 
-  // ---------- Setup ----------
-  function validateConfig() {
-    const p = state.cfg.players, c = state.cfg.citizens, u = state.cfg.undercover, m = state.cfg.mrwhite;
-    let msg = "";
-    if (![p,c,u,m].every(n => Number.isFinite(n) && n >= 0)) msg = "Paramètres invalides.";
-    else if (p < 3 || p > 12) msg = "Joueurs : entre 3 et 12.";
-    else if (c + u + m !== p) msg = "La somme Citizens + Undercover + Mr White doit = nombre de joueurs.";
-    else if (c < 1) msg = "Il faut au moins 1 Citizen (mot de référence).";
-    else if (u + m < 1) msg = "Il faut au moins 1 Undercover ou 1 Mr White, sinon rien à trouver.";
-    else if (u + m >= c) msg = "Trop d'imposteurs : ils gagneraient dès le départ (il faut plus de Citizens que d'imposteurs).";
-    else if (state.selectedCats.size === 0) msg = "Coche au moins un thème.";
-
-    const box = $("setupMsg");
-    if (msg) { box.textContent = msg; box.classList.remove("hidden"); return false; }
-    box.classList.add("hidden");
-    return true;
-  }
-
-  function buildNameInputs(n) {
-    const grid = $("namesGrid");
-    grid.innerHTML = "";
-    for (let i=0;i<n;i++) {
-      const input = document.createElement("input");
-      input.placeholder = `Joueur ${i+1}`;
-      const saved = store.get("uc_save");
-      input.value = (saved && Array.isArray(saved.names) && saved.names[i]) ? saved.names[i] : `Joueur ${i+1}`;
-      input.id = `name_${i}`;
-      grid.appendChild(input);
-    }
-  }
-
-  function syncCitizens() {
-    const p = parseInt($("cfgPlayers").value, 10);
-    const u = parseInt($("cfgUndercover").value, 10) || 0;
-    const m = parseInt($("cfgMrWhite").value, 10) || 0;
-    if (Number.isFinite(p)) $("cfgCitizens").value = Math.max(p - u - m, 0);
-  }
-  ["cfgPlayers","cfgUndercover","cfgMrWhite"].forEach(id => $(id).addEventListener("input", syncCitizens));
-
-  $("btnBuildNames").addEventListener("click", () => {
-    state.cfg.players = parseInt($("cfgPlayers").value, 10);
-    state.cfg.citizens = parseInt($("cfgCitizens").value, 10);
-    state.cfg.undercover = parseInt($("cfgUndercover").value, 10);
-    state.cfg.mrwhite = parseInt($("cfgMrWhite").value, 10);
-    state.cfg.hideRoles = $("hideRoles").checked;
-    state.cfg.discussionSeconds = parseInt($("discussionSeconds").value, 10);
-    state.cfg.clueMaxWords = parseInt($("clueRule").value, 10);
-
-    if (!validateConfig()) return;
-    buildNameInputs(state.cfg.players);
-    showScreen("names");
-  });
-
-  // ---------- Init partie ----------
-  function assignRoles() {
-    const roles = [];
-    for (let i=0;i<state.cfg.citizens;i++) roles.push("CITIZEN");
-    for (let i=0;i<state.cfg.undercover;i++) roles.push("UNDERCOVER");
-    for (let i=0;i<state.cfg.mrwhite;i++) roles.push("MRWHITE");
-    shuffle(roles);
-    state.roles = roles;
-  }
-
-  function startNewGame() {
-    state.alive = Array(state.cfg.players).fill(true);
-    state.eliminatedIndex = null;
-    state.round = 1;
-
-    assignRoles();
-    pickWords();
-
-    state.revealIndex = nextAliveIndex(-1);
-    $("modePill").textContent = state.cfg.hideRoles ? "Reveal : mot seulement" : "Reveal : rôle + mot";
-    $("clueMax").textContent = String(state.cfg.clueMaxWords);
-
-    updateRevealScreen();
-    showScreen("reveal");
-  }
-
-  $("btnStart").addEventListener("click", () => {
-    const names = [];
-    for (let i=0;i<state.cfg.players;i++) {
-      const v = (document.getElementById(`name_${i}`)?.value || "").trim();
-      if (!v) { alert("Mets tous les noms."); return; }
-      names.push(v);
-    }
-    if (new Set(names.map(normalize)).size !== names.length) { alert("Deux joueurs ont le même nom."); return; }
-    state.players = names;
-    store.set("uc_save", { cfg: state.cfg, names, cats: [...state.selectedCats] });
-    keepAwake();
-    startNewGame();
-  });
-
-  // ---------- Helpers ----------
-  function aliveCount(role) {
-    let count = 0;
-    for (let i=0;i<state.roles.length;i++) if (state.alive[i] && state.roles[i] === role) count++;
-    return count;
-  }
-  function totalAlive() { return state.alive.filter(Boolean).length; }
-  function nextAliveIndex(from) {
-    for (let i=from+1; i<state.alive.length; i++) if (state.alive[i]) return i;
-    return -1;
-  }
-
-  function revealFor(i) {
-    const role = state.roles[i];
-    if (role === "MRWHITE") {
-      return { roleLabel: "MR WHITE", display: "AUCUN MOT", hint: "Bluff. Récupère le mot via les indices." };
-    }
-    if (role === "UNDERCOVER") {
-      return { roleLabel: "UNDERCOVER", display: state.undercoverWord, hint: "Tu as un mot différent. Reste crédible." };
-    }
-    return { roleLabel: "CITIZEN", display: state.citizenWord, hint: "Tu as le mot de base. Donne un indice court." };
-  }
-
-  // ---------- Reveal (une seule fois, en début de partie) ----------
-  function updateRevealScreen() {
-    $("secretBox").classList.add("hidden");
-    $("btnShowSecret").disabled = false;
-    $("secretWord").textContent = "";
-    $("secretHint").textContent = "";
-    $("secretRoleLine").textContent = "";
-    const aliveIdx = state.alive.map((a,i) => a ? i : -1).filter(i => i >= 0);
-    $("roundPill").textContent = `Joueur ${aliveIdx.indexOf(state.revealIndex) + 1}/${aliveIdx.length}`;
-    $("revealPlayerName").textContent = state.players[state.revealIndex];
-    const nxt = nextAliveIndex(state.revealIndex);
-    $("btnHideSecret").textContent = nxt === -1
-      ? "Cacher — tout le monde a vu ✔"
-      : `Cacher — au tour de ${state.players[nxt]}`;
-  }
-
-  $("btnShowSecret").addEventListener("click", () => {
-    const r = revealFor(state.revealIndex);
-    $("secretRoleLine").textContent = state.cfg.hideRoles ? "" : r.roleLabel;
-    $("secretWord").textContent = r.display;
-    $("secretHint").textContent = state.cfg.hideRoles
-      ? (r.roleLabel === "MR WHITE" ? "⚠️ Tu n'as pas de mot. Bluff." : "⚠️ Ton rôle est masqué. Joue au feeling.")
-      : r.hint;
-    if (navigator.vibrate) navigator.vibrate(30);
-    $("secretBox").classList.remove("hidden");
-    $("btnShowSecret").disabled = true;
-  });
-
-  $("guessInput").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") $("btnSubmitGuess").click();
-  });
-
-  $("btnHideSecret").addEventListener("click", () => {
-    const next = nextAliveIndex(state.revealIndex);
-    if (next === -1) {
-      goToClues();
-    } else {
-      state.revealIndex = next;
-      updateRevealScreen();
-    }
-  });
-
-  // ---------- Indices ----------
-  function goToClues() {
-    const aliveIdx = [];
-    for (let i=0;i<state.players.length;i++) if (state.alive[i]) aliveIdx.push(i);
-    shuffle(aliveIdx);
-    const ol = $("speakOrder");
-    ol.innerHTML = "";
-    aliveIdx.forEach(i => {
-      const li = document.createElement("li");
-      li.textContent = state.players[i];
-      ol.appendChild(li);
-    });
-    showScreen("clues");
-  }
-
-  $("btnToDiscussion").addEventListener("click", () => {
-    startDiscussion();
-    showScreen("discussion");
-  });
-
-  // ---------- Discussion ----------
-  let timer = null, remaining = 0;
-  function stopTimer() { if (timer) { clearInterval(timer); timer = null; } }
-
-  function renderTimer() {
-    $("timerText").textContent = String(Math.max(remaining, 0));
-    const pct = (remaining / state.cfg.discussionSeconds) * 100;
-    $("timerFill").style.width = `${Math.min(Math.max(pct, 0), 100)}%`;
-    $("timerFill").classList.toggle("danger", remaining <= 10);
-    $("timerText").classList.toggle("danger", remaining <= 10);
-  }
-
-  function startDiscussion() {
-    stopTimer();
-    remaining = state.cfg.discussionSeconds;
-    renderTimer();
-    timer = setInterval(() => {
-      remaining--;
-      renderTimer();
-      if (remaining <= 0) { stopTimer(); buildVote(); showScreen("vote"); }
-    }, 1000);
-  }
-
-  $("btnAddTime").addEventListener("click", () => { remaining += 30; renderTimer(); });
-
-  $("btnSkipDiscussion").addEventListener("click", () => {
-    stopTimer();
-    buildVote();
-    showScreen("vote");
-  });
-
-  // ---------- Vote ----------
-  function buildVote() {
-    const box = $("voteChoices");
-    box.innerHTML = "";
-    for (let i=0;i<state.players.length;i++) {
-      if (!state.alive[i]) continue;
-      const div = document.createElement("label");
-      div.className = "choice";
-      div.innerHTML = `<input type="radio" name="vote" value="${i}"><div><b>${escapeHtml(state.players[i])}</b></div>`;
-      box.appendChild(div);
-    }
-  }
-
-  $("btnConfirmVote").addEventListener("click", () => {
-    const picked = document.querySelector('input[name="vote"]:checked');
-    if (!picked) { alert("Choisis quelqu'un."); return; }
-    const selected = parseInt(picked.value, 10);
-
-    state.eliminatedIndex = selected;
-    state.alive[selected] = false;
-
-    if (state.roles[selected] === "MRWHITE") {
-      $("guessInput").value = "";
-      $("guessPlayerName").textContent = state.players[selected];
-      showScreen("guess");
-      return;
-    }
-
-    afterElimination();
-  });
-
-  // ---------- Mr White guess ----------
-  $("btnSubmitGuess").addEventListener("click", () => {
-    const guess = $("guessInput").value || "";
-    if (!guess.trim()) { alert("Tape un mot (ou n'importe quoi si tu ne sais pas)."); return; }
-
-    if (normalize(guess) === normalize(state.citizenWord)) {
-      showResult({
-        winner: "MR WHITE",
-        reason: "Mr White a été éliminé mais a deviné le mot. Win instant.",
-        extra: `Guess : <b>${escapeHtml(guess)}</b>`,
-      });
-      return;
-    }
-    afterElimination({ extra: `Guess raté de Mr White : <b>${escapeHtml(guess)}</b>` });
-  });
-
-  // ---------- Après élimination ----------
-  function afterElimination(ctx = {}) {
-    const outcome = evaluateWin();
-    if (outcome.over) {
-      if (ctx.extra) outcome.extra = ctx.extra;
-      showResult(outcome);
-      return;
-    }
-    const elimName = state.players[state.eliminatedIndex];
-    const elimRole = state.roles[state.eliminatedIndex];
-    state.round++;
-    $("elimBox").innerHTML = `
-      <div class="bad">
-        <div class="big">${escapeHtml(elimName)}</div>
-        <p>était <b>${escapeHtml(elimRole)}</b>. La partie continue.</p>
-      </div>
-      ${ctx.extra ? `<p class="muted mt">${ctx.extra}</p>` : ""}
-      <p class="muted mt">Round ${state.round} — ${totalAlive()} joueurs restants. Les mots ne changent pas : pas de nouveau reveal.</p>
-    `;
-    showScreen("elim");
-  }
-
-  $("btnContinue").addEventListener("click", goToClues);
-
-  // ---------- Conditions de victoire ----------
-  function evaluateWin() {
-    const c = aliveCount("CITIZEN");
-    const u = aliveCount("UNDERCOVER");
-    const w = aliveCount("MRWHITE");
-
-    if (u === 0 && w === 0) {
-      return { over: true, winner: "CITIZENS", reason: "Tous les imposteurs ont été éliminés." };
-    }
-    if (u + w >= c) {
-      if (u > 0) return { over: true, winner: "UNDERCOVER", reason: "Les imposteurs atteignent la parité avec les Citizens." };
-      return { over: true, winner: "MR WHITE", reason: "Mr White a survécu jusqu'à la parité." };
-    }
-    return { over: false };
-  }
-
-  // ---------- Résultat final ----------
-  function showResult(outcome) {
-    stopTimer();
-    releaseWake();
-    const elimName = state.players[state.eliminatedIndex];
-    const elimRole = state.roles[state.eliminatedIndex];
-
-    const rolesList = state.players.map((p,i) =>
-      `<p>${state.alive[i] ? "🟢" : "⚫"} <b>${escapeHtml(p)}</b> — ${escapeHtml(state.roles[i])}</p>`
-    ).join("");
-
-    $("resultBox").innerHTML = `
-      <div class="${outcome.winner === "CITIZENS" ? "ok" : "bad"}">
-        <div class="big">${escapeHtml(outcome.winner)} WIN</div>
-        <p>${escapeHtml(outcome.reason)}</p>
-      </div>
-      <div class="hr"></div>
-      <p><span class="pill">Dernier éliminé</span> <b>${escapeHtml(elimName)}</b> <span class="pill">${escapeHtml(elimRole)}</span></p>
-      <p><span class="pill">Mot Citizens</span> <b>${escapeHtml(state.citizenWord)}</b></p>
-      ${state.cfg.undercover > 0 ? `<p><span class="pill">Mot Undercover</span> <b>${escapeHtml(state.undercoverWord)}</b></p>` : ""}
-      ${outcome.extra ? `<p class="muted">${outcome.extra}</p>` : ""}
-      <div class="hr"></div>
-      <p class="muted">Récap des rôles :</p>
-      ${rolesList}
-    `;
-    showScreen("result");
-  }
-
-  $("btnRematch").addEventListener("click", () => { keepAwake(); startNewGame(); });
-
-  $("btnRestart").addEventListener("click", () => {
-    stopTimer();
-    releaseWake();
-    showScreen("setup");
-  });
-
-  $("btnAbandon").addEventListener("click", () => {
-    if (typeof confirm === "function" && !confirm("Abandonner la partie en cours ?")) return;
-    stopTimer();
-    releaseWake();
-    showScreen("setup");
-  });
-
-  function escapeHtml(s) {
-    return (s ?? "").toString()
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#39;");
-  }
-
-  // Init : restaurer la dernière config si dispo
-  (function restore() {
-    const s = store.get("uc_save");
-    if (!s || !s.cfg) return;
+  // ---------- Son & vibrations (synthé WebAudio, aucun fichier) ----------
+  let actx = null;
+  function unlockAudio() {
+    if (!prefs.sound) return;
     try {
-      $("cfgPlayers").value = s.cfg.players;
-      $("cfgCitizens").value = s.cfg.citizens;
-      $("cfgUndercover").value = s.cfg.undercover;
-      $("cfgMrWhite").value = s.cfg.mrwhite;
-      $("discussionSeconds").value = String(s.cfg.discussionSeconds);
-      $("clueRule").value = String(s.cfg.clueMaxWords);
-      $("hideRoles").checked = !!s.cfg.hideRoles;
-      if (Array.isArray(s.cats)) {
-        const valid = s.cats.filter(c => WORD_BANK[c]);
-        if (valid.length) state.selectedCats = new Set(valid);
+      if (!actx) { const C = window.AudioContext || window.webkitAudioContext; if (C) actx = new C(); }
+      if (actx && actx.state === "suspended") actx.resume();
+    } catch (e) {}
+  }
+  function tone(f, d, { type = "sine", vol = 0.12, at = 0, to = null } = {}) {
+    const t0 = actx.currentTime + at;
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(f, t0);
+    if (to) o.frequency.exponentialRampToValueAtTime(to, t0 + d);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol, t0 + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+    o.connect(g).connect(actx.destination);
+    o.start(t0); o.stop(t0 + d + 0.03);
+  }
+  const SFX = {
+    tap:   () => tone(620, 0.07, { type: "triangle", vol: 0.07 }),
+    flip:  () => tone(320, 0.22, { vol: 0.12, to: 880 }),
+    tick:  () => tone(1150, 0.05, { type: "square", vol: 0.04 }),
+    buzz:  () => { tone(196, 0.55, { type: "sawtooth", vol: 0.09 }); tone(147, 0.55, { type: "sawtooth", vol: 0.07 }); },
+    start: () => [440, 660].forEach((f, k) => tone(f, 0.14, { type: "triangle", vol: 0.1, at: k * 0.09 })),
+    drum:  () => { for (let k = 0; k < 10; k++) tone(110 + k * 6, 0.06, { type: "triangle", vol: 0.09, at: k * 0.14 }); },
+    good:  () => [523, 784].forEach((f, k) => tone(f, 0.18, { type: "triangle", vol: 0.12, at: k * 0.1 })),
+    bad:   () => tone(392, 0.4, { type: "triangle", vol: 0.12, to: 196 }),
+    win:   () => [523, 659, 784, 1047].forEach((f, k) => tone(f, 0.25, { type: "triangle", vol: 0.13, at: k * 0.12 })),
+  };
+  function play(name) { if (!prefs.sound) return; unlockAudio(); if (!actx) return; try { SFX[name](); } catch (e) {} }
+  function vibrate(p) { if (prefs.sound && navigator.vibrate) try { navigator.vibrate(p); } catch (e) {} }
+
+  // ---------- Écran toujours allumé pendant la partie (si supporté) ----------
+  let wake = null;
+  async function keepAwake() {
+    try {
+      if ("wakeLock" in navigator && !wake) {
+        wake = await navigator.wakeLock.request("screen");
+        wake.addEventListener("release", () => { wake = null; });
       }
     } catch (e) {}
-  })();
-  buildCategoryToggles();
+  }
+  function releaseWake() { try { if (wake) wake.release(); } catch (e) {} wake = null; }
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && game && game.phase !== "result") keepAwake();
+  });
 
+  // ---------- Toast ----------
+  let toastT = null;
+  function toast(msg) {
+    const t = $("#toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastT);
+    toastT = setTimeout(() => t.classList.remove("show"), 2200);
+  }
+
+  // ---------- Modales (feuilles du bas, dialogues, carte secrète) ----------
+  const stack = [];
+  function openModal(node, { cls = "", dismiss = true, onClose = null } = {}) {
+    const wrap = h("div", { class: `modal-wrap ${cls}`, role: "dialog", "aria-modal": "true" }, node);
+    if (dismiss) wrap.addEventListener("click", (e) => { if (e.target === wrap) closeModal(); });
+    layer.append(wrap);
+    stack.push({ wrap, onClose, dismiss });
+    requestAnimationFrame(() => wrap.classList.add("open"));
+    document.body.classList.add("locked");
+    armBack();
+    return wrap;
+  }
+  function closeModal() {
+    const m = stack.pop();
+    if (!m) return false;
+    m.wrap.classList.remove("open");
+    setTimeout(() => m.wrap.remove(), 220);
+    if (!stack.length) document.body.classList.remove("locked");
+    if (m.onClose) m.onClose();
+    return true;
+  }
+  function closeAllModals() { while (stack.length) closeModal(); }
+  const sheet = (title, body, opts) => openModal(h("div", { class: "sheet" }, h("div", { class: "grab" }), title && h("h2", null, title), body), opts);
+  function ask(title, text, okLabel = "OK", danger = false) {
+    return new Promise((resolve) => {
+      let done = false;
+      const fin = (v) => { if (!done) { done = true; resolve(v); } };
+      openModal(h("div", { class: "dialog" },
+        h("h2", null, title),
+        text && h("p", null, text),
+        h("div", { class: "two" },
+          h("button", { class: "btn ghost sm", type: "button", onclick: () => closeModal() }, "Annuler"),
+          h("button", { class: `btn sm${danger ? "" : " yellow"}`, type: "button", onclick: () => { fin(true); closeModal(); } }, okLabel))),
+        { cls: "center", onClose: () => fin(false) });
+    });
+  }
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && stack.length && stack[stack.length - 1].dismiss) closeModal();
+  });
+
+  // Bouton retour Android / geste retour : ferme la modale ou ouvre le menu au lieu de quitter la partie
+  function armBack() { try { if (!(history.state && history.state.uc)) history.pushState({ uc: 1 }, ""); } catch (e) {} }
+  window.addEventListener("popstate", () => {
+    const inGame = game && game.phase !== "result";
+    if (stack.length) closeModal();
+    else if (inGame) openMenu();
+    else return;
+    if (stack.length || inGame) armBack();
+  });
+
+  // Hauteur réelle du dock → marge du bas du contenu
+  if (window.ResizeObserver) {
+    new ResizeObserver(() => document.documentElement.style.setProperty("--dock-h", `${dock.offsetHeight}px`)).observe(dock);
+  }
+
+  // ============================================================
+  // ÉTAT DE PARTIE & NAVIGATION
+  // ============================================================
+  let game = null;
+  let fxRun = 0; // incrémenté à chaque changement d'écran : coupe les confettis en cours
+  const ui = { fresh: false, vote: null, confetti: false };
+  let lobby = null; // références DOM de l'accueil
+
+  const saveGame = () => { if (game && game.phase !== "result") store.set(K.game, game); };
+  function loadSaved() {
+    const g = store.get(K.game);
+    return g && g.v === 2 && Array.isArray(g.players) && Array.isArray(g.roles) && g.phase && g.phase !== "result" ? g : null;
+  }
+  const aliveIdx = () => game.players.map((_, i) => i).filter((i) => game.alive[i]);
+  function counts() {
+    let c = 0, u = 0, w = 0;
+    game.roles.forEach((r, i) => {
+      if (!game.alive[i]) return;
+      if (r === "CITIZEN") c++; else if (r === "UNDERCOVER") u++; else w++;
+    });
+    return { c, u, w };
+  }
+
+  const SCREENS = {
+    lobby: () => renderLobby(), reveal: () => renderReveal(), clues: () => renderClues(),
+    debate: () => renderDebate(), vote: () => renderVote(), elim: () => renderElim(), result: () => renderResult(),
+  };
+  function render(enter) {
+    try {
+      SCREENS[game ? game.phase : "lobby"]();
+    } catch (err) {
+      console.error(err);
+      if (!game) throw err;
+      game = null; store.del(K.game);
+      toast("Oups, impossible de reprendre cette partie");
+      return render(true);
+    }
+    if (enter) {
+      view.classList.remove("enter"); void view.offsetWidth; view.classList.add("enter");
+      window.scrollTo(0, 0);
+    }
+  }
+  function go(phase) {
+    stopTimer();
+    fxRun++;
+    game.phase = phase;
+    saveGame();
+    render(true);
+  }
+  function mount(v, d) {
+    view.replaceChildren(v);
+    const has = d != null && !(Array.isArray(d) && !d.filter(Boolean).length);
+    dock.replaceChildren(has ? h("div", { class: "dock-in" }, d) : "");
+    dock.classList.toggle("hidden", !has);
+  }
+
+  // ============================================================
+  // ACCUEIL
+  // ============================================================
+  function renderLobby() {
+    const saved = loadSaved();
+    const E = (lobby = {});
+    const v = h("div", null,
+      h("header", { class: "hero" },
+        h("h1", { class: "logo" }, "Undercover", h("small", null, "& Mr White")),
+        h("div", { class: "hero-actions" },
+          h("button", { class: "iconbtn", type: "button", "aria-label": "Classement", onclick: openScores }, "🏆"),
+          h("button", { class: "iconbtn", type: "button", "aria-label": "Règles du jeu", onclick: openRules }, "📖"))),
+
+      saved && h("div", { class: "resume" },
+        h("div", null, h("b", null, "🎲 Partie en cours"), h("div", { class: "note" }, `Tour ${saved.round} · ${saved.players.length} joueurs — on reprend où vous en étiez.`)),
+        h("div", { class: "two" },
+          h("button", { class: "btn ghost sm", type: "button", onclick: async () => {
+            if (await ask("Supprimer la partie ?", "La partie en cours sera perdue.", "Supprimer", true)) { store.del(K.game); render(false); }
+          } }, "Supprimer"),
+          h("button", { class: "btn yellow sm", type: "button", onclick: () => resumeGame(saved) }, "▶ Reprendre"))),
+
+      h("section", { class: "card" },
+        h("div", { class: "card-h" }, h("h2", null, "Joueurs"), (E.pcount = h("span", { class: "pill" }))),
+        (E.plist = h("div", { class: "plist" })),
+        h("form", { class: "padd", onsubmit: (e) => { e.preventDefault(); addPlayer(); } },
+          (E.addInput = h("input", { maxlength: "20", autocomplete: "off", autocapitalize: "words", enterkeyhint: "done", "aria-label": "Prénom du nouveau joueur" })),
+          (E.addBtn = h("button", { class: "btn cyan sm", type: "submit" }, "＋ Ajouter")))),
+
+      h("section", { class: "card" },
+        h("div", { class: "card-h" }, h("h2", null, "Rôles"),
+          (E.auto = h("button", { class: "mini", type: "button", onclick: () => { prefs.manual = false; savePrefs(); play("tap"); renderRolesBox(); refreshDock(); } }, "↺ Auto"))),
+        (E.roles = h("div"))),
+
+      h("section", { class: "card" },
+        h("div", { class: "card-h" }, h("h2", null, "Thèmes"), (E.pool = h("span", { class: "pill" }))),
+        h("p", { class: "note", style: "margin:0 0 12px" }, "Chaque paire reste dans le même univers, sans jamais être le jumeau évident : Sel / Farine plutôt que Sel / Poivre."),
+        (E.chips = h("div", { class: "chips" })),
+        h("div", { class: "row-actions" },
+          h("button", { class: "mini", type: "button", onclick: () => { prefs.off = []; savePrefs(); renderChips(); refreshDock(); } }, "Tout"),
+          h("button", { class: "mini", type: "button", onclick: () => { prefs.off = Object.keys(bank()); savePrefs(); renderChips(); refreshDock(); } }, "Aucun"),
+          (E.customBtn = h("button", { class: "mini", type: "button", onclick: openCustom })))),
+
+      h("section", { class: "card" },
+        h("div", { class: "card-h" }, h("h2", null, "Options")),
+        h("div", { class: "opt" }, h("div", { class: "opt-l" }, "⏱️ Temps de débat"),
+          seg(TIMERS, prefs.timer, (x) => { prefs.timer = x; savePrefs(); })),
+        h("div", { class: "opt" }, h("div", { class: "opt-l" }, "💬 Longueur des indices"),
+          seg([[1, "1 seul mot"], [2, "1 ou 2 mots"]], prefs.clueWords, (x) => { prefs.clueWords = x; savePrefs(); })),
+        switchRow("🙈 Rôles secrets", "Chacun ne voit que son mot : l'Undercover ne sait pas qu'il est Undercover.", prefs.hideRoles, (x) => { prefs.hideRoles = x; savePrefs(); }),
+        switchRow("🔊 Sons & vibrations", null, prefs.sound, (x) => { prefs.sound = x; savePrefs(); if (x) play("tap"); })),
+
+      h("p", { class: "foot" }, "💡 Ajoute la page à ton écran d'accueil : plein écran, et ça marche même sans réseau.")
+    );
+    E.msg = h("div", { class: "dock-msg" });
+    E.play = h("button", { class: "btn big", type: "button", onclick: startGame });
+    mount(v, [E.msg, E.play]);
+    refreshLobby();
+  }
+
+  function refreshLobby() {
+    const E = lobby;
+    const n = prefs.players.length;
+    E.pcount.textContent = plural(n, "joueur");
+    E.plist.replaceChildren(...(n
+      ? prefs.players.map((p, i) => playerRow(p, i))
+      : [h("div", { class: "empty" }, "Ajoute au moins 3 joueurs pour lancer une partie 👇")]));
+    E.addBtn.disabled = n >= MAX_P;
+    E.addInput.disabled = n >= MAX_P;
+    E.addInput.placeholder = n >= MAX_P ? `${MAX_P} joueurs maximum` : `Prénom du joueur ${n + 1}…`;
+    markDups();
+    renderRolesBox();
+    renderChips();
+    refreshDock();
+  }
+
+  function playerRow(p, i) {
+    return h("div", { class: "prow" },
+      h("button", { class: "avbtn", type: "button", "aria-label": `Changer l'avatar de ${p.name || "ce joueur"}`, onclick: () => cycleAvatar(i) }, avatar(p, "md")),
+      h("input", {
+        class: "pname", value: p.name, maxlength: "20", autocomplete: "off", autocapitalize: "words", enterkeyhint: "done",
+        "aria-label": `Nom du joueur ${i + 1}`,
+        oninput: (e) => { p.name = e.target.value; savePrefs(); markDups(); refreshDock(); },
+        onkeydown: (e) => { if (e.key === "Enter") e.target.blur(); },
+        onblur: (e) => { p.name = e.target.value.trim(); e.target.value = p.name; savePrefs(); markDups(); refreshDock(); },
+      }),
+      h("button", { class: "x", type: "button", "aria-label": `Retirer ${p.name || "ce joueur"}`, onclick: () => {
+        prefs.players.splice(i, 1); savePrefs(); play("tap"); refreshLobby();
+      } }, "✕"));
+  }
+
+  function addPlayer() {
+    const E = lobby;
+    if (prefs.players.length >= MAX_P) return;
+    let name = E.addInput.value.trim().slice(0, 20);
+    if (!name) {
+      let k = prefs.players.length + 1;
+      while (prefs.players.some((p) => normName(p.name) === normName(`Joueur ${k}`))) k++;
+      name = `Joueur ${k}`;
+    }
+    if (prefs.players.some((p) => normName(p.name) === normName(name))) {
+      toast(`« ${name} » est déjà dans la partie`);
+      E.addInput.classList.remove("shake"); void E.addInput.offsetWidth; E.addInput.classList.add("shake");
+      return;
+    }
+    const usedE = new Set(prefs.players.map((p) => p.emoji));
+    const usedH = new Set(prefs.players.map((p) => p.hue));
+    prefs.players.push({
+      name,
+      emoji: AVATARS.find((e) => !usedE.has(e)) || AVATARS[Math.floor(Math.random() * AVATARS.length)],
+      hue: HUES.find((x) => !usedH.has(x)) ?? HUES[prefs.players.length % HUES.length],
+    });
+    savePrefs();
+    play("tap");
+    E.addInput.value = "";
+    refreshLobby();
+    E.addInput.focus();
+    E.addInput.scrollIntoView({ block: "nearest" });
+  }
+
+  function cycleAvatar(i) {
+    const used = new Set(prefs.players.map((p) => p.emoji));
+    const cur = AVATARS.indexOf(prefs.players[i].emoji);
+    for (let k = 1; k <= AVATARS.length; k++) {
+      const e = AVATARS[(cur + k + AVATARS.length) % AVATARS.length];
+      if (!used.has(e)) { prefs.players[i].emoji = e; break; }
+    }
+    savePrefs();
+    play("tap");
+    refreshLobby();
+  }
+
+  function dupIndexes() {
+    const seen = new Map(), d = new Set();
+    prefs.players.forEach((p, i) => {
+      const k = normName(p.name);
+      if (!k) return;
+      if (seen.has(k)) { d.add(i); d.add(seen.get(k)); } else seen.set(k, i);
+    });
+    return d;
+  }
+  function markDups() {
+    const d = dupIndexes();
+    lobby.plist.querySelectorAll(".prow").forEach((row, i) => row.classList.toggle("dup", d.has(i)));
+  }
+
+  function lobbyIssue() {
+    const P = prefs.players, n = P.length;
+    if (n < MIN_P) return `Encore ${plural(MIN_P - n, "joueur")} à ajouter`;
+    if (P.some((p) => !p.name.trim())) return "Un joueur n'a pas de prénom";
+    const d = [...dupIndexes()];
+    if (d.length) return `Deux joueurs s'appellent « ${P[d[0]].name.trim()} »`;
+    if (!poolSize()) return "Choisis au moins un thème";
+    return null;
+  }
+  function refreshDock() {
+    const E = lobby;
+    if (!E) return;
+    const issue = lobbyIssue();
+    E.msg.textContent = issue || "";
+    E.msg.classList.toggle("hidden", !issue);
+    E.play.disabled = !!issue;
+    E.play.textContent = issue ? "Jouer" : `Jouer à ${prefs.players.length} ▶`;
+  }
+
+  function renderRolesBox() {
+    const E = lobby;
+    const n = prefs.players.length;
+    const { c, u, w } = comp();
+    const m = maxImpostors(n);
+    const ready = n >= MIN_P;
+    E.auto.classList.toggle("hidden", !prefs.manual);
+    const change = (du, dw) => {
+      const cc = comp();
+      prefs.manual = true;
+      prefs.undercover = cc.u + du;
+      prefs.mrwhite = cc.w + dw;
+      savePrefs(); play("tap"); renderRolesBox(); refreshDock();
+    };
+    const stepper = (val, label, canDown, canUp, onDown, onUp) => h("div", { class: "stepper" },
+      h("button", { type: "button", "aria-label": `Moins de ${label}`, disabled: !canDown, onclick: onDown }, "−"),
+      h("output", { "aria-live": "polite" }, val),
+      h("button", { type: "button", "aria-label": `Plus de ${label}`, disabled: !canUp, onclick: onUp }, "+"));
+    const roleRow = (cls, emo, name, desc, ctrl) => h("div", { class: `rrow ${cls}` },
+      h("span", { class: "ric", "aria-hidden": "true" }, emo),
+      h("div", { class: "rtxt" }, h("b", null, name), h("small", null, desc)),
+      ctrl);
+    E.roles.replaceChildren(
+      h("div", { class: "comp", "aria-label": ready ? `${c} Citizens, ${u} Undercover, ${w} Mr White` : "En attente de joueurs" },
+        ready ? [...rep(c, "😇"), ...rep(u, "🕵️"), ...rep(w, "👻")].map((e) => h("span", null, e)) : h("span", { class: "note" }, "En attente de joueurs…")),
+      roleRow("cit", "😇", "Citizens", "Ont tous le même mot", h("div", { class: "cnum" }, ready ? c : "–")),
+      roleRow("und", "🕵️", "Undercover", "Un autre mot, du même univers", stepper(u, "Undercover",
+        ready && u > 0 && u + w > 1, ready && u + w < m, () => change(-1, 0), () => change(1, 0))),
+      roleRow("mrw", "👻", "Mr White", "Aucun mot : il doit bluffer", stepper(w, "Mr White",
+        ready && w > 0 && u + w > 1, ready && u + w < m, () => change(0, -1), () => change(0, 1))),
+      h("p", { class: "note" },
+        prefs.manual ? "Composition perso. " : `Composition conseillée pour ${Math.max(n, MIN_P)} joueurs. `,
+        "Les imposteurs gagnent s'ils deviennent aussi nombreux que les Citizens."));
+  }
+
+  function renderChips() {
+    const E = lobby;
+    const b = bank(), off = new Set(prefs.off);
+    E.chips.replaceChildren(...Object.keys(b).map((cat) => {
+      const on = !off.has(cat);
+      const [emo, ...rest] = cat.split(" ");
+      return h("button", {
+        class: `chip${on ? " on" : ""}`, type: "button", "aria-pressed": String(on),
+        onclick: () => {
+          prefs.off = on ? [...prefs.off, cat] : prefs.off.filter((c) => c !== cat);
+          savePrefs(); play("tap"); renderChips(); refreshDock();
+        },
+      }, h("span", { "aria-hidden": "true" }, emo), h("span", null, rest.join(" ")), h("span", { class: "chip-n" }, b[cat].length));
+    }));
+    E.pool.textContent = `${poolSize()} paires`;
+    E.customBtn.textContent = `✏️ Mes paires (${prefs.custom.length})`;
+  }
+
+  function seg(options, value, onChange) {
+    const wrap = h("div", { class: "seg", role: "radiogroup" });
+    options.forEach(([val, label]) => wrap.append(h("button", {
+      type: "button", role: "radio", class: val === value ? "on" : "", "aria-checked": String(val === value),
+      onclick: (e) => {
+        onChange(val); play("tap");
+        [...wrap.children].forEach((b) => { b.classList.toggle("on", b === e.currentTarget); b.setAttribute("aria-checked", String(b === e.currentTarget)); });
+      },
+    }, label)));
+    return wrap;
+  }
+  function switchRow(label, desc, checked, onChange) {
+    return h("label", { class: "switch-row" },
+      h("div", { class: "sw-txt" }, h("b", null, label), desc && h("small", null, desc)),
+      h("input", { type: "checkbox", class: "sw", checked, onchange: (e) => onChange(e.target.checked) }));
+  }
+
+  function openCustom() {
+    const list = h("div", { class: "cp-list" });
+    const a = h("input", { class: "field", placeholder: "Mot 1", maxlength: "30", autocomplete: "off", "aria-label": "Premier mot" });
+    const b = h("input", { class: "field", placeholder: "Mot 2", maxlength: "30", autocomplete: "off", "aria-label": "Deuxième mot" });
+    const draw = () => {
+      list.replaceChildren(...(prefs.custom.length
+        ? prefs.custom.map((pr, i) => h("div", { class: "cp-row" },
+            h("span", null, pr[0]), h("span", { class: "vs" }, "vs"), h("span", null, pr[1]),
+            h("button", { class: "x", type: "button", "aria-label": `Supprimer ${pr[0]} / ${pr[1]}`, onclick: () => {
+              prefs.custom.splice(i, 1); savePrefs(); draw(); if (lobby) { renderChips(); refreshDock(); }
+            } }, "✕")))
+        : [h("div", { class: "empty" }, "Aucune paire perso pour l'instant.")]));
+    };
+    const submit = (e) => {
+      e.preventDefault();
+      const x = a.value.trim(), y = b.value.trim();
+      if (!x || !y) { toast("Il faut deux mots"); (x ? b : a).focus(); return; }
+      if (sameWord(x, y)) { toast("Les deux mots doivent être différents"); return; }
+      if (prefs.custom.some(([p, q]) => (sameWord(p, x) && sameWord(q, y)) || (sameWord(p, y) && sameWord(q, x)))) { toast("Cette paire existe déjà"); return; }
+      prefs.custom.push([x, y]);
+      savePrefs(); play("tap");
+      a.value = ""; b.value = ""; a.focus();
+      draw();
+      if (lobby) { renderChips(); refreshDock(); }
+    };
+    sheet("✏️ Mes paires perso", h("div", null,
+      h("p", { class: "note", style: "margin:0 0 14px" },
+        "Deux mots du même univers, mais pas le jumeau évident. Évite Sel / Poivre (trop facile à deviner), préfère Sel / Farine. Tes paires forment le thème « Perso »."),
+      h("form", { onsubmit: submit },
+        h("div", { class: "cp-form" }, a, h("span", { class: "vs" }, "vs"), b),
+        h("button", { class: "btn cyan sm", type: "submit", style: "margin-top:10px" }, "＋ Ajouter la paire")),
+      list));
+    draw();
+  }
+
+  // ============================================================
+  // LANCEMENT / REPRISE / ABANDON
+  // ============================================================
+  function startGame() {
+    if (lobbyIssue()) { toast(lobbyIssue()); return; }
+    unlockAudio();
+    const { c, u, w } = comp();
+    const roles = shuffle([...rep(c, "CITIZEN"), ...rep(u, "UNDERCOVER"), ...rep(w, "MRWHITE")]);
+    game = {
+      v: 2,
+      players: prefs.players.map((p) => ({ name: p.name.trim(), emoji: p.emoji, hue: p.hue })),
+      roles,
+      alive: roles.map(() => true),
+      seen: roles.map(() => false),
+      words: pickWords(),
+      cfg: { timer: prefs.timer, clueWords: prefs.clueWords, hideRoles: prefs.hideRoles },
+      comp: { c, u, w },
+      round: 1, order: [], speaker: 0,
+      remaining: 0, total: 0, paused: false,
+      elim: null, log: [], outcome: null, scored: false, points: null,
+      phase: "reveal",
+    };
+    lobby = null;
+    keepAwake(); armBack(); play("start");
+    go("reveal");
+  }
+  function resumeGame(saved) {
+    game = saved;
+    lobby = null;
+    if (game.phase === "debate") game.paused = true;
+    keepAwake(); armBack();
+    render(true);
+    toast("Partie reprise 👍");
+  }
+  function quitGame() {
+    stopTimer(); releaseWake(); closeAllModals();
+    store.del(K.game);
+    game = null;
+    render(true);
+  }
+
+  // ---------- En-tête commun en jeu ----------
+  function topbar(title, kicker) {
+    if (kicker == null) {
+      const { u, w } = counts();
+      kicker = `Tour ${game.round} · ${aliveIdx().length} en jeu · ${plural(u + w, "imposteur")}`;
+    }
+    return h("div", { class: "topbar" },
+      h("div", { class: "tb-txt" }, h("div", { class: "tb-kick" }, kicker), h("h1", { class: "tb-title" }, title)),
+      h("button", { class: "iconbtn", type: "button", "aria-label": "Menu de la partie", onclick: openMenu }, "☰"));
+  }
+  function phases(cur) {
+    const list = [["clues", "🎤 Indices"], ...(game.cfg.timer ? [["debate", "💬 Débat"]] : []), ["vote", "🗳️ Vote"]];
+    const idx = cur === "elim" ? list.length : list.findIndex((x) => x[0] === cur);
+    return h("div", { class: "phases" }, list.map(([, label], i) => h("span", { class: i === idx ? "on" : i < idx ? "done" : "" }, label)));
+  }
+
+  // ============================================================
+  // 1) DISTRIBUTION DES MOTS
+  // ============================================================
+  function renderReveal() {
+    const n = game.players.length;
+    const seenN = game.seen.filter(Boolean).length;
+    const all = seenN === n;
+    const next = game.seen.indexOf(false);
+    const { c, u, w } = game.comp;
+    const v = h("div", null,
+      topbar("Les mots", `${n} joueurs · ${c} 😇  ${u} 🕵️  ${w} 👻`),
+      h("p", { class: "lead" }, all
+        ? ["Tout le monde a son mot. ", h("b", null, "Que le bluff commence ! 😈")]
+        : ["Passe le téléphone : chacun touche ", h("b", null, "sa propre carte"), " et la regarde en cachette 🤫"]),
+      h("div", { class: `pgrid${n > 8 ? " dense" : ""}` }, game.players.map((p, i) => h("button", {
+        class: `pcard${game.seen[i] ? " done" : ""}${i === next ? " next" : ""}`, type: "button",
+        "aria-label": game.seen[i] ? `${p.name}, mot déjà vu` : `${p.name}, voir mon mot`,
+        onclick: () => tapReveal(i),
+      }, avatar(p, "lg"), h("span", { class: "nm" }, p.name), h("span", { class: "st" }, game.seen[i] ? "✓ Mot vu" : "Toucher")))));
+    mount(v, h("button", { class: `btn${all ? " yellow" : ""}`, type: "button", disabled: !all, onclick: startClues },
+      all ? "🎤 Lancer les indices" : `Encore ${plural(n - seenN, "joueur")}…`));
+  }
+  async function tapReveal(i) {
+    const markSeen = () => { game.seen[i] = true; saveGame(); if (game.phase === "reveal") renderReveal(); };
+    if (game.seen[i]) {
+      if (await ask(`Revoir le mot de ${game.players[i].name} ?`, "Seulement si c'est bien toi et que personne ne regarde 👀", "Revoir")) openSecret(i);
+    } else openSecret(i, markSeen);
+  }
+
+  function secretInfo(i) {
+    const r = game.roles[i], W = game.words;
+    if (r === "MRWHITE") return { cls: "mrw-bg", emoji: "👻", top: "Tu es", word: "Mr White", hint: "Tu n'as pas de mot ! Écoute bien les indices des autres et bluffe pour survivre." };
+    const word = r === "UNDERCOVER" ? W.undercover : W.citizen;
+    if (game.cfg.hideRoles) return { cls: "", emoji: "🤫", top: "Ton mot secret", word, hint: "Donne des indices assez clairs pour tes alliés… mais pas trop !" };
+    return r === "UNDERCOVER"
+      ? { cls: "und-bg", emoji: "🕵️", top: "Undercover · ton mot", word, hint: "Les autres ont un mot différent. Fonds-toi dans la masse !" }
+      : { cls: "cit-bg", emoji: "😇", top: "Citizen · ton mot", word, hint: "Tu as le mot de la majorité. Démasque les imposteurs !" };
+  }
+
+  function openSecret(i, onSeen) {
+    const p = game.players[i];
+    let flipped = false;
+    const back = h("div", { class: "face back" });
+    const done = h("button", { class: "btn yellow hidden", type: "button", onclick: () => closeModal() }, "👍 C'est retenu, je cache");
+    const notMe = h("button", { class: "btn ghost sm", type: "button", onclick: () => closeModal() }, `Oups, je ne suis pas ${p.name}`);
+    const card = h("button", { class: "flip", type: "button", "aria-label": "Retourner la carte", onclick: () => {
+      if (flipped) return;
+      flipped = true;
+      // Le mot n'est inséré dans la page qu'au moment où la carte se retourne
+      const info = secretInfo(i);
+      back.className = `face back ${info.cls}`;
+      back.replaceChildren(
+        h("div", { class: "bemo" }, info.emoji), h("div", { class: "btop" }, info.top),
+        h("div", { class: "bword" }, info.word), h("p", { class: "bhint" }, info.hint));
+      card.classList.add("on");
+      card.setAttribute("aria-label", "Carte retournée");
+      done.classList.remove("hidden");
+      notMe.classList.add("hidden");
+      play("flip"); vibrate(30);
+      setTimeout(() => done.focus(), 50);
+    } },
+      h("div", { class: "flip-in" },
+        h("div", { class: "face front" }, h("div", { class: "fq" }, "?"), h("div", { class: "ft" }, "Touche pour révéler")),
+        back));
+    openModal(h("div", { class: "secret" },
+      h("div", { class: "s-top" }, avatar(p, "lg"), h("h2", null, p.name), h("p", null, "Personne ne regarde ? 👀")),
+      card,
+      h("div", { class: "secret-actions" }, done, notMe)),
+      { cls: "secret-wrap", dismiss: false, onClose: () => { back.replaceChildren(); if (flipped && onSeen) onSeen(); } });
+  }
+
+  // ============================================================
+  // 2) INDICES
+  // ============================================================
+  function makeOrder() {
+    const a = shuffle(aliveIdx());
+    // Mr White ne commence jamais (trop dur sans mot)
+    if (game.roles[a[0]] === "MRWHITE") {
+      const k = a.findIndex((i) => game.roles[i] !== "MRWHITE");
+      if (k > 0) [a[0], a[k]] = [a[k], a[0]];
+    }
+    return a;
+  }
+  function startClues() {
+    game.order = makeOrder();
+    game.speaker = 0;
+    play("start");
+    go("clues");
+  }
+  function renderClues() {
+    const O = game.order, s = game.speaker, done = s >= O.length;
+    const cw = game.cfg.clueWords === 1 ? "1 seul mot" : "1 ou 2 mots";
+    let spot;
+    if (done) {
+      spot = h("div", { class: "spot" },
+        h("div", { class: "kick" }, "Tour d'indices terminé"),
+        h("div", { class: "bigemo" }, "🧐"),
+        h("div", { class: "who" }, "Alors, qui bluffe ?"),
+        h("div", { class: "rule" }, game.cfg.timer ? "Place au débat, puis au vote." : "Débattez librement, puis votez."));
+    } else {
+      const p = game.players[O[s]];
+      spot = h("div", { class: "spot" },
+        h("div", { class: "kick" }, s === 0 ? "🎤 Premier indice" : `🎤 Indice ${s + 1} / ${O.length}`),
+        avatar(p, "xl"),
+        h("div", { class: "who" }, p.name),
+        h("div", { class: "rule" }, `Ton indice : ${cw}`));
+    }
+    const v = h("div", null,
+      topbar("Indices"),
+      phases("clues"),
+      spot,
+      h("ol", { class: "order", "aria-label": "Ordre de parole" }, O.map((i, k) => h("li", { class: k < s ? "done" : k === s ? "cur" : "" },
+        h("span", { class: "n" }, k + 1), avatar(game.players[i], "sm"), h("span", null, game.players[i].name)))),
+      h("div", { class: "tip" }, "🚫 Interdit : dire le mot, un bout du mot ou sa traduction. Pas de phrase !"));
+    let d;
+    if (!done) {
+      const last = s === O.length - 1;
+      d = h("div", { class: "dock-row" },
+        h("button", { class: "btn ghost", type: "button", disabled: s === 0, "aria-label": "Joueur précédent", onclick: () => { game.speaker--; saveGame(); renderClues(); } }, "◀"),
+        h("button", { class: "btn", type: "button", onclick: () => { game.speaker++; saveGame(); play("tap"); renderClues(); } },
+          last ? "C'est bon ✓" : `Au tour de ${game.players[O[s + 1]].name} ▶`));
+    } else {
+      d = [
+        h("button", { class: "btn yellow", type: "button", onclick: game.cfg.timer ? startDebate : goVote },
+          game.cfg.timer ? `💬 Débat (${fmt(game.cfg.timer)})` : "🗳️ Passer au vote"),
+        h("div", { class: "two" },
+          h("button", { class: "btn ghost sm", type: "button", onclick: () => { game.speaker = 0; saveGame(); play("tap"); renderClues(); } }, "🔁 Encore un tour"),
+          game.cfg.timer ? h("button", { class: "btn ghost sm", type: "button", onclick: goVote }, "🗳️ Voter direct") : null),
+      ];
+    }
+    mount(v, d);
+  }
+
+  // ============================================================
+  // 3) DÉBAT (minuteur)
+  // ============================================================
+  let timerId = null, ring = null;
+  const fmt = (s) => (s >= 60 ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}` : String(s));
+  function stopTimer() { if (timerId) { clearInterval(timerId); timerId = null; } }
+  function startDebate() {
+    game.total = game.cfg.timer;
+    game.remaining = game.cfg.timer;
+    game.paused = false;
+    go("debate");
+  }
+  function renderDebate() {
+    const R = 90, C = 2 * Math.PI * R;
+    const box = h("div", { class: "ring", role: "timer", "aria-label": "Temps de débat restant" });
+    box.innerHTML = `<svg viewBox="0 0 200 200" aria-hidden="true"><circle class="trk" cx="100" cy="100" r="${R}"/><circle class="bar" cx="100" cy="100" r="${R}" stroke-dasharray="${C}" stroke-dashoffset="0"/></svg>`;
+    const num = h("span");
+    const label = h("small");
+    box.append(h("div", { class: "num" }, num, label));
+    const pauseBtn = h("button", { class: "btn ghost", type: "button", onclick: togglePause });
+    const v = h("div", null,
+      topbar("Débat"),
+      phases("debate"),
+      h("p", { class: "lead center" }, "Qui a un mot différent ? ", h("b", null, "Accusez, défendez-vous, bluffez ! 🔥")),
+      box,
+      h("div", { class: "two" }, pauseBtn, h("button", { class: "btn ghost", type: "button", onclick: addTime }, "+30 s")));
+    mount(v, h("button", { class: "btn yellow", type: "button", onclick: goVote }, "🗳️ Voter maintenant"));
+    ring = { box, bar: box.querySelector(".bar"), num, label, pauseBtn, C };
+    updateRing();
+    runTimer();
+  }
+  function updateRing() {
+    if (!ring || !ring.box.isConnected) return;
+    const r = game.remaining, t = Math.max(game.total, 1);
+    ring.num.textContent = fmt(r);
+    ring.label.textContent = game.paused ? "en pause" : "restant";
+    ring.bar.style.strokeDashoffset = String(ring.C * (1 - r / t));
+    ring.box.classList.toggle("warn", r <= 20 && r > 10);
+    ring.box.classList.toggle("danger", r <= 10);
+    ring.box.classList.toggle("paused", game.paused);
+    ring.pauseBtn.textContent = game.paused ? "▶ Reprendre" : "⏸ Pause";
+  }
+  function runTimer() {
+    stopTimer();
+    if (!game || game.phase !== "debate" || game.paused) return;
+    const endAt = Date.now() + game.remaining * 1000;
+    timerId = setInterval(() => {
+      const r = Math.max(0, Math.ceil((endAt - Date.now()) / 1000));
+      if (r !== game.remaining) {
+        game.remaining = r;
+        updateRing(); saveGame();
+        if (r > 0 && r <= 5) play("tick");
+      }
+      if (r <= 0) {
+        stopTimer();
+        play("buzz"); vibrate([250, 120, 250]);
+        toast("⏰ Temps écoulé ! Place au vote");
+        goVote();
+      }
+    }, 200);
+  }
+  function togglePause() { game.paused = !game.paused; saveGame(); play("tap"); updateRing(); runTimer(); }
+  function addTime() { game.remaining += 30; game.total = Math.max(game.total, game.remaining); saveGame(); play("tap"); updateRing(); runTimer(); }
+
+  // ============================================================
+  // 4) VOTE
+  // ============================================================
+  function goVote() {
+    ui.vote = { sel: null, tie: false, tieSel: new Set(), spinning: false };
+    go("vote");
+  }
+  function renderVote() {
+    const V = ui.vote || (ui.vote = { sel: null, tie: false, tieSel: new Set(), spinning: false });
+    const A = aliveIdx();
+    const v = h("div", null,
+      topbar("Vote"),
+      phases("vote"),
+      h("p", { class: "lead" }, V.tie
+        ? ["⚖️ Égalité : touche ", h("b", null, "tous les ex-aequo"), ", puis laisse le hasard trancher."]
+        : ["Votez à main levée 🙋 puis touchez ", h("b", null, "le joueur éliminé"), "."]),
+      h("div", { class: `pgrid${A.length > 8 ? " dense" : ""}` }, A.map((i) => {
+        const on = V.tie ? V.tieSel.has(i) : V.sel === i;
+        return h("button", {
+          class: `pcard${on ? " sel" : ""}${V.tie ? " tie" : ""}`, type: "button", "data-i": i,
+          "aria-pressed": String(on), disabled: V.spinning, onclick: () => pickVote(i),
+        }, avatar(game.players[i], "lg"), h("span", { class: "nm" }, game.players[i].name));
+      })));
+    let d;
+    if (V.tie) {
+      d = [
+        h("button", { class: "btn yellow", type: "button", disabled: V.tieSel.size < 2 || V.spinning, onclick: spinTie },
+          V.spinning ? "🎲 Roulement…" : `🎲 Tirer au sort (${V.tieSel.size})`),
+        h("button", { class: "btn ghost sm", type: "button", disabled: V.spinning, onclick: () => { V.tie = false; V.tieSel.clear(); renderVote(); } }, "Annuler l'égalité"),
+      ];
+    } else {
+      const name = V.sel != null ? game.players[V.sel].name : null;
+      d = [
+        h("button", { class: "btn", type: "button", disabled: V.sel == null, onclick: () => eliminate(V.sel) }, name ? `❌ Éliminer ${name}` : "Touche un joueur"),
+        h("button", { class: "btn ghost sm", type: "button", onclick: () => {
+          V.tie = true; V.tieSel = new Set(V.sel != null ? [V.sel] : []); V.sel = null; play("tap"); renderVote();
+        } }, "⚖️ Égalité ? Tirage au sort"),
+      ];
+    }
+    mount(v, d);
+  }
+  function pickVote(i) {
+    const V = ui.vote;
+    if (V.spinning) return;
+    if (V.tie) { if (V.tieSel.has(i)) V.tieSel.delete(i); else V.tieSel.add(i); }
+    else V.sel = V.sel === i ? null : i;
+    play("tap");
+    renderVote();
+  }
+  function spinTie() {
+    const V = ui.vote;
+    const cands = [...V.tieSel];
+    const winner = cands[Math.floor(Math.random() * cands.length)];
+    const land = () => {
+      V.spinning = false; V.tie = false; V.tieSel.clear(); V.sel = winner;
+      play("good");
+      toast(`🎲 Le sort a désigné ${game.players[winner].name}`);
+      renderVote();
+    };
+    if (reduced()) { land(); return; }
+    V.spinning = true;
+    renderVote();
+    const cards = new Map([...view.querySelectorAll(".pcard")].map((el) => [Number(el.dataset.i), el]));
+    const steps = [];
+    const start = Math.floor(Math.random() * cands.length);
+    for (let k = 0; k < 12 + cands.length * 2; k++) steps.push(cands[(start + k) % cands.length]);
+    steps.push(winner);
+    (function step(k) {
+      if (!game || game.phase !== "vote") return;
+      cards.forEach((el) => el.classList.remove("spin"));
+      const el = cards.get(steps[k]);
+      if (el) el.classList.add("spin");
+      play("tick");
+      if (k === steps.length - 1) { setTimeout(land, 650); return; }
+      setTimeout(() => step(k + 1), 60 + Math.pow(k / steps.length, 2) * 320);
+    })(0);
+  }
+
+  // ============================================================
+  // 5) ÉLIMINATION
+  // ============================================================
+  function evaluate() {
+    const { c, u, w } = counts();
+    const idx = (pred) => game.roles.map((r, i) => (pred(r, i) ? i : -1)).filter((i) => i >= 0);
+    if (u + w === 0) return { type: "CITIZENS", winners: idx((r) => r === "CITIZEN") };
+    if (u + w >= c) {
+      return {
+        type: u && w ? "IMPOSTORS" : u ? "UNDERCOVER" : "MRWHITE",
+        winners: idx((r, i) => (r === "UNDERCOVER" && u > 0) || (r === "MRWHITE" && game.alive[i])),
+      };
+    }
+    return null;
+  }
+  function eliminate(i) {
+    if (i == null) return;
+    game.alive[i] = false;
+    game.log.push({ round: game.round, i, role: game.roles[i] });
+    game.elim = { i, guess: null, ok: null };
+    // Mr White éliminé : il tente d'abord de deviner le mot, le verdict vient après
+    game.outcome = game.roles[i] === "MRWHITE" ? null : evaluate();
+    ui.fresh = true;
+    play("drum");
+    go("elim");
+  }
+  function renderElim() {
+    const E = game.elim, i = E.i, p = game.players[i], r = game.roles[i], R = ROLES[r];
+    const fresh = ui.fresh && !reduced();
+    ui.fresh = false;
+    const needGuess = r === "MRWHITE" && E.ok === null;
+    const flavor = {
+      CITIZEN: "Aïe… c'était un innocent ! 😬",
+      UNDERCOVER: "Bien vu, un imposteur démasqué ! 🎯",
+      MRWHITE: needGuess ? "Démasqué… mais il reste une dernière chance !" : E.ok ? "Et il a trouvé le mot ! 🤯" : "Pas de mot, pas de victoire ! 👻",
+    }[r];
+    const roleCard = h("div", { class: `rolecard ${R.cls}-bg` },
+      h("div", { class: "re" }, R.emoji),
+      h("div", { class: "rl" }, r === "MRWHITE" ? "C'était" : "C'était un"),
+      h("div", { class: "rn" }, R.name),
+      h("div", { class: "rf" }, flavor));
+    const after = h("div", { style: "width:100%;display:grid;gap:10px;justify-items:center" });
+    if (r === "MRWHITE") after.append(guessBox());
+    if (!needGuess) after.append(statusLine());
+    const drum = h("div", { class: "drum", "aria-hidden": "true" }, "🥁");
+    const v = h("div", null,
+      topbar("Élimination", `Tour ${game.round} · le verdict`),
+      phases("elim"),
+      h("div", { class: "elim" },
+        h("div", { class: "avwrap" }, avatar(p, "xl")),
+        h("div", { class: "ename" }, p.name),
+        h("div", { class: "suspense" }, "quitte la partie… et c'était :"),
+        fresh ? drum : null,
+        roleCard,
+        after));
+    const cont = h("button", { class: "btn yellow", type: "button", onclick: nextFromElim }, game.outcome ? "🏁 Voir le résultat" : "▶ Tour suivant");
+    mount(v, needGuess ? null : cont);
+    if (fresh) {
+      roleCard.classList.add("hidden");
+      after.classList.add("hidden");
+      dock.classList.add("hidden");
+      setTimeout(() => {
+        if (!game || game.phase !== "elim" || !roleCard.isConnected) return;
+        drum.remove();
+        roleCard.classList.remove("hidden");
+        after.classList.remove("hidden");
+        if (!needGuess) dock.classList.remove("hidden");
+        play(r === "CITIZEN" ? "bad" : "good");
+        vibrate(r === "CITIZEN" ? [80, 60, 80] : 120);
+        const inp = after.querySelector("input");
+        if (inp) setTimeout(() => inp.focus(), 400);
+      }, 1500);
+    }
+  }
+  function statusLine() {
+    if (game.outcome) return h("div", { class: "status" }, "🏁 La partie est terminée !");
+    const { u, w } = counts();
+    return h("div", { class: "status" }, `Il reste ${plural(aliveIdx().length, "joueur")}… dont ${plural(u + w, "imposteur")} 👀`);
+  }
+  function guessBox() {
+    const E = game.elim, p = game.players[E.i];
+    if (E.ok === null) {
+      const inp = h("input", { class: "field", placeholder: "Le mot des Citizens…", maxlength: "40", autocomplete: "off", autocapitalize: "off", spellcheck: "false", enterkeyhint: "done", "aria-label": "Proposition de Mr White" });
+      const submit = (g) => { E.guess = g; E.ok = sameWord(g, game.words.citizen); resolveGuess(); };
+      return h("form", { class: "guess", onsubmit: (e) => {
+        e.preventDefault();
+        const g = inp.value.trim();
+        if (!g) { toast("Tape un mot… ou « Je sèche »"); inp.focus(); return; }
+        submit(g);
+      } },
+        h("h3", null, "👻 Dernière chance !"),
+        h("p", { class: "note" }, `${p.name}, devine le mot des Citizens pour voler la victoire. Les accents ne comptent pas.`),
+        inp,
+        h("div", { class: "two" },
+          h("button", { class: "btn ghost sm", type: "button", onclick: () => submit("") }, "🤷 Je sèche"),
+          h("button", { class: "btn sm", type: "submit" }, "Valider")));
+    }
+    if (E.ok) return h("div", { class: "verdict ok" }, "🎉 ", h("b", null, `« ${E.guess} »`), " : c'est le bon mot !");
+    return h("div", { class: "verdict bad" },
+      E.guess ? ["❌ ", h("b", null, `« ${E.guess} »`), " : raté !"] : "🤷 Pas de proposition.",
+      E.guess ? h("button", { class: "linkbtn", type: "button", onclick: acceptGuess }, "Faute de frappe ? Les Citizens peuvent valider") : null);
+  }
+  function resolveGuess() {
+    const E = game.elim;
+    game.outcome = E.ok ? { type: "MRWHITE", winners: [E.i], guessed: true } : evaluate();
+    play(E.ok ? "win" : "bad");
+    saveGame();
+    renderElim();
+  }
+  async function acceptGuess() {
+    if (await ask("Valider quand même ?", "Seuls les Citizens connaissent le mot : validez si c'est juste une faute de frappe.", "Valider")) {
+      game.elim.ok = true;
+      resolveGuess();
+    }
+  }
+  function nextFromElim() {
+    if (game.outcome) { finish(); return; }
+    game.round++;
+    game.elim = null;
+    startClues();
+  }
+
+  // ============================================================
+  // 6) RÉSULTAT & SCORES
+  // ============================================================
+  function loadScores() {
+    const s = store.get(K.scores);
+    return s && typeof s === "object" && s.players ? s : { games: 0, players: {} };
+  }
+  function applyScores() {
+    const o = game.outcome;
+    const S = loadScores();
+    S.games = (S.games || 0) + 1;
+    game.points = game.players.map(() => 0);
+    o.winners.forEach((i) => { game.points[i] = ROLES[game.roles[i]].pts; });
+    game.players.forEach((p, i) => {
+      const key = normName(p.name);
+      const e = S.players[key] || (S.players[key] = { name: p.name, pts: 0, wins: 0, games: 0 });
+      Object.assign(e, { name: p.name, emoji: p.emoji, hue: p.hue });
+      e.games++;
+      e.pts += game.points[i];
+      if (game.points[i]) e.wins++;
+    });
+    store.set(K.scores, S);
+  }
+  function finish() {
+    if (!game.scored) { applyScores(); game.scored = true; }
+    store.del(K.game);
+    releaseWake();
+    ui.confetti = true;
+    go("result");
+  }
+  function renderResult() {
+    const o = game.outcome, W = game.words;
+    const mrw = o.guessed ? game.players[o.winners[0]].name : null;
+    const meta = {
+      CITIZENS:   { cls: "cit", emo: "😇", title: "Les Citizens gagnent !", why: "Tous les imposteurs ont été démasqués." },
+      UNDERCOVER: { cls: "und", emo: "🕵️", title: game.comp.u > 1 ? "Les Undercovers gagnent !" : "L'Undercover gagne !", why: "Les imposteurs sont aussi nombreux que les Citizens." },
+      MRWHITE:    { cls: "mrw", emo: "👻", title: "Mr White gagne !", why: mrw ? `${mrw} a deviné le mot « ${W.citizen} » !` : "Mr White a tenu jusqu'au bout sans mot !" },
+      IMPOSTORS:  { cls: "imp", emo: "🕵️👻", title: "Les imposteurs gagnent !", why: "Ils sont aussi nombreux que les Citizens." },
+    }[o.type];
+    const win = new Set(o.winners);
+    const outRound = {};
+    game.log.forEach((l) => { outRound[l.i] = l.round; });
+    const order = game.players.map((p, i) => i).sort((a, b) => Number(win.has(b)) - Number(win.has(a)));
+    const v = h("div", null,
+      h("div", { class: `banner ${meta.cls}` },
+        h("div", { class: "be" }, meta.emo), h("div", { class: "bt" }, meta.title), h("p", { class: "br" }, meta.why)),
+      h("div", { class: "words" },
+        h("div", { class: "wtile cit" }, h("small", null, "😇 Mot des Citizens"), h("b", null, W.citizen)),
+        game.comp.u > 0
+          ? h("div", { class: "wtile und" }, h("small", null, "🕵️ Mot Undercover"), h("b", null, W.undercover))
+          : h("div", { class: "wtile" }, h("small", null, "🗂️ Thème"), h("b", null, W.cat))),
+      game.comp.u > 0 && h("p", { class: "note center" }, `Thème : ${W.cat}`),
+      h("section", { class: "card" },
+        h("div", { class: "card-h" }, h("h2", null, "Les rôles"), h("span", { class: "pill" }, plural(game.round, "tour"))),
+        h("div", { class: "rlist" }, order.map((i) => {
+          const p = game.players[i], R = ROLES[game.roles[i]], out = !game.alive[i];
+          return h("div", { class: `rline${win.has(i) ? " win" : ""}${out ? " out" : ""}` },
+            avatar(p, "md"),
+            h("div", { class: "rn" }, h("b", null, p.name), h("small", null, out ? `Élimination au tour ${outRound[i]}` : "En jeu jusqu'au bout")),
+            h("span", { class: `tag ${R.cls}` }, `${R.emoji} ${R.name}`),
+            h("span", { class: "pts" }, game.points && game.points[i] ? `+${game.points[i]}` : ""));
+        }))),
+      boardCard(game.players.map((p) => normName(p.name))));
+    mount(v, [
+      h("button", { class: "btn yellow big", type: "button", onclick: rematch }, "🔁 Rejouer"),
+      h("button", { class: "btn ghost sm", type: "button", onclick: toLobby }, "⚙️ Joueurs & réglages"),
+    ]);
+    if (ui.confetti) { ui.confetti = false; confetti(); play("win"); vibrate([60, 40, 60, 40, 120]); }
+  }
+  function boardCard(onlyKeys) {
+    const S = loadScores();
+    let rows = Object.entries(S.players);
+    if (onlyKeys) rows = rows.filter(([k]) => onlyKeys.includes(k));
+    rows = rows.map(([, e]) => e).sort((a, b) => b.pts - a.pts || b.wins - a.wins).slice(0, 30);
+    if (!rows.length) return h("div", { class: "empty" }, "Pas encore de partie terminée. Le classement apparaîtra ici 🏆");
+    return h("section", { class: "card" },
+      h("div", { class: "card-h" }, h("h2", null, "Classement"), h("span", { class: "pill" }, plural(S.games, "partie"))),
+      h("div", { class: "rlist" }, rows.map((e, k) => h("div", { class: "rline" },
+        h("span", { class: "rank" }, ["🥇", "🥈", "🥉"][k] || k + 1),
+        avatar(e, "sm"),
+        h("div", { class: "rn" }, h("b", null, e.name), h("small", null, `${plural(e.wins, "victoire")} · ${plural(e.games, "partie")}`)),
+        h("span", { class: "pts" }, e.pts)))),
+      h("p", { class: "note center" }, "Victoire : Citizen +2 · Mr White +6 · Undercover +10"));
+  }
+  function rematch() {
+    if (lobbyIssue()) { toLobby(); return; }
+    startGame();
+  }
+  function toLobby() {
+    stopTimer();
+    fxRun++;
+    game = null;
+    render(true);
+  }
+
+  // ============================================================
+  // MENUS & FEUILLES
+  // ============================================================
+  function menuItem(icon, title, sub, onclick, danger) {
+    return h("button", { class: `menu-item${danger ? " danger" : ""}`, type: "button", onclick },
+      h("span", { class: "mi", "aria-hidden": "true" }, icon),
+      h("div", null, h("b", null, title), sub && h("small", null, sub)));
+  }
+  function openMenu() {
+    if (!game) return;
+    sheet("Menu", h("div", null,
+      menuItem("👁️", "Revoir mon mot", "Pour ceux qui ont un trou de mémoire", () => { closeModal(); pickPeek(); }),
+      menuItem("📖", "Règles du jeu", null, () => { closeModal(); openRules(); }),
+      menuItem("🏆", "Classement", null, () => { closeModal(); openScores(); }),
+      menuItem(prefs.sound ? "🔊" : "🔇", prefs.sound ? "Couper le son" : "Activer le son", null, () => {
+        prefs.sound = !prefs.sound; savePrefs(); closeModal(); toast(prefs.sound ? "🔊 Son activé" : "🔇 Son coupé");
+      }),
+      menuItem("🏠", "Abandonner la partie", "Retour à l'accueil, sans points", async () => {
+        closeModal();
+        if (await ask("Abandonner la partie ?", "La partie en cours sera perdue.", "Abandonner", true)) quitGame();
+      }, true)));
+  }
+  function pickPeek() {
+    const A = aliveIdx();
+    sheet("Qui veut revoir son mot ?", h("div", { class: `pgrid${A.length > 8 ? " dense" : ""}` }, A.map((i) => h("button", {
+      class: "pcard", type: "button", onclick: () => {
+        closeModal();
+        openSecret(i, game.phase === "reveal" ? () => { game.seen[i] = true; saveGame(); renderReveal(); } : null);
+      },
+    }, avatar(game.players[i], "lg"), h("span", { class: "nm" }, game.players[i].name)))));
+  }
+  function openScores() {
+    sheet("🏆 Classement", h("div", null,
+      boardCard(null),
+      h("button", { class: "linkbtn", type: "button", onclick: async () => {
+        if (await ask("Remettre les scores à zéro ?", "Tout le classement sera effacé.", "Effacer", true)) {
+          store.del(K.scores); closeModal(); toast("Classement remis à zéro");
+        }
+      } }, "Remettre les scores à zéro")));
+  }
+  function openRules() {
+    const info = (cls, e, name, txt) => h("div", { class: `rinfo ${cls}` }, h("span", { class: "e" }, e), h("div", null, h("b", null, name), h("span", null, txt)));
+    sheet("Comment jouer ?", h("div", { class: "rules" },
+      h("p", null, "Tout le monde reçoit un mot secret… mais pas tout à fait le même ! Trouvez qui bluffe avant qu'il ne soit trop tard."),
+      info("cit", "😇", "Citizens", "Ils ont tous le même mot. Leur mission : démasquer les imposteurs."),
+      info("und", "🕵️", "Undercover", "Un autre mot, du même univers mais bien différent (ex : Sel / Farine). Avec les rôles secrets, il ne sait même pas qu'il est Undercover !"),
+      info("mrw", "👻", "Mr White", "Aucun mot ! Il écoute et bluffe. S'il est éliminé, il peut deviner le mot des Citizens pour gagner."),
+      h("h3", null, "🎬 Déroulé"),
+      h("ol", { class: "steps" },
+        h("li", null, h("b", null, "Les mots. "), "Chacun découvre son mot en cachette sur le téléphone."),
+        h("li", null, h("b", null, "Les indices. "), "À tour de rôle, un indice court sur son mot (Mr White ne commence jamais)."),
+        h("li", null, h("b", null, "Le débat. "), "On discute, on accuse, on se défend."),
+        h("li", null, h("b", null, "Le vote. "), "À main levée : le joueur éliminé révèle son rôle."),
+        h("li", null, "On recommence jusqu'à la victoire d'un camp.")),
+      h("h3", null, "🏆 Victoire"),
+      h("ul", { class: "wins" },
+        h("li", null, "😇 Citizens : tous les imposteurs sont éliminés."),
+        h("li", null, "🕵️ Imposteurs : ils deviennent aussi nombreux que les Citizens."),
+        h("li", null, "👻 Mr White : il devine le mot des Citizens quand il est éliminé.")),
+      h("h3", null, "⭐ Points"),
+      h("p", null, "Chaque gagnant marque : Citizen +2 · Mr White +6 · Undercover +10."),
+      h("button", { class: "btn", type: "button", onclick: () => closeModal() }, "C'est compris !")));
+  }
+
+  // ---------- Confettis ----------
+  function confetti() {
+    if (reduced()) return;
+    const cv = $("#fx"), ctx = cv.getContext("2d");
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const W = (cv.width = innerWidth * dpr), H = (cv.height = innerHeight * dpr);
+    const cols = ["#ffd23f", "#ff3d81", "#2de1fc", "#8aff5e", "#ffffff", "#b18cff"];
+    const P = Array.from({ length: 170 }, (_, k) => {
+      const left = k % 2 === 0;
+      return {
+        x: left ? 0 : W, y: H * 0.72,
+        vx: (left ? 1 : -1) * (4 + Math.random() * 11) * dpr,
+        vy: -(10 + Math.random() * 13) * dpr,
+        r: (5 + Math.random() * 6) * dpr,
+        c: cols[(Math.random() * cols.length) | 0],
+        a: Math.random() * 6.28, va: (Math.random() - 0.5) * 0.3,
+        rect: Math.random() < 0.6,
+      };
+    });
+    const t0 = performance.now(), life = 3600, run = fxRun;
+    (function frame(t) {
+      const el = t - t0;
+      ctx.clearRect(0, 0, W, H);
+      if (run !== fxRun) return;
+      ctx.globalAlpha = Math.max(0, 1 - el / life);
+      for (const p of P) {
+        p.vy += 0.32 * dpr; p.vx *= 0.99; p.x += p.vx; p.y += p.vy; p.a += p.va;
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.fillStyle = p.c;
+        if (p.rect) ctx.fillRect(-p.r / 2, -p.r / 4, p.r, p.r / 2);
+        else { ctx.beginPath(); ctx.arc(0, 0, p.r / 2.6, 0, 6.29); ctx.fill(); }
+        ctx.restore();
+      }
+      if (el < life) requestAnimationFrame(frame);
+      else ctx.clearRect(0, 0, W, H);
+    })(t0);
+  }
+
+  // ---------- Démarrage ----------
+  render(true);
+  if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
 })();
 </script>
 </body>
