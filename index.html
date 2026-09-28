@@ -479,10 +479,15 @@
   // (le mot des Citizens est tiré au hasard entre A et B)
   //
   // Règle d'or : MÊME UNIVERS, mais PAS le jumeau évident.
-  //  ✗ Sel / Poivre, Ketchup / Mayo, Chat / Chien : on devine l'autre mot tout de suite.
-  //  ✓ Sel / Farine, Ketchup / Nutella, Chat / Hibou : quelques points communs
-  //    (de quoi bluffer un tour), mais des indices qui finissent par diverger.
-  // Test : si on te donne le mot A, le mot B ne doit pas être dans tes 3 premières idées.
+  //  ✓ Sel / Farine, Ketchup / Nutella, Parapluie / Bouclier : 2-3 points communs
+  //    (de quoi bluffer un tour), 2-3 différences nettes (les indices finissent par diverger).
+  // Méthode : liste les traits du mot A, garde un trait SECONDAIRE, change tout le reste.
+  // 3 tests : • si on te donne A, B n'est pas dans tes 3 premières idées
+  //           • il existe un indice valable pour les deux (sinon trop loin)
+  //           • il existe un indice qui ne marche que pour un seul (sinon trop proche)
+  // Pièges : jumeau (Sel / Poivre) · même fonction (Parapluie / K-way)
+  //          · le tout et sa partie (Montre / Bracelet) · le mot et sa famille (Montre / Bijoux)
+  //          · univers trop étroit (Sapin / Bûche = Noël) · trop loin (Pizza / Voiture)
   // ============================================================
   const WORD_BANK = {
     "🏠 Quotidien": [
@@ -490,7 +495,8 @@
       ["Réveil","Douche"], ["Clé","Mot de passe"], ["Aspirateur","Lave-vaisselle"], ["Poubelle","Boîte aux lettres"],
       ["Oreiller","Doudou"], ["Télécommande","Lunettes"], ["Savon","Bougie"], ["Télé","Aquarium"],
       ["Tapis","Pelouse"], ["Horloge","Calendrier"], ["Balcon","Toit"], ["Couette","Manteau"],
-      ["Fer à repasser","Poêle"], ["Brosse à dents","Peigne"], ["Cheminée","Barbecue"],
+      ["Fer à repasser","Poêle"], ["Brosse à dents","Peigne"], ["Cheminée","Barbecue"], ["Parapluie","Bouclier"],
+      ["Casserole","Four"], ["Radiateur","Bouillotte"],
     ],
     "🍕 Bouffe": [
       ["Pizza","Sushi"], ["Burger","Lasagnes"], ["Pâtes","Soupe"], ["Croissant","Pancake"],
@@ -498,17 +504,19 @@
       ["Citron","Vinaigre"], ["Miel","Caramel"], ["Café","Coca"], ["Œuf","Avocat"],
       ["Popcorn","Barbe à papa"], ["Ketchup","Nutella"], ["Sel","Farine"], ["Steak","Saumon"],
       ["Salade","Kebab"], ["Carotte","Orange"], ["Omelette","Crêpe"], ["Yaourt","Compote"],
+      ["Frites","Churros"],
     ],
     "🍺 Soirée": [
       ["Bière","Limonade"], ["Vin","Thé"], ["Champagne","Confettis"], ["Vodka","Eau"],
       ["Cocktail","Milkshake"], ["Apéro","Goûter"], ["Raclette","Pique-nique"], ["Anniversaire","Halloween"],
       ["Boîte de nuit","Salle de sport"], ["Nouvel An","14 Juillet"], ["Karaoké","Blind test"], ["Pétanque","Bowling"],
       ["Beer pong","Basket"], ["Gueule de bois","Mal de mer"], ["DJ","Barman"], ["Uber","Dernier métro"],
-      ["Videur","Douanier"], ["Afterwork","Brunch"], ["Enterrement de vie de garçon","Colonie de vacances"],
+      ["Videur","Douanier"], ["Afterwork","Brunch"], ["Enterrement de vie de garçon","Colonie de vacances"], ["Sapin de Noël","Bûche"],
+      ["Action ou vérité","Interrogatoire"],
     ],
     "🎵 Musique": [
       ["Guitare","Trompette"], ["Piano","Xylophone"], ["Batterie","Maracas"], ["Violon","Flûte"],
-      ["Saxophone","Harmonica"], ["Micro","Mégaphone"], ["DJ","Chef d'orchestre"], ["Festival","Kermesse"],
+      ["Saxophone","Harmonica"], ["Micro","Brosse à cheveux"], ["DJ","Chef d'orchestre"], ["Festival","Kermesse"],
       ["Rap","Jazz"], ["Metal","Musique classique"], ["Refrain","Slogan"], ["Casque audio","Bonnet"],
       ["Vinyle","Polaroid"], ["Tube de l'été","Mème"], ["Hymne national","Générique"], ["Spotify","Juke-box"],
       ["Beatbox","Ventriloque"], ["Concert","Messe"], ["Chorale","Supporters"],
@@ -526,6 +534,7 @@
       ["Essence","Café"], ["Autoroute","Piste d'atterrissage"], ["Volant","Gouvernail"], ["Feu rouge","Péage"],
       ["Radar","Contrôleur"], ["Trottinette","Poussette"], ["Covoiturage","Colocation"], ["Permis de conduire","Diplôme"],
       ["Embouteillage","File d'attente"], ["Klaxon","Sifflet"], ["Tracteur","Tank"],
+      ["Carrosse","Limousine"],
     ],
     "👕 Vêtements": [
       ["T-shirt","Pyjama"], ["Jean","Costume"], ["Baskets","Tongs"], ["Casquette","Couronne"],
@@ -533,6 +542,7 @@
       ["Écharpe","Collier"], ["Lunettes de soleil","Parasol"], ["Peignoir","Kimono"], ["Uniforme","Déguisement"],
       ["Sac à main","Cartable"], ["Talons","Échasses"], ["Tablier","Bavoir"], ["Doudoune","Sac de couchage"],
       ["Pull de Noël","Maillot de foot"], ["Maillot de bain","Combinaison de ski"],
+      ["Montre","Bague"], ["Armure","Combinaison d'astronaute"],
     ],
     "⚽ Sport": [
       ["Football","Water-polo"], ["Basket","Fléchettes"], ["Tennis","Volley"], ["Rugby","Sumo"],
@@ -540,13 +550,14 @@
       ["Ski","Surf"], ["Boxe","Escrime"], ["Golf","Billard"], ["Escalade","Parkour"],
       ["Arbitre","Commentateur"], ["Podium","Tapis rouge"], ["Plongée","Parachutisme"], ["Skate","Trampoline"],
       ["Karaté","Danse"], ["Coupe du monde","Eurovision"], ["Handball","Balle aux prisonniers"],
+      ["Javelot","Harpon"],
     ],
     "🌍 Nature": [
       ["Plage","Désert"], ["Montagne","Iceberg"], ["Forêt","Océan"], ["Rivière","Glacier"],
       ["Lac","Piscine"], ["Soleil","Feu de camp"], ["Lune","Phare"], ["Étoile","Luciole"],
-      ["Orage","Feu d'artifice"], ["Pluie","Douche"], ["Neige","Sable"], ["Volcan","Tremblement de terre"],
+      ["Orage","Feu d'artifice"], ["Pluie","Douche"], ["Neige","Sable"], ["Volcan","Cocotte-minute"],
       ["Île","Oasis"], ["Arc-en-ciel","Coucher de soleil"], ["Grotte","Igloo"], ["Coquillage","Pomme de pin"],
-      ["Brouillard","Fumée"], ["Fleur","Papillon"],
+      ["Brouillard","Fumée"], ["Fleur","Papillon"], ["Cactus","Oursin"],
     ],
     "🐶 Animaux": [
       ["Chien","Cheval"], ["Chat","Hibou"], ["Vache","Zèbre"], ["Mouton","Caniche"],
@@ -555,6 +566,7 @@
       ["Serpent","Ver de terre"], ["Grenouille","Criquet"], ["Abeille","Fourmi"], ["Araignée","Pieuvre"],
       ["Ours","Gorille"], ["Loup","Hyène"], ["Tortue","Hérisson"], ["Girafe","Autruche"],
       ["Lion","Coq"], ["Crocodile","Dinosaure"], ["Moustique","Chauve-souris"], ["Singe","Paresseux"],
+      ["Méduse","Fantôme"],
     ],
     "💼 Métiers": [
       ["Médecin","Mécanicien"], ["Chirurgien","Couturier"], ["Avocat","Vendeur"], ["Policier","Surveillant"],
@@ -563,20 +575,22 @@
       ["Serveur","Hôtesse de l'air"], ["Journaliste","Détective"], ["Acteur","Politicien"], ["Banquier","Croupier"],
       ["Agriculteur","Vétérinaire"], ["Livreur","Cigogne"], ["Dentiste","Bijoutier"], ["Magicien","Pickpocket"],
       ["Astronaute","Plongeur"], ["Influenceur","Mannequin"],
+      ["Pirate","Braconnier"], ["Chevalier","Garde du corps"], ["Sorcière","Pharmacien"], ["Espion","Paparazzi"],
     ],
     "✈️ Voyage": [
       ["Hôtel","Hôpital"], ["Camping","Cabane dans les arbres"], ["Valise","Coffre de voiture"], ["Passeport","Carnet de santé"],
       ["Croisière","Train de nuit"], ["Carte postale","Selfie"], ["Tour Eiffel","Statue de la Liberté"], ["Paris","Venise"],
       ["New York","Tokyo"], ["Japon","Suisse"], ["Espagne","Grèce"], ["Guide touristique","GPS"],
       ["Jet lag","Insomnie"], ["Safari","Musée"], ["Aéroport","Centre commercial"], ["Crème solaire","Anti-moustique"],
-      ["Road trip","Pèlerinage"],
+      ["Road trip","Pèlerinage"], ["Château","Villa"], ["Phare","Tour de contrôle"],
+      ["Pyramide","Château de sable"], ["Carte au trésor","Plan de métro"],
     ],
     "🎓 École": [
       ["École","Prison"], ["Contrôle","Entretien d'embauche"], ["Cahier","Journal intime"], ["Stylo","Pinceau"],
       ["Trousse","Boîte à outils"], ["Récré","Pause café"], ["Devoirs","Ménage"], ["Bulletin","Avis Google"],
       ["Maths","Sudoku"], ["Histoire","Conte de fées"], ["Cantine","Buffet à volonté"], ["Professeur","Animateur de colo"],
-      ["Dictée","Karaoké"], ["Heure de colle","Garde à vue"], ["Délégué","Maire"], ["Règle","Mètre ruban"],
-      ["Cour de récré","Parc"], ["Rentrée","Lundi matin"],
+      ["Dictée","Karaoké"], ["Heure de colle","Garde à vue"], ["Délégué","Maire"], ["Règle","Flûte à bec"],
+      ["Cour de récré","Parc"], ["Rentrée","Lundi matin"], ["Surveillant","Maître-nageur"],
     ],
     "❤️ Amour": [
       ["Premier rendez-vous","Casting"], ["Bisou","Poignée de main"], ["Fiançailles","Signature de contrat"], ["Saint-Valentin","Fête des mères"],
@@ -586,9 +600,9 @@
       ["Lettre d'amour","Lettre de motivation"],
     ],
     "💰 Argent": [
-      ["Billet","Timbre"], ["Carte bancaire","Badge"], ["Banque","Bibliothèque"], ["Salaire","Argent de poche"],
-      ["Impôts","Loyer"], ["Bourse","Enchères"], ["Bitcoin","Carte Pokémon"], ["Tirelire","Piñata"],
-      ["Riche","Célèbre"], ["Soldes","Marché aux puces"], ["Crédit","Abonnement"], ["Porte-monnaie","Sac de billes"],
+      ["Billet","Timbre"], ["Carte bancaire","Badge"], ["Banque","Bibliothèque"], ["Salaire","Récolte"],
+      ["Impôts","Racket"], ["Bourse","Enchères"], ["Bitcoin","Carte Pokémon"], ["Tirelire","Piñata"],
+      ["Riche","Célèbre"], ["Soldes","Marché aux puces"], ["Abonnement","Régime"], ["Porte-monnaie","Sac de billes"],
       ["Distributeur de billets","Parcmètre"], ["Radin","Écolo"], ["Arnaque","Tour de magie"], ["Coffre-fort","Congélateur"],
       ["Casino","Fête foraine"],
     ],
@@ -610,9 +624,9 @@
       ["Bot","Télévendeur"],
     ],
     "🤌 Trends & conso": [
-      ["Labubu","Tamagotchi"], ["Matcha","Guacamole"], ["Chocolat Dubaï","Bubble tea"], ["Air fryer","Micro-ondes"],
+      ["Labubu","Tamagotchi"], ["Matcha","Guacamole"], ["Chocolat Dubaï","Bubble tea"], ["Air fryer","Sèche-cheveux"],
       ["Padel","Pétanque"], ["Hyrox","Koh-Lanta"], ["Run club","Speed dating"], ["Stanley Cup","Doudou"],
-      ["Skincare","Jardinage"], ["Crocs","Moon Boots"], ["Tote bag","Sac plastique"], ["Quiet luxury","Uniforme scolaire"],
+      ["Skincare","Jardinage"], ["Crocs","Moon Boots"], ["Tote bag","Gourde"], ["Quiet luxury","Uniforme scolaire"],
       ["Ice bath","Jeûne"], ["Protéine","Épinards"], ["Kombucha","Cidre"], ["Coachella","Fashion week"],
       ["Podcast","Conférence"], ["Seconde main","Héritage"], ["Pilates","Danse classique"], ["Nail art","Tatouage"],
     ],
@@ -630,6 +644,7 @@
       ["Stranger Things","Scooby-Doo"], ["Game of Thrones","Kaamelott"], ["Les Simpson","Les Minions"], ["One Piece","Pirates des Caraïbes"],
       ["Astérix","Les Schtroumpfs"], ["Intouchables","Forrest Gump"], ["Oscar","Ballon d'or"], ["Zombie","Somnambule"],
       ["Cinéma","Planétarium"], ["Bande-annonce","Dégustation"], ["SOS Fantômes","Pompiers"], ["Toy Story","Chucky"],
+      ["Vampire","Démon"], ["Dragon","Montgolfière"],
     ],
     "🎮 Jeux": [
       ["Mario","Père Noël"], ["Minecraft","Lego"], ["Fortnite","Paintball"], ["FIFA","Baby-foot"],
@@ -638,13 +653,14 @@
       ["Loup-garou","Poker"], ["Candy Crush","Machine à sous"], ["Uno","Twister"], ["Escape game","Chasse au trésor"],
       ["Puzzle","Mots croisés"], ["Jeu de l'oie","Marelle"], ["Rubik's Cube","Kaléidoscope"], ["Zelda","Indiana Jones"],
       ["Les Sims","Maison de poupée"], ["Just Dance","Zumba"], ["PlayStation","Flipper"],
+      ["Dominos","Château de cartes"],
     ],
     "🧠 Piégeux": [
       ["Rêve","Souvenir"], ["Chance","Talent"], ["Secret","Surprise"], ["Peur","Excitation"],
       ["Rire","Éternuement"], ["Silence","Nuit"], ["Promesse","Pari"], ["Mensonge","Magie"],
       ["Patience","Pêche"], ["Liberté","Vacances"], ["Colère","Volcan"], ["Temps","Argent"],
       ["Musique","Odeur"], ["Ombre","Reflet"], ["Écho","Perroquet"], ["Début","Naissance"],
-      ["Gravité","Aimant"], ["Frisson","Chatouille"], ["Faim","Ennui"],
+      ["Gravité","Aimant"], ["Frisson","Chatouille"], ["Faim","Ennui"], ["Rumeur","Virus"],
     ],
   };
   // Thèmes ajoutés en v2 : actifs par défaut même pour qui avait une sélection enregistrée en v1
