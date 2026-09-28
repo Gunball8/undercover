@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="color-scheme" content="dark" />
-  <meta name="theme-color" content="#2a0d63" />
-  <meta name="description" content="Undercover & Mr White : le jeu d'imposteurs à jouer entre potes sur un seul téléphone." />
+  <meta name="theme-color" content="#0a0a0c" />
+  <meta name="description" content="Undercover & Mr White : le jeu d'imposteurs à jouer entre amis sur un seul téléphone." />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -13,24 +13,31 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" />
+  <link rel="preload" href="fonts/jersey-10-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="fonts/press-start-2p-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
   <title>Undercover · Mr White</title>
   <style>
+    /* Polices embarquées (SIL Open Font License, voir fonts/) : pas de dépendance réseau */
+    @font-face { font-family:"Press Start 2P"; src:url("fonts/press-start-2p-latin-400-normal.woff2") format("woff2"); font-weight:400; font-display:swap; }
+    @font-face { font-family:"Jersey 10"; src:url("fonts/jersey-10-latin-400-normal.woff2") format("woff2"); font-weight:400; font-display:swap; }
+    @font-face { font-family:"Inter"; src:url("fonts/inter-latin-wght-normal.woff2") format("woff2"); font-weight:100 900; font-style:normal; font-display:swap; }
+
     :root {
       color-scheme: dark;
-      --bg1:#3b1487; --bg2:#10052f;
-      --card:#23105c; --card-2:#2c1672; --panel:#170a45; --edge:#4a2aa6; --edge-2:#6b48dc;
-      --ink:#f7f2ff; --mut:#bcaaf0; --dim:#8c7bcc;
-      --pink:#ff3d81; --pink-d:#b81f56;
-      --yellow:#ffd23f; --yellow-d:#c99700;
-      --cyan:#2de1fc; --cyan-d:#0a9fb8;
-      --lime:#8aff5e; --lime-d:#46b31f;
-      --red:#ff5d6c;
-      --cit:#2de1fc; --und:#ff3d81; --mrw:#f1ecff;
-      --display:"Lilita One","Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
-      --shadow:0 6px 0 rgba(0,0,0,.35);
+      --bg:#0a0a0c; --bg-2:#0e0e12;
+      --s1:#121217; --s2:#18181f; --s3:#23232c;
+      --line:#1c1c24; --line-2:#2a2a35; --line-3:#3a3a48;
+      --ink:#f4f4f6; --ink-2:#d8d8e0; --mut:#9a9aab; --dim:#5f5f70;
+      --yellow:#ffd23f; --yellow-d:#b38f0c; --yellow-ink:#1a1405;
+      --pink:#ff4f8b; --pink-d:#a8285a;
+      --cyan:#35e0ff; --cyan-d:#168ea8;
+      --green:#6dff9c; --red:#ff5a5a;
+      --cit:var(--cyan); --und:var(--pink); --mrw:#f4f4f6;
+      /* Press Start 2P tasse les majuscules accentuées (É y ressemble à é) : que des textes sans accents. */
+      --pixel:"Press Start 2P",ui-monospace,Menlo,monospace;
+      --arcade:"Jersey 10","Arial Narrow",system-ui,sans-serif;
+      --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      --press:0 4px 0 #040406;
       --st:env(safe-area-inset-top,0px);
       --sb:env(safe-area-inset-bottom,0px);
       --dock-h:120px;
@@ -38,425 +45,443 @@
     * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
     html { height:100%; }
     body {
-      margin:0; min-height:100%; color:var(--ink); background:var(--bg2);
-      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-      -webkit-font-smoothing:antialiased;
+      margin:0; min-height:100%; background:var(--bg); color:var(--ink);
+      font:400 15px/1.5 var(--sans);
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
       overscroll-behavior-y:none; /* pas de pull-to-refresh accidentel en pleine partie */
     }
+    /* Écran d'arcade : lueur en haut, grille de points, lignes de balayage */
     body::before {
-      content:""; position:fixed; inset:0; z-index:-1;
+      content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
       background:
-        radial-gradient(rgba(255,255,255,.045) 1px, transparent 1.6px) 0 0/22px 22px,
-        radial-gradient(900px 600px at 0% -10%, #5a1fb8 0%, transparent 60%),
-        radial-gradient(800px 600px at 110% 0%, #7a1a74 0%, transparent 55%),
-        linear-gradient(170deg, var(--bg1), var(--bg2) 75%);
+        radial-gradient(700px 380px at 50% -8%, rgba(255,210,63,.07), transparent 70%),
+        radial-gradient(600px 420px at 110% 105%, rgba(255,79,139,.06), transparent 65%),
+        radial-gradient(600px 420px at -10% 100%, rgba(53,224,255,.05), transparent 65%),
+        radial-gradient(rgba(255,255,255,.035) 1px, transparent 1.4px) 0 0/18px 18px;
+    }
+    body::after {
+      content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+      background:repeating-linear-gradient(to bottom, rgba(255,255,255,.022) 0 1px, transparent 1px 3px);
     }
     body.locked { overflow:hidden; }
-    #app { max-width:560px; margin:0 auto; padding:calc(12px + var(--st)) 16px calc(var(--dock-h) + 24px); }
+    #app { max-width:560px; margin:0 auto; padding:calc(8px + var(--st)) 16px calc(var(--dock-h) + 24px); }
     button { font:inherit; color:inherit; border:0; background:none; padding:0; margin:0; cursor:pointer; touch-action:manipulation; }
     input { font:inherit; }
     :focus-visible { outline:3px solid var(--cyan); outline-offset:2px; }
     .hidden { display:none !important; }
     .center { text-align:center; }
-    .muted { color:var(--mut); }
-    .note { font-size:13px; color:var(--mut); margin:10px 0 0; line-height:1.45; }
+    .note { margin:12px 0 0; font-size:13px; line-height:1.5; color:var(--mut); }
+    .note.top { margin:0 0 14px; }
+    /* Petites étiquettes façon écran de jeu */
+    .hud { display:flex; align-items:center; flex-wrap:wrap; gap:8px; font:400 10px/1.6 var(--pixel); text-transform:uppercase; color:var(--mut); }
+    .hud.y { color:var(--yellow); } .hud.c { color:var(--cyan); } .hud.p { color:var(--pink); }
+    .kicker { display:flex; align-items:center; flex-wrap:wrap; gap:7px; font:400 19px/1.1 var(--arcade); letter-spacing:.06em; text-transform:uppercase; color:var(--mut); }
+    .kicker .sep { color:var(--dim); }
+    .blink { animation:blink 1s steps(2, start) infinite; }
 
-    /* ---------- Boutons ---------- */
+    /* Pixel art (icônes, rôles, monstres des joueurs) */
+    .px { display:block; flex:none; width:18px; height:18px; }
+    .px.sm { width:14px; height:14px; }
+    .px.xs { width:11px; height:11px; }
+    .sp { display:block; flex:none; width:18px; height:18px; }
+    .sp.cit { color:var(--cit); } .sp.und { color:var(--und); } .sp.mrw { color:var(--mrw); }
+    .sp.xs { width:13px; height:13px; }
+    .sp.md { width:26px; height:26px; }
+    .sp.lg { width:52px; height:52px; }
+    .sp.xl { width:76px; height:76px; }
+
+    /* ---------- Boutons d'arcade ---------- */
     .btn {
-      display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
-      min-height:56px; padding:12px 18px; border-radius:18px;
-      background:var(--pink); color:#fff; box-shadow:0 6px 0 var(--pink-d), 0 12px 24px rgba(0,0,0,.3);
-      font-family:var(--display); font-size:21px; letter-spacing:.03em; line-height:1.1; text-align:center;
-      transition:transform .08s ease, box-shadow .08s ease, filter .15s ease;
+      display:flex; align-items:center; justify-content:center; gap:10px; width:100%;
+      min-height:56px; padding:6px 18px 8px; border-radius:10px;
+      background:var(--yellow); color:var(--yellow-ink); box-shadow:0 5px 0 var(--yellow-d);
+      font:400 27px/1 var(--arcade); letter-spacing:.05em; text-transform:uppercase; text-align:center;
+      transition:transform .06s, box-shadow .06s, filter .15s;
     }
-    .btn:active:not(:disabled) { transform:translateY(5px); box-shadow:0 1px 0 var(--pink-d); }
-    .btn:disabled { filter:grayscale(.75) brightness(.6); cursor:default; }
-    .btn.yellow { background:var(--yellow); color:#2a0e5e; box-shadow:0 6px 0 var(--yellow-d), 0 12px 24px rgba(0,0,0,.3); }
-    .btn.yellow:active:not(:disabled) { box-shadow:0 1px 0 var(--yellow-d); }
-    .btn.cyan { background:var(--cyan); color:#10053a; box-shadow:0 5px 0 var(--cyan-d); }
+    .btn:active:not(:disabled) { transform:translateY(4px); box-shadow:0 1px 0 var(--yellow-d); }
+    .btn:disabled { filter:grayscale(1) brightness(.45); cursor:default; }
+    .btn .px { width:16px; height:16px; }
+    .btn.accent { box-shadow:0 5px 0 var(--yellow-d), 0 0 34px -8px rgba(255,210,63,.55); }
+    .btn.pink { background:var(--pink); color:#fff; box-shadow:0 5px 0 var(--pink-d); }
+    .btn.pink:active:not(:disabled) { box-shadow:0 1px 0 var(--pink-d); }
+    .btn.cyan { background:var(--cyan); color:#03171c; box-shadow:0 5px 0 var(--cyan-d); }
     .btn.cyan:active:not(:disabled) { box-shadow:0 1px 0 var(--cyan-d); }
-    .btn.ghost {
-      background:var(--panel); color:var(--ink); border:2px solid var(--edge); box-shadow:0 4px 0 rgba(0,0,0,.35);
-      font-family:inherit; font-weight:800; font-size:15px; letter-spacing:0; min-height:48px;
-    }
-    .btn.ghost:active:not(:disabled) { box-shadow:none; transform:translateY(4px); }
-    .btn.ghost:disabled { filter:none; opacity:.4; }
-    .btn.sm { min-height:46px; font-size:16px; padding:8px 14px; border-radius:14px; }
-    .btn.ghost.sm { font-size:14px; }
-    .btn.big { min-height:64px; font-size:24px; }
+    .btn.ghost { background:var(--s2); color:var(--ink); border:2px solid var(--line-3); box-shadow:var(--press); }
+    .btn.ghost:active:not(:disabled) { transform:translateY(3px); box-shadow:0 1px 0 #040406; }
+    .btn.ghost:disabled { filter:none; opacity:.35; }
+    .btn.sm { min-height:44px; padding:4px 14px 6px; border-radius:9px; font-size:22px; }
+    .btn.big { min-height:62px; font-size:31px; }
     .iconbtn {
-      width:46px; height:46px; flex:none; border-radius:14px; display:grid; place-items:center;
-      background:var(--panel); border:2px solid var(--edge); font-size:20px; box-shadow:0 4px 0 rgba(0,0,0,.35);
+      width:44px; height:44px; flex:none; display:grid; place-items:center; border-radius:10px;
+      background:var(--s2); border:2px solid var(--line-3); color:var(--ink-2); box-shadow:var(--press);
     }
-    .iconbtn:active { transform:translateY(3px); box-shadow:none; }
-    .linkbtn { color:var(--mut); font-weight:700; font-size:14px; text-decoration:underline; text-underline-offset:3px; padding:10px; display:block; margin:6px auto 0; }
+    .iconbtn:active { transform:translateY(3px); box-shadow:0 1px 0 #040406; }
+    .link { display:block; margin:10px auto 0; padding:10px; color:var(--mut); font-size:13px; font-weight:500; text-decoration:underline; text-decoration-color:var(--line-3); text-underline-offset:4px; }
     .mini {
-      font-size:13px; font-weight:800; color:var(--cyan); padding:7px 11px; border-radius:11px;
-      background:var(--panel); border:2px solid var(--edge);
+      display:inline-flex; align-items:center; gap:7px; height:34px; padding:0 12px 2px; border-radius:9px;
+      background:var(--s2); border:2px solid var(--line-3); color:var(--ink-2); box-shadow:0 3px 0 #040406;
+      font:400 19px/1 var(--arcade); letter-spacing:.04em; text-transform:uppercase;
     }
-    .mini:active { transform:scale(.96); }
+    .mini:active { transform:translateY(2px); box-shadow:0 1px 0 #040406; }
 
     /* ---------- Accueil ---------- */
-    .hero { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 0 10px; }
+    .hero { display:grid; grid-template-columns:1fr auto; align-items:center; gap:16px 12px; padding:22px 0 18px; }
     .logo {
-      margin:0; min-width:0; font-family:var(--display); font-weight:400; font-size:clamp(28px, 10.5vw, 42px); line-height:.9; letter-spacing:.02em;
-      color:var(--yellow); text-shadow:3px 3px 0 var(--pink), 6px 6px 0 rgba(0,0,0,.25); transform:rotate(-3deg);
+      grid-column:1 / -1; margin:0; font:400 clamp(21px, 7.3vw, 32px)/1.15 var(--pixel); color:var(--yellow);
+      text-shadow:3px 3px 0 var(--pink), 0 0 24px rgba(255,210,63,.35);
     }
-    .logo small { display:block; font-size:16px; color:var(--cyan); text-shadow:2px 2px 0 rgba(0,0,0,.4); letter-spacing:.14em; margin-top:6px; }
-    .hero-actions { display:flex; gap:8px; flex:none; }
-    @media (max-width:360px) { .hero-actions { gap:6px; } .hero-actions .iconbtn { width:40px; height:40px; font-size:18px; } }
-    .card {
-      margin-top:14px; padding:16px; border-radius:24px;
-      background:linear-gradient(180deg, var(--card-2), var(--card)); border:2px solid var(--edge); box-shadow:var(--shadow);
-    }
-    .card-h { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
-    .card-h h2 { margin:0; font-family:var(--display); font-weight:400; font-size:23px; letter-spacing:.03em; color:var(--cyan); text-shadow:2px 2px 0 rgba(0,0,0,.4); }
-    .pill {
-      display:inline-flex; align-items:center; gap:6px; padding:5px 11px; border-radius:999px; white-space:nowrap;
-      background:var(--panel); border:2px solid var(--edge); color:var(--mut); font-size:13px; font-weight:800;
-    }
+    .tagline { margin:0; color:var(--cyan); }
+    .hero-actions { display:flex; gap:8px; }
     .resume {
-      margin-top:6px; padding:14px; border-radius:20px; display:grid; gap:12px;
-      background:linear-gradient(135deg, #5b1a8f, #3a1380); border:2px solid var(--yellow); box-shadow:var(--shadow);
-      animation:pop .35s ease both;
+      display:grid; gap:14px; margin:0 0 4px; padding:16px; border-radius:14px;
+      background:var(--s1); border:2px solid var(--yellow); box-shadow:0 5px 0 var(--yellow-d);
+      animation:pop .3s steps(4) both;
     }
-    .resume b { font-family:var(--display); font-weight:400; font-size:21px; color:var(--yellow); }
+    .resume .title { margin-top:8px; font:400 30px/1 var(--arcade); letter-spacing:.03em; text-transform:uppercase; }
+    .sec { margin-top:14px; padding:16px; border-radius:14px; background:var(--s1); border:2px solid var(--line-2); box-shadow:var(--press); }
+    .sec-h { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+    .sec-h h2 { margin:0; font:400 32px/1 var(--arcade); letter-spacing:.04em; text-transform:uppercase; }
+    .count { font:400 10px/1.4 var(--pixel); color:var(--mut); text-transform:uppercase; }
 
     /* Joueurs */
     .plist { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; }
-    .prow { min-width:0; display:flex; align-items:center; gap:6px; padding:5px 5px 5px 7px; border-radius:16px; background:var(--panel); border:2px solid var(--edge); animation:fadeUp .2s ease both; }
-    .prow:focus-within { border-color:var(--edge-2); }
+    .prow { min-width:0; display:flex; align-items:center; gap:10px; padding:5px; border-radius:12px; background:var(--bg-2); border:2px solid var(--line-2); animation:pop .2s steps(3) both; }
+    .prow:focus-within { border-color:var(--yellow); }
     .prow.dup { border-color:var(--red); }
-    .avbtn { border-radius:50%; }
+    .avbtn { border-radius:10px; }
     .avbtn:active { transform:scale(.9); }
-    .pname { flex:1; width:0; min-width:0; background:transparent; border:0; outline:none; color:var(--ink); font-size:17px; font-weight:700; padding:10px 4px; }
-    .x { width:40px; height:40px; flex:none; border-radius:12px; color:var(--mut); font-size:16px; display:grid; place-items:center; }
-    .x:hover, .x:active { background:rgba(255,93,108,.15); color:var(--red); }
-    .padd { display:flex; gap:8px; margin-top:10px; }
+    .pname { flex:1; width:0; min-width:0; padding:8px 2px 10px; background:transparent; border:0; outline:none; color:var(--ink); font:400 26px/1 var(--arcade); letter-spacing:.04em; text-transform:uppercase; }
+    .x { width:38px; height:38px; flex:none; display:grid; place-items:center; border-radius:9px; color:var(--dim); }
+    .x:hover, .x:active { color:var(--red); background:rgba(255,90,90,.1); }
+    .padd { display:flex; gap:10px; margin-top:12px; }
     .padd input {
-      flex:1; min-width:0; padding:12px 14px; border-radius:16px; outline:none;
-      border:2px dashed var(--edge-2); background:rgba(0,0,0,.2); color:var(--ink); font-size:17px; font-weight:600;
+      flex:1; min-width:0; height:48px; padding:2px 14px 4px; border-radius:10px; outline:none;
+      border:2px dashed var(--line-3); background:var(--bg-2); color:var(--ink);
+      font:400 24px/1 var(--arcade); letter-spacing:.04em; text-transform:uppercase;
     }
-    .padd input:focus { border-style:solid; border-color:var(--cyan); }
-    .padd .btn { width:auto; flex:none; }
-    .empty { color:var(--mut); font-size:14px; text-align:center; padding:12px; border:2px dashed var(--edge); border-radius:16px; }
+    .padd input::placeholder { color:var(--dim); text-transform:none; letter-spacing:.02em; }
+    .padd input:focus { border-style:solid; border-color:var(--yellow); }
+    .padd .btn { width:auto; flex:none; min-height:48px; }
+    .empty { padding:16px 12px; border:2px dashed var(--line-3); border-radius:12px; color:var(--mut); font-size:14px; text-align:center; }
 
-    /* Avatars */
+    /* Avatars : un petit monstre pixel par joueur */
     .av {
-      display:inline-grid; place-items:center; flex:none; border-radius:50%; line-height:1;
-      background:hsl(var(--h,260) 75% 60% / .22); border:2px solid hsl(var(--h,260) 85% 68%);
+      display:inline-grid; place-items:center; flex:none; border-radius:10px;
+      background:hsl(var(--h,260) 45% 11%); border:2px solid hsl(var(--h,260) 60% 33%); color:hsl(var(--h,260) 95% 64%);
     }
-    .av, .ric, .comp, .bemo, .bigemo, .re, .be, .drum, .rinfo .e, .mi, .rank {
-      font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",var(--display);
-    }
-    .av-sm { width:30px; height:30px; font-size:16px; }
-    .av-md { width:44px; height:44px; font-size:24px; }
-    .av-lg { width:60px; height:60px; font-size:32px; }
-    .av-xl { width:96px; height:96px; font-size:54px; border-width:3px; }
+    .av .inv { width:64%; height:64%; }
+    .av-sm { width:30px; height:30px; border-radius:7px; border-width:1.5px; }
+    .av-md { width:42px; height:42px; }
+    .av-lg { width:58px; height:58px; border-radius:12px; }
+    .av-xl { width:96px; height:96px; border-radius:18px; border-width:3px; }
 
     /* Rôles */
-    .comp {
-      display:flex; flex-wrap:wrap; justify-content:center; gap:4px; min-height:54px; align-items:center;
-      padding:10px; margin-bottom:6px; border-radius:16px; background:rgba(0,0,0,.22); font-size:24px;
-    }
-    .comp span { animation:pop .25s ease both; }
-    .rrow { display:flex; align-items:center; gap:12px; padding:10px 2px; }
-    .rrow + .rrow { border-top:1px dashed rgba(255,255,255,.1); }
-    .ric { font-size:30px; width:38px; text-align:center; flex:none; }
+    .comp { display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:10px; min-height:62px; padding:16px; margin-bottom:6px; border-radius:12px; background:#07070a; border:2px solid var(--line-2); }
+    .comp .sp { width:24px; height:24px; animation:hop .6s steps(2) infinite alternate; }
+    .comp .sp:nth-child(even) { animation-delay:.3s; }
+    .comp .note { margin:0; }
+    .rrow { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:2px dashed var(--line-2); }
     .rtxt { flex:1; min-width:0; }
-    .rtxt b { display:block; font-size:17px; }
-    .rtxt small { color:var(--mut); font-size:13px; }
+    .rtxt b { display:block; font:400 26px/1 var(--arcade); letter-spacing:.04em; text-transform:uppercase; }
+    .rtxt small { display:block; margin-top:3px; color:var(--mut); font-size:13px; }
     .rrow.cit b { color:var(--cit); } .rrow.und b { color:var(--und); } .rrow.mrw b { color:var(--mrw); }
-    .stepper { display:flex; align-items:center; gap:2px; padding:3px; border-radius:14px; background:var(--panel); border:2px solid var(--edge); }
-    .stepper button { width:42px; height:40px; border-radius:10px; font-size:24px; font-weight:900; color:var(--yellow); }
-    .stepper button:disabled { color:var(--dim); opacity:.35; cursor:default; }
-    .stepper button:not(:disabled):active { background:rgba(255,255,255,.1); }
-    .stepper output { min-width:26px; text-align:center; font-family:var(--display); font-size:23px; }
-    .cnum { min-width:96px; text-align:center; font-family:var(--display); font-size:25px; color:var(--cit); }
+    .stepper { display:flex; align-items:center; gap:6px; flex:none; }
+    .stepper button { width:40px; height:40px; display:grid; place-items:center; border-radius:9px; background:var(--s3); border:2px solid var(--line-3); color:var(--ink); box-shadow:0 3px 0 #040406; }
+    .stepper button:active { transform:translateY(2px); box-shadow:0 1px 0 #040406; }
+    .stepper button[aria-disabled="true"] { background:var(--s2); color:var(--dim); }
+    .stepper output { min-width:30px; text-align:center; font:400 34px/1 var(--arcade); }
+    .cnum { width:122px; flex:none; text-align:center; font:400 34px/1 var(--arcade); color:var(--cit); }
 
     /* Thèmes */
     .chips { display:flex; flex-wrap:wrap; gap:8px; }
     .chip {
-      display:inline-flex; align-items:center; gap:6px; padding:9px 12px; border-radius:999px;
-      background:var(--panel); border:2px solid var(--edge); color:var(--mut); font-weight:700; font-size:14px;
-      transition:transform .08s ease, background .15s ease;
+      display:inline-flex; align-items:center; gap:8px; height:38px; padding:0 12px 2px; border-radius:9px;
+      background:var(--bg-2); border:2px solid var(--line-2); color:var(--mut);
+      font:400 21px/1 var(--arcade); letter-spacing:.04em; text-transform:uppercase;
     }
-    .chip:active { transform:scale(.94); }
-    .chip.on { background:#173d2a; border-color:var(--lime); color:var(--ink); }
-    .chip-n { font-size:11px; font-weight:900; padding:2px 6px; border-radius:999px; background:rgba(0,0,0,.3); color:var(--mut); }
-    .chip.on .chip-n { color:var(--lime); }
-    .row-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+    .chip:active { transform:scale(.95); }
+    .chip .n { font:400 8px/1 var(--pixel); opacity:.75; }
+    .chip.on { background:rgba(255,210,63,.08); border-color:var(--yellow); color:var(--yellow); }
+    .row-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
 
     /* Options */
-    .opt + .opt { margin-top:14px; }
-    .opt-l { font-weight:800; font-size:15px; margin-bottom:8px; }
-    .seg { display:flex; gap:4px; padding:4px; border-radius:16px; background:var(--panel); border:2px solid var(--edge); overflow-x:auto; scrollbar-width:none; }
+    .opt + .opt { margin-top:16px; }
+    .opt-l { margin-bottom:8px; font:400 22px/1 var(--arcade); letter-spacing:.04em; text-transform:uppercase; color:var(--ink-2); }
+    .seg { display:flex; gap:4px; padding:4px; border-radius:12px; background:var(--bg-2); border:2px solid var(--line-2); overflow-x:auto; scrollbar-width:none; }
     .seg::-webkit-scrollbar { display:none; }
-    .seg button { flex:1 0 auto; padding:10px 8px; border-radius:11px; font-weight:800; font-size:14px; color:var(--mut); white-space:nowrap; }
-    .seg button.on { background:var(--yellow); color:#2a0e5e; box-shadow:0 3px 0 var(--yellow-d); }
-    .switch-row { display:flex; align-items:center; gap:12px; margin-top:12px; padding:12px; border-radius:16px; background:var(--panel); border:2px solid var(--edge); cursor:pointer; }
+    .seg button { flex:1 0 auto; height:38px; padding:0 10px 2px; border-radius:8px; color:var(--mut); font:400 21px/1 var(--arcade); letter-spacing:.04em; text-transform:uppercase; white-space:nowrap; }
+    .seg button.on { background:var(--cyan); color:#03171c; box-shadow:0 3px 0 var(--cyan-d); }
+    .switch-row { display:flex; align-items:center; gap:14px; margin-top:14px; padding-top:14px; border-top:2px dashed var(--line-2); cursor:pointer; }
     .sw-txt { flex:1; }
-    .sw-txt b { display:block; font-size:15px; }
-    .sw-txt small { display:block; margin-top:3px; color:var(--mut); font-size:13px; line-height:1.35; }
+    .sw-txt b { display:block; font:400 23px/1 var(--arcade); letter-spacing:.04em; text-transform:uppercase; }
+    .sw-txt small { display:block; margin-top:4px; color:var(--mut); font-size:13px; line-height:1.45; }
     .sw {
       appearance:none; -webkit-appearance:none; position:relative; flex:none; margin:0; cursor:pointer;
-      width:54px; height:32px; border-radius:999px; background:#3b2a73; border:2px solid var(--edge); transition:background .2s;
+      width:52px; height:30px; border-radius:8px; background:var(--s3); border:2px solid var(--line-3);
     }
-    .sw::before { content:""; position:absolute; top:2px; left:2px; width:24px; height:24px; border-radius:50%; background:#fff; box-shadow:0 2px 4px rgba(0,0,0,.4); transition:transform .2s; }
-    .sw:checked { background:var(--lime-d); border-color:var(--lime); }
-    .sw:checked::before { transform:translateX(22px); }
-    .foot { text-align:center; color:var(--dim); font-size:13px; margin:18px 0 0; line-height:1.4; }
+    .sw::before { content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:4px; background:var(--mut); transition:transform .12s steps(3); }
+    .sw:checked { background:#0f2a1a; border-color:var(--green); }
+    .sw:checked::before { transform:translateX(22px); background:var(--green); }
+    .foot { margin:18px 0 0; color:var(--dim); font-size:13px; line-height:1.5; text-align:center; }
 
     /* ---------- Dock (actions en bas) ---------- */
     .dock {
       position:fixed; left:0; right:0; bottom:0; z-index:20; pointer-events:none;
-      padding:22px 16px calc(14px + var(--sb));
-      background:linear-gradient(to top, rgba(16,5,47,.97) 62%, rgba(16,5,47,0));
+      padding:28px 16px calc(14px + var(--sb));
+      background:linear-gradient(to top, var(--bg) 62%, rgba(10,10,12,0));
     }
-    .dock-in { max-width:560px; margin:0 auto; display:grid; gap:10px; pointer-events:auto; }
-    .dock-msg { text-align:center; font-size:14px; font-weight:800; color:var(--yellow); }
+    .dock-in { max-width:528px; margin:0 auto; display:grid; gap:12px; pointer-events:auto; }
+    .dock-msg { text-align:center; font:400 20px/1 var(--arcade); letter-spacing:.04em; text-transform:uppercase; color:var(--yellow); }
     .dock-row { display:grid; grid-template-columns:auto 1fr; gap:10px; }
-    .dock-row > .btn.ghost:first-child { width:64px; font-size:20px; }
+    .dock-row > .btn.ghost:first-child { width:56px; padding:0; }
     .two { display:grid; grid-template-columns:repeat(auto-fit, minmax(0,1fr)); gap:10px; }
 
     /* ---------- En jeu ---------- */
-    .topbar { display:flex; align-items:center; gap:12px; padding:4px 0 12px; }
+    .topbar { display:flex; align-items:flex-start; gap:12px; padding:14px 0 16px; }
     .tb-txt { flex:1; min-width:0; }
-    .tb-kick { font-size:12px; font-weight:800; letter-spacing:.07em; text-transform:uppercase; color:var(--mut); }
-    .tb-title { margin:3px 0 0; font-family:var(--display); font-weight:400; font-size:32px; line-height:1; color:var(--yellow); text-shadow:2px 2px 0 var(--pink); }
-    .phases { display:flex; gap:6px; margin-bottom:14px; }
-    .phases span {
-      flex:1; text-align:center; padding:7px 4px; border-radius:999px; white-space:nowrap;
-      background:var(--panel); border:2px solid var(--edge); color:var(--dim); font-size:12px; font-weight:800;
-    }
-    .phases span.on { background:var(--cyan); border-color:var(--cyan); color:#10053a; }
-    .phases span.done { color:var(--mut); }
-    .lead { margin:0 0 16px; font-size:16px; line-height:1.45; color:var(--mut); }
-    .lead b { color:var(--ink); }
+    .tb-title { margin:6px 0 0; font:400 50px/.95 var(--arcade); letter-spacing:.04em; text-transform:uppercase; text-shadow:0 0 22px rgba(255,255,255,.12); }
+    .ci { display:inline-flex; align-items:center; gap:10px; }
+    .ci > span { display:inline-flex; align-items:center; gap:4px; }
+    .phases { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 18px; }
+    .phases span { padding:3px 10px 5px; border-radius:8px; border:2px solid var(--line-2); color:var(--dim); font:400 19px/1 var(--arcade); letter-spacing:.05em; text-transform:uppercase; }
+    .phases span.on { background:var(--yellow); border-color:var(--yellow); color:var(--yellow-ink); }
+    .phases span.done { color:var(--mut); border-color:var(--line-3); }
+    .lead { margin:0 0 16px; font-size:15px; line-height:1.55; color:var(--mut); }
+    .lead b { color:var(--ink); font-weight:600; }
 
-    .pgrid { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:12px; }
+    .pgrid { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:10px; }
     .pcard {
-      position:relative; display:flex; flex-direction:column; align-items:center; gap:8px; text-align:center;
-      padding:16px 10px 14px; border-radius:20px; border:2px solid var(--edge); box-shadow:var(--shadow);
-      background:linear-gradient(180deg, var(--card-2), var(--card));
-      transition:transform .12s ease, border-color .15s ease, background .15s ease, opacity .2s ease;
+      position:relative; display:flex; flex-direction:column; align-items:center; gap:9px; text-align:center;
+      padding:16px 8px 14px; border-radius:14px; background:var(--s1); border:2px solid var(--line-2); box-shadow:var(--press);
+      transition:border-color .15s, background .15s, opacity .2s;
     }
-    .pcard:active:not(:disabled) { transform:translateY(3px) scale(.98); }
-    .pcard .nm { font-weight:800; font-size:17px; line-height:1.15; overflow-wrap:anywhere; }
-    .pcard .st { font-size:11px; font-weight:900; letter-spacing:.06em; text-transform:uppercase; color:var(--mut); }
-    .pcard.done { opacity:.55; box-shadow:none; background:var(--panel); }
-    .pcard.done .st { color:var(--lime); }
-    .pcard.next { border-color:var(--yellow); animation:glow 1.4s ease-in-out infinite; }
-    .pcard.sel { border-color:var(--pink); background:linear-gradient(180deg, #5d1752, #3a0f45); transform:translateY(-3px); }
-    .pcard.sel::after { content:"🎯"; position:absolute; top:8px; right:10px; font-size:20px; }
-    .pcard.tie.sel::after { content:"⚖️"; }
-    .pcard.spin { border-color:var(--yellow); background:linear-gradient(180deg, #6b4f0c, #3d2a05); transform:scale(1.04); }
+    .pcard:active:not(:disabled) { transform:translateY(3px); box-shadow:0 1px 0 #040406; }
+    .pcard .nm { font:400 26px/1 var(--arcade); letter-spacing:.04em; text-transform:uppercase; overflow-wrap:anywhere; }
+    .pcard .st { display:inline-flex; align-items:center; gap:6px; font:400 9px/1 var(--pixel); text-transform:uppercase; color:var(--dim); }
+    .pcard.done { opacity:.4; box-shadow:none; }
+    .pcard.done .st { color:var(--green); }
+    .pcard.next { border-color:var(--yellow); }
+    .pcard.next .st { color:var(--yellow); animation:blink 1s steps(2, start) infinite; }
+    .pcard.sel { border-color:var(--pink); background:#1c0c14; box-shadow:0 4px 0 var(--pink-d); }
+    .pcard .mark { position:absolute; top:8px; right:8px; width:22px; height:22px; display:grid; place-items:center; border-radius:6px; background:var(--pink); color:#fff; }
+    .pcard.spin { border-color:var(--yellow); background:#241e06; box-shadow:0 4px 0 var(--yellow-d); }
     .pcard:disabled { cursor:default; }
-    .pgrid.dense { grid-template-columns:repeat(auto-fill, minmax(100px,1fr)); gap:10px; }
-    .pgrid.dense .pcard { padding:12px 6px 10px; gap:6px; }
-    .pgrid.dense .av-lg { width:48px; height:48px; font-size:26px; }
-    .pgrid.dense .nm { font-size:15px; }
+    .pgrid.dense { grid-template-columns:repeat(auto-fill, minmax(100px,1fr)); gap:8px; }
+    .pgrid.dense .pcard { padding:12px 6px 10px; gap:7px; }
+    .pgrid.dense .av-lg { width:46px; height:46px; }
+    .pgrid.dense .nm { font-size:22px; }
 
     /* Indices */
     .spot {
-      display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center;
-      padding:22px 16px; border-radius:28px; border:3px solid var(--yellow); box-shadow:0 8px 0 rgba(0,0,0,.35);
-      background:radial-gradient(circle at 50% 0%, #4d2cb8, var(--card) 70%);
-      animation:pop .35s cubic-bezier(.3,1.5,.5,1) both;
+      display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center;
+      padding:22px 16px 22px; border-radius:16px; background:var(--s1);
+      border:2px solid var(--yellow); box-shadow:0 5px 0 var(--yellow-d), 0 0 50px -16px rgba(255,210,63,.45);
+      animation:pop .28s steps(4) both;
     }
-    .spot .kick { font-size:13px; font-weight:900; letter-spacing:.1em; text-transform:uppercase; color:var(--yellow); }
-    .spot .who { font-family:var(--display); font-size:clamp(36px, 11vw, 52px); line-height:1; overflow-wrap:anywhere; }
-    .spot .rule { font-size:15px; font-weight:600; color:var(--mut); }
-    .spot .bigemo { font-size:64px; line-height:1; }
+    .spot .who { font:400 clamp(46px, 14vw, 66px)/.92 var(--arcade); letter-spacing:.03em; text-transform:uppercase; overflow-wrap:anywhere; text-shadow:0 0 22px rgba(255,255,255,.15); }
+    .spot .rule { font-size:14px; color:var(--mut); }
     .order { list-style:none; margin:16px 0 0; padding:0; display:grid; gap:6px; }
-    .order li { display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:14px; background:var(--panel); border:2px solid transparent; font-weight:700; }
-    .order li .n { width:22px; font-family:var(--display); color:var(--dim); }
-    .order li.cur { border-color:var(--yellow); background:#3a2a0a; }
+    .order li { display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:10px; background:var(--bg-2); border:2px solid transparent; color:var(--mut); font:400 23px/1 var(--arcade); letter-spacing:.04em; text-transform:uppercase; }
+    .order li .n { width:26px; font:400 10px/1 var(--pixel); color:var(--dim); }
+    .order li .ok { margin-left:auto; color:var(--green); }
+    .order li.cur { color:var(--ink); border-color:var(--yellow); background:#1d1905; }
     .order li.cur .n { color:var(--yellow); }
-    .order li.done { opacity:.5; }
-    .order li.done::after { content:"✓"; margin-left:auto; color:var(--lime); font-weight:900; }
-    .tip { margin-top:14px; padding:12px 14px; border-radius:16px; border:2px dashed var(--edge-2); color:var(--mut); font-size:14px; line-height:1.45; }
+    .order li.done { color:var(--dim); }
+    .tip { margin-top:16px; padding:12px 14px; border-radius:12px; border:2px dashed var(--line-3); color:var(--mut); font-size:14px; line-height:1.5; display:flex; gap:10px; align-items:flex-start; }
+    .tip .px { color:var(--pink); margin-top:2px; }
 
-    /* Débat */
-    .ring { position:relative; width:min(76vw, 290px); aspect-ratio:1; margin:4px auto 20px; }
-    .ring svg { width:100%; height:100%; transform:rotate(-90deg); }
-    .ring .trk { fill:none; stroke:var(--panel); stroke-width:16; }
-    .ring .bar { fill:none; stroke:var(--cyan); stroke-width:16; stroke-linecap:round; transition:stroke-dashoffset .3s linear, stroke .3s ease; }
-    .ring.warn .bar { stroke:var(--yellow); }
-    .ring.danger .bar { stroke:var(--red); }
-    .ring .num { position:absolute; inset:0; display:grid; place-items:center; align-content:center; gap:4px; }
-    .ring .num span { font-family:var(--display); font-size:clamp(64px, 22vw, 96px); line-height:1; }
-    .ring .num small { font-size:12px; font-weight:900; letter-spacing:.12em; text-transform:uppercase; color:var(--mut); }
-    .ring.danger .num span { color:var(--red); animation:pulse .5s ease infinite alternate; }
-    .ring.paused .num span { opacity:.45; }
+    /* Débat : compteur géant + barre d'énergie */
+    .ring { margin:6px 0 20px; text-align:center; }
+    .ring .num { display:grid; justify-items:center; gap:8px; }
+    .ring .num span { font:400 clamp(120px, 40vw, 176px)/.8 var(--arcade); font-variant-numeric:tabular-nums; text-shadow:0 0 34px rgba(255,255,255,.16); }
+    .ring .num small { font:400 10px/1 var(--pixel); text-transform:uppercase; color:var(--mut); }
+    .bar { display:grid; grid-template-columns:repeat(20, 1fr); gap:4px; margin-top:22px; }
+    .bar i { height:18px; border-radius:3px; background:var(--s3); }
+    .bar i.on { background:var(--cyan); box-shadow:0 0 10px -2px var(--cyan); }
+    .ring.warn .num span { color:var(--yellow); }
+    .ring.warn .bar i.on { background:var(--yellow); box-shadow:0 0 10px -2px var(--yellow); }
+    .ring.danger .num span { color:var(--red); animation:blink .6s steps(2, start) infinite; }
+    .ring.danger .bar i.on { background:var(--red); box-shadow:0 0 10px -2px var(--red); }
+    .ring.paused .num span { opacity:.35; animation:none; }
 
     /* Élimination */
-    .elim { display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; padding-top:6px; }
+    .elim { display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; }
     .avwrap { position:relative; }
+    .avwrap .av { filter:grayscale(1) brightness(.6); }
     .avwrap::after {
-      content:"✕"; position:absolute; inset:0; display:grid; place-items:center; font-size:70px; font-weight:900;
-      color:var(--red); text-shadow:0 3px 0 rgba(0,0,0,.45); animation:stamp .4s .25s ease both;
+      content:"K.O."; position:absolute; inset:0; display:grid; place-items:center;
+      font:400 22px/1 var(--pixel); color:var(--red); text-shadow:3px 3px 0 #000;
+      transform:rotate(-14deg); animation:stamp .4s .2s steps(3) both;
     }
-    .avwrap .av { filter:grayscale(.4); }
-    .ename { font-family:var(--display); font-size:clamp(34px, 10vw, 48px); line-height:1; overflow-wrap:anywhere; }
-    .suspense { font-size:17px; font-weight:700; color:var(--mut); }
-    .drum { font-size:44px; animation:bounce .28s ease-in-out infinite alternate; }
+    .ename { font:400 clamp(46px, 13vw, 62px)/.95 var(--arcade); letter-spacing:.03em; text-transform:uppercase; overflow-wrap:anywhere; }
+    .suspense { color:var(--mut); font-size:15px; }
+    .wait { display:flex; gap:8px; padding:14px 0; }
+    .wait span { width:8px; height:8px; background:var(--yellow); animation:blink .9s steps(2, start) infinite; }
+    .wait span:nth-child(2) { animation-delay:.3s; }
+    .wait span:nth-child(3) { animation-delay:.6s; }
     .rolecard {
-      width:100%; margin-top:6px; padding:22px 16px; border-radius:26px; box-shadow:0 8px 0 rgba(0,0,0,.35);
-      display:flex; flex-direction:column; align-items:center; gap:6px;
-      animation:flipIn .6s cubic-bezier(.3,1.4,.5,1) both;
+      width:100%; margin-top:8px; padding:22px 16px 20px; border-radius:16px;
+      display:flex; flex-direction:column; align-items:center; gap:10px;
+      background:var(--s1); border:2px solid var(--line-3); box-shadow:var(--press); animation:pop .35s steps(4) both;
     }
-    .rolecard .re { font-size:64px; line-height:1; }
-    .rolecard .rl { font-size:13px; font-weight:900; letter-spacing:.1em; text-transform:uppercase; opacity:.75; }
-    .rolecard .rn { font-family:var(--display); font-size:44px; line-height:1; }
-    .rolecard .rf { font-size:15px; font-weight:700; }
-    .cit-bg { background:var(--cit); color:#062a33; }
-    .und-bg { background:var(--pink); color:#fff; }
-    .mrw-bg { background:#fbf8ff; color:#2a0e5e; }
-    .guess { width:100%; display:grid; gap:10px; padding:16px; border-radius:22px; text-align:left; background:var(--card); border:2px solid var(--mrw); animation:fadeUp .3s ease both; }
-    .guess h3 { margin:0; font-family:var(--display); font-weight:400; font-size:24px; }
+    .rolecard .sp { animation:hop .5s steps(2) infinite alternate; }
+    .rolecard .rn { font:400 62px/.9 var(--arcade); letter-spacing:.03em; text-transform:uppercase; }
+    .rolecard .rf { font-size:15px; color:var(--ink-2); }
+    .rolecard.cit { border-color:var(--cit); box-shadow:0 5px 0 var(--cyan-d), 0 0 50px -18px var(--cit); } .rolecard.cit .rn { color:var(--cit); }
+    .rolecard.und { border-color:var(--und); box-shadow:0 5px 0 var(--pink-d), 0 0 50px -18px var(--und); } .rolecard.und .rn { color:var(--und); }
+    .rolecard.mrw { border-color:#cfcfd6; box-shadow:0 5px 0 #6c6c78, 0 0 50px -18px #fff; } .rolecard.mrw .rn { color:var(--mrw); }
+    .after { width:100%; display:grid; gap:12px; justify-items:center; }
+    .guess { width:100%; display:grid; gap:12px; padding:16px; border-radius:14px; text-align:left; background:var(--s1); border:2px solid var(--mrw); box-shadow:var(--press); animation:pop .3s steps(4) both; }
+    .guess h3 { margin:0; font:400 34px/1 var(--arcade); letter-spacing:.04em; text-transform:uppercase; }
     .guess .note { margin:0; }
     .field {
-      width:100%; padding:14px 16px; border-radius:16px; outline:none;
-      border:2px solid var(--edge-2); background:var(--panel); color:var(--ink); font-size:18px; font-weight:700;
+      width:100%; height:52px; padding:2px 14px 4px; border-radius:10px; outline:none;
+      border:2px solid var(--line-3); background:var(--bg-2); color:var(--ink);
+      font:400 26px/1 var(--arcade); letter-spacing:.04em;
     }
-    .field:focus { border-color:var(--cyan); }
-    .verdict { width:100%; padding:14px; border-radius:18px; font-weight:700; line-height:1.4; animation:pop .3s ease both; }
-    .verdict.ok { background:#0e3318; border:2px solid var(--lime); color:#d2ffc6; }
-    .verdict.bad { background:#3a0d1c; border:2px solid var(--red); color:#ffc9d2; }
-    .verdict .linkbtn { color:#ffc9d2; margin-top:4px; }
-    .status { margin-top:6px; font-size:15px; font-weight:800; color:var(--mut); }
+    .field::placeholder { color:var(--dim); }
+    .field:focus { border-color:var(--yellow); }
+    .verdict { width:100%; padding:14px 16px; border-radius:12px; font-size:15px; line-height:1.5; text-align:left; animation:pop .25s steps(3) both; }
+    .verdict.ok { background:rgba(109,255,156,.07); border:2px solid var(--green); }
+    .verdict.bad { background:rgba(255,90,90,.07); border:2px solid var(--red); }
+    .verdict .link { margin:6px 0 0; padding:4px 0; }
+    .status { margin-top:6px; font-size:14px; color:var(--mut); }
 
     /* Résultat */
-    .banner {
-      text-align:center; padding:24px 16px; border-radius:28px; box-shadow:0 8px 0 rgba(0,0,0,.35);
-      animation:pop .5s cubic-bezier(.3,1.5,.5,1) both;
-    }
-    .banner.cit { background:linear-gradient(160deg, #3ce8ff, #1596c9); color:#04202b; }
-    .banner.und { background:linear-gradient(160deg, #ff5d97, #c21e5c); color:#fff; }
-    .banner.mrw { background:linear-gradient(160deg, #ffffff, #d9ccff); color:#2a0e5e; }
-    .banner.imp { background:linear-gradient(160deg, #ff5d97, #7b2bd9); color:#fff; }
-    .banner .be { font-size:64px; line-height:1; }
-    .banner .bt { margin:8px 0 6px; font-family:var(--display); font-size:clamp(30px, 9vw, 42px); line-height:1.05; }
-    .banner .br { margin:0; font-size:15px; font-weight:700; opacity:.9; }
-    .words { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
-    .wtile { padding:14px 10px; border-radius:20px; background:var(--card); border:2px solid var(--edge); text-align:center; }
-    .wtile small { display:block; font-size:11px; font-weight:900; letter-spacing:.06em; text-transform:uppercase; color:var(--mut); }
-    .wtile b { display:block; margin-top:4px; font-family:var(--display); font-weight:400; font-size:24px; overflow-wrap:break-word; }
-    .wtile.cit b { color:var(--cit); } .wtile.und b { color:var(--und); }
-    .rlist { display:grid; gap:8px; }
-    .rline { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:16px; background:var(--panel); border:2px solid var(--edge); }
+    .banner { padding:14px 4px 4px; text-align:center; }
+    .banner .hud { justify-content:center; }
+    .bsprites { display:flex; justify-content:center; gap:16px; margin:18px 0 0; }
+    .bsprites .sp { animation:hop .45s steps(2) infinite alternate; }
+    .bsprites .sp:nth-child(2) { animation-delay:.22s; }
+    .banner .bt { margin:16px 0 10px; font:400 clamp(48px, 14vw, 68px)/.9 var(--arcade); letter-spacing:.03em; text-transform:uppercase; }
+    .banner.cit .bt { color:var(--cit); text-shadow:0 0 30px rgba(53,224,255,.45); }
+    .banner.und .bt, .banner.imp .bt { color:var(--und); text-shadow:0 0 30px rgba(255,79,139,.45); }
+    .banner.mrw .bt { color:var(--mrw); text-shadow:0 0 30px rgba(255,255,255,.35); }
+    .banner .br { margin:0 auto; max-width:32ch; color:var(--mut); font-size:15px; line-height:1.5; }
+    .words { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:22px 0 8px; }
+    .wtile { padding:14px 10px 16px; border-radius:14px; background:var(--s1); border:2px solid var(--line-2); box-shadow:var(--press); text-align:center; }
+    .wtile .hud { justify-content:center; gap:6px; }
+    .wtile b { display:block; margin-top:10px; font:400 33px/.95 var(--arcade); letter-spacing:.03em; text-transform:uppercase; overflow-wrap:break-word; font-weight:400; }
+    .wtile.cit b { color:var(--cit); } .wtile.und b { color:var(--und); } .wtile.mrw b { color:var(--mrw); }
+    .rlist { display:grid; gap:6px; }
+    .rline { display:flex; align-items:center; gap:10px; padding:7px 10px 7px 7px; border-radius:12px; background:var(--bg-2); border:2px solid var(--line-2); }
     .rline.win { border-color:var(--yellow); }
-    .rline.out .av { filter:grayscale(1); opacity:.6; }
+    .rline.out .av { filter:grayscale(1) brightness(.6); }
     .rline .rn { flex:1; min-width:0; }
-    .rline .rn b { display:block; overflow-wrap:anywhere; }
+    .rline .rn b { display:block; font:400 24px/1 var(--arcade); letter-spacing:.04em; text-transform:uppercase; font-weight:400; overflow-wrap:anywhere; }
     .rline .rn small { color:var(--mut); font-size:12px; }
-    .rank { width:28px; text-align:center; font-size:20px; font-family:var(--display); color:var(--mut); }
-    .tag { font-size:12px; font-weight:900; padding:4px 8px; border-radius:999px; white-space:nowrap; }
-    .tag.cit { background:rgba(45,225,252,.15); color:var(--cit); }
-    .tag.und { background:rgba(255,61,129,.18); color:var(--und); }
-    .tag.mrw { background:rgba(241,236,255,.14); color:var(--mrw); }
-    .pts { min-width:40px; text-align:right; font-family:var(--display); font-size:21px; color:var(--yellow); }
+    .tag { display:inline-flex; align-items:center; gap:6px; font:400 19px/1 var(--arcade); letter-spacing:.04em; text-transform:uppercase; white-space:nowrap; }
+    .tag.cit { color:var(--cit); } .tag.und { color:var(--und); } .tag.mrw { color:var(--mrw); }
+    .pts { min-width:40px; text-align:right; font:400 12px/1 var(--pixel); color:var(--yellow); }
+    .rank { width:34px; flex:none; font:400 10px/1 var(--pixel); color:var(--mut); text-transform:uppercase; }
+    .rank.r1 { color:var(--yellow); } .rank.r2 { color:var(--cyan); } .rank.r3 { color:var(--pink); }
+    .dots { flex:1; min-width:10px; align-self:center; border-bottom:2px dotted var(--line-3); margin:0 4px; }
 
     /* ---------- Modales ---------- */
     .modal-wrap {
       position:fixed; inset:0; z-index:50; display:flex; align-items:flex-end; justify-content:center;
-      background:rgba(8,2,26,.65); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
-      opacity:0; transition:opacity .2s ease;
+      background:rgba(0,0,0,.72); opacity:0; transition:opacity .2s steps(3);
     }
     .modal-wrap.open { opacity:1; }
     .modal-wrap.center { align-items:center; padding:20px; }
     .sheet {
       width:100%; max-width:560px; max-height:88vh; overflow:auto; overscroll-behavior:contain;
-      padding:10px 18px calc(22px + var(--sb)); border-radius:28px 28px 0 0;
-      background:linear-gradient(180deg, #2d1673, #1c0b52); border:2px solid var(--edge-2); border-bottom:0;
-      transform:translateY(40px); transition:transform .25s cubic-bezier(.2,.9,.3,1.1);
+      padding:12px 18px calc(24px + var(--sb)); border-radius:20px 20px 0 0;
+      background:var(--s1); border:2px solid var(--line-3); border-bottom:0; border-top-color:var(--yellow);
+      transform:translateY(24px); transition:transform .22s steps(4);
     }
     .modal-wrap.open .sheet { transform:none; }
-    .grab { width:44px; height:5px; margin:0 auto 14px; border-radius:9px; background:var(--edge-2); }
-    .sheet h2, .dialog h2 { margin:0 0 12px; font-family:var(--display); font-weight:400; font-size:27px; color:var(--yellow); text-shadow:2px 2px 0 var(--pink); }
+    .grab { width:40px; height:6px; margin:0 auto 16px; background:var(--line-3); }
+    .sheet h2, .dialog h2 { margin:0 0 14px; font:400 40px/1 var(--arcade); letter-spacing:.04em; text-transform:uppercase; color:var(--yellow); }
     .dialog {
-      width:100%; max-width:400px; padding:22px; border-radius:26px;
-      background:linear-gradient(180deg, #2d1673, #1c0b52); border:2px solid var(--edge-2);
-      transform:scale(.92); transition:transform .2s cubic-bezier(.2,.9,.3,1.3);
+      width:100%; max-width:380px; padding:22px; border-radius:16px; background:var(--s1);
+      border:2px solid var(--yellow); box-shadow:0 5px 0 var(--yellow-d); transform:scale(.94); transition:transform .15s steps(3);
     }
     .modal-wrap.open .dialog { transform:none; }
-    .dialog p { margin:0 0 18px; color:var(--mut); line-height:1.45; }
-    .menu-item { display:flex; align-items:center; gap:14px; width:100%; margin-top:8px; padding:14px; border-radius:16px; text-align:left; background:var(--panel); border:2px solid var(--edge); }
-    .menu-item:active { transform:scale(.98); }
-    .menu-item .mi { width:32px; text-align:center; font-size:24px; flex:none; }
-    .menu-item b { display:block; font-size:16px; }
+    .dialog p { margin:0 0 20px; color:var(--mut); line-height:1.55; }
+    .menu-item { display:flex; align-items:center; gap:14px; width:100%; margin-top:8px; padding:12px; border-radius:12px; text-align:left; background:var(--bg-2); border:2px solid var(--line-2); }
+    .menu-item:active { transform:translateY(2px); }
+    .menu-item .mi { width:40px; height:40px; flex:none; display:grid; place-items:center; border-radius:9px; background:var(--s3); color:var(--yellow); }
+    .menu-item b { display:block; font:400 25px/1 var(--arcade); letter-spacing:.04em; text-transform:uppercase; font-weight:400; }
     .menu-item small { color:var(--mut); font-size:13px; }
-    .menu-item.danger b { color:var(--red); }
+    .menu-item.danger { border-color:rgba(255,90,90,.35); }
+    .menu-item.danger b, .menu-item.danger .mi { color:var(--red); }
 
     /* Carte secrète */
-    .modal-wrap.secret-wrap { align-items:stretch; background:#0c0426; -webkit-backdrop-filter:none; backdrop-filter:none; }
+    .modal-wrap.secret-wrap { align-items:stretch; background:#070709; }
     .secret {
-      width:100%; max-width:560px; margin:0 auto; overflow:auto;
-      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; text-align:center;
+      width:100%; max-width:560px; margin:0 auto; overflow:auto; text-align:center;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
       padding:calc(18px + var(--st)) 20px calc(18px + var(--sb));
     }
-    .s-top { display:flex; flex-direction:column; align-items:center; gap:6px; }
-    .s-top h2 { margin:0; font-family:var(--display); font-weight:400; font-size:36px; line-height:1; overflow-wrap:anywhere; }
-    .s-top p { margin:0; color:var(--mut); font-weight:600; }
-    .flip { display:block; width:min(100%, 330px); height:min(48vh, 400px); perspective:1200px; }
-    .flip-in { position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform .6s cubic-bezier(.3,1.35,.5,1); }
+    .s-top { display:flex; flex-direction:column; align-items:center; gap:10px; }
+    .s-top h2 { margin:0; font:400 52px/.95 var(--arcade); letter-spacing:.04em; text-transform:uppercase; overflow-wrap:anywhere; }
+    .s-top p { margin:0; color:var(--mut); font-size:14px; }
+    .flip { display:block; width:min(100%, 320px); height:min(48vh, 400px); perspective:1200px; }
+    .flip-in { position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform .5s cubic-bezier(.3,1.3,.5,1); }
     .flip.on .flip-in { transform:rotateY(180deg); }
     .face {
-      position:absolute; inset:0; border-radius:26px; padding:22px; box-shadow:0 10px 0 rgba(0,0,0,.4);
-      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
-      -webkit-backface-visibility:hidden; backface-visibility:hidden;
+      position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+      padding:26px 22px; border-radius:18px; -webkit-backface-visibility:hidden; backface-visibility:hidden;
     }
-    .front { background:repeating-linear-gradient(45deg, #ff3d81 0 18px, #e02a6d 18px 36px); border:4px solid rgba(255,255,255,.2); }
-    .front .fq { font-family:var(--display); font-size:110px; line-height:1; color:#fff; text-shadow:5px 5px 0 rgba(0,0,0,.25); }
-    .front .ft { font-size:14px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; padding:8px 14px; border-radius:999px; background:rgba(0,0,0,.25); }
-    .back { transform:rotateY(180deg); background:var(--yellow); color:#2a0e5e; }
-    .back .bemo { font-size:52px; line-height:1; }
-    .back .btop { font-size:13px; font-weight:900; letter-spacing:.1em; text-transform:uppercase; opacity:.75; }
-    .back .bword { max-width:100%; font-family:var(--display); font-size:clamp(30px, 10vw, 46px); line-height:1.05; overflow-wrap:break-word; hyphens:auto; }
-    .back .bhint { margin:0; font-size:14px; font-weight:600; line-height:1.4; opacity:.85; }
-    .secret-actions { width:min(100%, 360px); display:grid; gap:10px; }
+    .front {
+      background-color:#101014;
+      background-image:conic-gradient(#16161c 25%, #101014 0 50%, #16161c 0 75%, #101014 0);
+      background-size:24px 24px;
+      border:3px solid var(--line-3); box-shadow:0 6px 0 #040406;
+    }
+    .front .fq { font:400 92px/1 var(--pixel); color:var(--yellow); text-shadow:6px 6px 0 var(--pink), 0 0 30px rgba(255,210,63,.4); }
+    .front .ft { color:var(--ink-2); }
+    .back {
+      transform:rotateY(180deg); background:#0b0b0f; color:var(--ink);
+      border:3px solid var(--yellow); box-shadow:0 6px 0 var(--yellow-d), 0 0 60px -18px rgba(255,210,63,.5);
+    }
+    .back .bword { max-width:100%; font:400 clamp(48px, 14vw, 66px)/.92 var(--arcade); letter-spacing:.03em; text-transform:uppercase; overflow-wrap:break-word; color:var(--yellow); text-shadow:0 0 26px rgba(255,210,63,.45); }
+    .back .bhint { margin:0; max-width:26ch; font-size:14px; line-height:1.5; color:var(--mut); }
+    .back.cit { border-color:var(--cit); box-shadow:0 6px 0 var(--cyan-d), 0 0 60px -18px var(--cit); } .back.cit .bword { color:var(--cit); text-shadow:0 0 26px rgba(53,224,255,.45); }
+    .back.und { border-color:var(--und); box-shadow:0 6px 0 var(--pink-d), 0 0 60px -18px var(--und); } .back.und .bword { color:var(--und); text-shadow:0 0 26px rgba(255,79,139,.45); }
+    .back.mrw { border-color:#cfcfd6; box-shadow:0 6px 0 #6c6c78, 0 0 60px -18px #fff; } .back.mrw .bword { color:var(--mrw); text-shadow:0 0 26px rgba(255,255,255,.35); }
+    .secret-actions { position:relative; z-index:2; width:min(100%, 340px); display:grid; gap:12px; }
 
-    /* Règles & perso */
-    .rules > p { color:var(--mut); line-height:1.5; margin:0 0 12px; }
-    .rules h3 { margin:18px 0 8px; font-family:var(--display); font-weight:400; font-size:21px; color:var(--cyan); }
-    .rinfo { display:flex; gap:12px; align-items:flex-start; padding:12px; margin-top:8px; border-radius:16px; background:var(--panel); border:2px solid var(--edge); }
-    .rinfo .e { font-size:28px; line-height:1; }
-    .rinfo b { display:block; margin-bottom:2px; }
-    .rinfo span { color:var(--mut); font-size:14px; line-height:1.4; }
+    /* Règles & paires perso */
+    .rules > p { margin:0 0 14px; color:var(--mut); line-height:1.6; }
+    .rules h3 { margin:22px 0 10px; font:400 30px/1 var(--arcade); letter-spacing:.04em; text-transform:uppercase; color:var(--cyan); }
+    .rinfo { display:flex; gap:14px; align-items:flex-start; padding:12px 0; border-bottom:2px dashed var(--line-2); }
+    .rinfo b { display:block; font:400 24px/1 var(--arcade); letter-spacing:.04em; text-transform:uppercase; font-weight:400; margin-bottom:4px; }
     .rinfo.cit b { color:var(--cit); } .rinfo.und b { color:var(--und); } .rinfo.mrw b { color:var(--mrw); }
-    .steps { margin:0; padding-left:22px; line-height:1.5; }
-    .steps li { margin:6px 0; color:var(--mut); }
-    .steps li b { color:var(--ink); }
-    .steps li::marker { color:var(--yellow); font-weight:900; }
-    .wins { list-style:none; margin:0; padding:0; display:grid; gap:6px; color:var(--mut); line-height:1.4; }
-    .rules .btn { margin-top:20px; }
-    .cp-form { display:grid; grid-template-columns:1fr auto 1fr; gap:8px; align-items:center; }
-    .cp-form .field { padding:12px; font-size:16px; }
-    .vs { font-family:var(--display); color:var(--pink); font-size:18px; }
-    .cp-list { display:grid; gap:6px; margin-top:14px; }
-    .cp-row { display:flex; align-items:center; gap:8px; padding:6px 6px 6px 14px; border-radius:14px; background:var(--panel); border:2px solid var(--edge); font-weight:700; }
+    .rinfo span.t { color:var(--mut); font-size:14px; line-height:1.5; }
+    .steps { list-style:none; margin:0; padding:0; counter-reset:s; }
+    .steps li { counter-increment:s; display:flex; gap:12px; padding:7px 0; color:var(--mut); line-height:1.5; }
+    .steps li::before { content:counter(s); width:18px; flex:none; font:400 11px/1.9 var(--pixel); color:var(--yellow); }
+    .steps li b { color:var(--ink); font-weight:600; }
+    .wins { list-style:none; margin:0; padding:0; display:grid; gap:10px; color:var(--mut); line-height:1.5; }
+    .wins li { display:flex; gap:12px; align-items:center; }
+    .rules .btn { margin-top:24px; }
+    .cp-form { display:grid; grid-template-columns:1fr auto 1fr; gap:10px; align-items:center; }
+    .cp-form .field { height:48px; font-size:23px; }
+    .vs { font:400 10px/1 var(--pixel); color:var(--pink); }
+    .cp-list { display:grid; gap:6px; margin-top:16px; }
+    .cp-row { display:flex; align-items:center; gap:10px; padding:5px 5px 5px 12px; border-radius:10px; background:var(--bg-2); border:2px solid var(--line-2); font:400 22px/1 var(--arcade); letter-spacing:.04em; text-transform:uppercase; }
     .cp-row span:not(.vs) { flex:1; min-width:0; overflow-wrap:anywhere; }
 
     /* Toast & effets */
     #toast {
       position:fixed; left:50%; top:calc(14px + var(--st)); z-index:80; max-width:calc(100% - 32px);
-      padding:12px 18px; border-radius:999px; background:#fff; color:#2a0e5e; font-weight:800; text-align:center;
-      box-shadow:0 8px 24px rgba(0,0,0,.4); opacity:0; pointer-events:none; transform:translate(-50%, -16px); transition:opacity .25s, transform .25s;
+      padding:11px 16px; border-radius:10px; background:#0b0b0f; border:2px solid var(--yellow); box-shadow:0 4px 0 var(--yellow-d);
+      color:var(--ink); font-size:14px; font-weight:500; text-align:center;
+      opacity:0; pointer-events:none; transform:translate(-50%, -10px); transition:opacity .2s steps(3), transform .2s steps(3);
     }
     #toast.show { opacity:1; transform:translate(-50%, 0); }
-    #fx { position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:90; }
-    .enter { animation:fadeUp .3s ease both; }
-    .shake { animation:shake .35s ease; }
+    #fx { position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:90; image-rendering:pixelated; }
+    .enter { animation:enter .24s steps(4) both; }
+    .shake { animation:shake .25s steps(4); }
 
-    @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
-    @keyframes pop { from { opacity:0; transform:scale(.85); } to { opacity:1; transform:none; } }
-    @keyframes pulse { from { transform:scale(1); } to { transform:scale(1.08); } }
-    @keyframes glow { 0%,100% { box-shadow:var(--shadow), 0 0 0 0 rgba(255,210,63,0); } 50% { box-shadow:var(--shadow), 0 0 0 7px rgba(255,210,63,.25); } }
-    @keyframes flipIn { from { opacity:0; transform:perspective(800px) rotateX(-90deg); } to { opacity:1; transform:none; } }
-    @keyframes stamp { from { opacity:0; transform:scale(2.3); } to { opacity:1; transform:scale(1); } }
-    @keyframes bounce { to { transform:translateY(-8px) rotate(-8deg); } }
-    @keyframes shake { 0%,100% { transform:none; } 25% { transform:translateX(-6px); } 75% { transform:translateX(6px); } }
+    @keyframes enter { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+    @keyframes pop { from { opacity:0; transform:scale(.9); } to { opacity:1; transform:none; } }
+    @keyframes hop { from { transform:translateY(0); } to { transform:translateY(-3px); } }
+    @keyframes blink { to { visibility:hidden; } }
+    @keyframes stamp { from { opacity:0; transform:rotate(-14deg) scale(2.4); } to { opacity:1; transform:rotate(-14deg) scale(1); } }
+    @keyframes shake { 0%, 100% { transform:none; } 25% { transform:translateX(-5px); } 75% { transform:translateX(5px); } }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
     }
@@ -669,15 +694,68 @@
   const CUSTOM_CAT = "✏️ Perso";
 
   const ROLES = {
-    CITIZEN:    { name:"Citizen",    emoji:"😇", cls:"cit", pts:2 },
-    UNDERCOVER: { name:"Undercover", emoji:"🕵️", cls:"und", pts:10 },
-    MRWHITE:    { name:"Mr White",   emoji:"👻", cls:"mrw", pts:6 },
+    CITIZEN:    { name: "Citizen",    cls: "cit", pts: 2 },
+    UNDERCOVER: { name: "Undercover", cls: "und", pts: 10 },
+    MRWHITE:    { name: "Mr White",   cls: "mrw", pts: 6 },
   };
+  // Emojis d'avatar des anciennes versions : conservés dans les sauvegardes, plus affichés
   const AVATARS = ["🦊","🐼","🐸","🦁","🐯","🐨","🐙","🦄","🐵","🐧","🦉","🐢","🐝","🦖","🐳","🦩","🐶","🐱","🐰","🐻","🐷","🦔","🦦","🐲"];
   const HUES = [330, 190, 48, 110, 270, 15, 165, 215, 295, 75, 0, 240, 140, 30, 200, 350, 90, 260, 180, 60];
   const MIN_P = 3, MAX_P = 20;
-  const TIMERS = [[0,"Off"],[45,"45 s"],[60,"1 min"],[90,"1:30"],[120,"2 min"]];
-  const K = { prefs:"uc2_prefs", game:"uc2_game", scores:"uc2_scores", used:"uc2_used" };
+  const TIMERS = [[0, "Sans"], [45, "45 s"], [60, "1 min"], [90, "1 min 30"], [120, "2 min"]];
+  const K = { prefs: "uc2_prefs", game: "uc2_game", scores: "uc2_scores", used: "uc2_used" };
+
+  // ---------- Pixel art : "X" = pixel plein, "." = vide ----------
+  const SPRITES = {
+    CITIZEN: [   // le smiley : il a le même mot que la majorité
+      "..XXXXX..", ".XXXXXXX.", "XXXXXXXXX", "XX.XXX.XX", "XXXXXXXXX",
+      "XX.XXX.XX", "XXX...XXX", ".XXXXXXX.", "..XXXXX..",
+    ],
+    UNDERCOVER: [ // l'espion : chapeau, lunettes noires, petit rictus
+      "...XXX...", "..XXXXX..", "..XXXXX..", "XXXXXXXXX", ".XXXXXXX.",
+      ".X..X..X.", ".XXXXXXX.", ".XXXXX.X.", "..XXXXX..",
+    ],
+    MRWHITE: [    // le fantôme : pas de mot, il bluffe
+      "..XXXXX..", ".XXXXXXX.", "XXXXXXXXX", "XX..X..XX", "XX..X..XX",
+      "XXXXXXXXX", "XXXXXXXXX", "XXXXXXXXX", "X.XX.XX.X",
+    ],
+  };
+  const ICONS = {
+    menu:   [".......", "XXXXXXX", ".......", "XXXXXXX", ".......", "XXXXXXX", "......."],
+    close:  ["X.....X", ".X...X.", "..X.X..", "...X...", "..X.X..", ".X...X.", "X.....X"],
+    plus:   ["...X...", "...X...", "...X...", "XXXXXXX", "...X...", "...X...", "...X..."],
+    minus:  [".......", ".......", ".......", "XXXXXXX", ".......", ".......", "......."],
+    arrow:  ["...X...", "....X..", ".....X.", "XXXXXXX", ".....X.", "....X..", "...X..."],
+    back:   ["....X..", "...X...", "..X....", ".X.....", "..X....", "...X...", "....X.."],
+    check:  [".......", "......X", ".....X.", "X...X..", ".X.X...", "..X....", "......."],
+    pause:  [".XX.XX.", ".XX.XX.", ".XX.XX.", ".XX.XX.", ".XX.XX.", ".XX.XX.", ".XX.XX."],
+    play:   [".X.....", ".XX....", ".XXX...", ".XXXX..", ".XXX...", ".XX....", ".X....."],
+    help:   [".XXXXX.", "XX...XX", ".....XX", "...XXX.", "...XX..", ".......", "...XX.."],
+    trophy: ["XXXXXXX", "X.XXX.X", "X.XXX.X", ".XXXXX.", "..XXX..", "...X...", ".XXXXX."],
+    eye:    [".......", "..XXX..", ".X...X.", "X..X..X", ".X...X.", "..XXX..", "......."],
+    sound:  ["...X.....", "..XX..X..", "XXXX...X.", "XXXX...X.", "XXXX...X.", "..XX..X..", "...X....."],
+    mute:   ["...X.....", "..XX.....", "XXXX.X.X.", "XXXX..X..", "XXXX.X.X.", "..XX.....", "...X....."],
+    skull:  [".XXXXX.", "XXXXXXX", "X..X..X", "XXXXXXX", ".XX.XX.", ".XXXXX.", ".X.X.X."],
+    dice:   ["XXXXXXX", "X.....X", "X.X.X.X", "X.....X", "X.X.X.X", "X.....X", "XXXXXXX"],
+    pencil: [".....XX", "....XXX", "...XXX.", "..XXX..", ".XXX...", "XXX....", "XX....."],
+    alert:  ["...X...", "..XXX..", "..X.X..", ".XX.XX.", ".XXXXX.", "XXX.XXX", "XXXXXXX"],
+  };
+  // Petit monstre façon Space Invaders, unique par joueur (symétrique, 7×7)
+  const invaderCache = new Map();
+  function invader(seed) {
+    if (invaderCache.has(seed)) return invaderCache.get(seed);
+    let s = seed >>> 0 || 1;
+    const rnd = () => { s |= 0; s = (s + 0x6d2b79f5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    const g = Array.from({ length: 7 }, () => Array(7).fill(0));
+    const set = (r, c, v) => { g[r][c] = v; g[r][6 - c] = v; };
+    for (let r = 0; r < 7; r++) for (let c = 0; c < 4; c++) set(r, c, rnd() < 0.5 ? 1 : 0);
+    for (let c = 2; c < 4; c++) set(1, c, 1);           // haut de la tête
+    set(2, 1, 1); set(2, 2, 0); set(2, 3, 1);           // les yeux
+    for (let c = 1; c < 4; c++) set(3, c, 1);           // le corps
+    const rows = g.map((row) => row.map((v) => (v ? "X" : ".")).join(""));
+    invaderCache.set(seed, rows);
+    return rows;
+  }
 
   // Stockage tolérant : marche dans un navigateur, se dégrade sans erreur ailleurs
   const store = {
@@ -691,7 +769,13 @@
   const view = $("#view"), dock = $("#dock"), layer = $("#layer");
   const rep = (n, v) => Array.from({ length: Math.max(0, n) }, () => v);
   const plural = (n, word) => `${n} ${word}${n > 1 ? "s" : ""}`;
+  const pad2 = (n) => String(n).padStart(2, "0");
   const reduced = () => window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const catLabel = (cat) => cat.replace(/^\S+\s+/, "");
+  const auTourDe = (name) => (/^[aeiouyhàâäéèêëîïôöùûüœ]/i.test(name) ? `Au tour d'${name}` : `Au tour de ${name}`);
+  const timerLabel = (s) => (TIMERS.find(([v]) => v === s) || [s, `${s} s`])[1];
+  const randomSeed = () => (Math.random() * 4294967296) >>> 0;
+  function hashStr(str) { let x = 2166136261; for (const ch of str) { x ^= ch.codePointAt(0); x = Math.imul(x, 16777619); } return x >>> 0; }
   function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
   // Mini constructeur DOM : tout le texte passe par des nœuds texte (pas d'injection HTML)
@@ -715,7 +799,26 @@
       else el.append(c instanceof Node ? c : String(c));
     }
   }
-  const avatar = (p, size = "md") => h("span", { class: `av av-${size}`, style: `--h:${p.hue ?? 260}`, "aria-hidden": "true" }, p.emoji || "🙂");
+  // Dessine une grille de pixels en SVG (un seul chemin, bords nets)
+  function pix(rows, cls) {
+    const NS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", `0 0 ${rows[0].length} ${rows.length}`);
+    svg.setAttribute("class", cls);
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("shape-rendering", "crispEdges");
+    let d = "";
+    rows.forEach((row, y) => { for (let x = 0; x < row.length; x++) if (row[x] === "X") d += `M${x} ${y}h1v1h-1z`; });
+    const path = document.createElementNS(NS, "path");
+    path.setAttribute("d", d);
+    path.setAttribute("fill", "currentColor");
+    svg.append(path);
+    return svg;
+  }
+  const icon = (name, cls = "px") => pix(ICONS[name], cls);
+  const sprite = (role, size = "") => pix(SPRITES[role], `sp ${ROLES[role].cls}${size ? ` ${size}` : ""}`);
+  const seedOf = (p) => (Number.isFinite(p.seed) ? p.seed : hashStr(normName(p.name) || "?"));
+  const avatar = (p, size = "md") => h("span", { class: `av av-${size}`, style: `--h:${p.hue ?? 260}`, "aria-hidden": "true" }, pix(invader(seedOf(p)), "inv"));
 
   const normName = (s) => (s || "").trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, " ");
   // Comparaison tolérante du guess de Mr White : accents, articles, tirets, pluriel simple
@@ -743,6 +846,7 @@
       name: x.name.slice(0, 20),
       emoji: typeof x.emoji === "string" && x.emoji ? x.emoji : AVATARS[i % AVATARS.length],
       hue: Number.isFinite(x.hue) ? x.hue : HUES[i % HUES.length],
+      seed: Number.isFinite(x.seed) ? x.seed : hashStr(normName(x.name) || String(i)),
     }));
   }
   function loadPrefs() {
@@ -757,7 +861,7 @@
       if (out.clueWords !== 1 && out.clueWords !== 2) out.clueWords = 2;
       return out;
     }
-    // Reprise de la sauvegarde de l'ancienne version (noms, réglages, thèmes)
+    // Reprise de la sauvegarde de la toute première version (noms, réglages, thèmes)
     const old = store.get("uc_save");
     if (old && typeof old === "object") {
       if (Array.isArray(old.names)) d.players = cleanPlayers(old.names.filter((n) => typeof n === "string" && n.trim()).map((n) => ({ name: n.trim() })));
@@ -819,7 +923,7 @@
     return { citizen: ch.pair[swap ? 1 : 0], undercover: ch.pair[swap ? 0 : 1], cat: ch.cat };
   }
 
-  // ---------- Son & vibrations (synthé WebAudio, aucun fichier) ----------
+  // ---------- Son 8-bit & vibrations (synthé WebAudio, aucun fichier) ----------
   let actx = null;
   function unlockAudio() {
     if (!prefs.sound) return;
@@ -828,28 +932,29 @@
       if (actx && actx.state === "suspended") actx.resume();
     } catch (e) {}
   }
-  function tone(f, d, { type = "sine", vol = 0.12, at = 0, to = null } = {}) {
+  function tone(f, d, { type = "square", vol = 0.05, at = 0, to = null } = {}) {
     const t0 = actx.currentTime + at;
     const o = actx.createOscillator(), g = actx.createGain();
     o.type = type;
     o.frequency.setValueAtTime(f, t0);
     if (to) o.frequency.exponentialRampToValueAtTime(to, t0 + d);
     g.gain.setValueAtTime(0.0001, t0);
-    g.gain.exponentialRampToValueAtTime(vol, t0 + 0.012);
+    g.gain.exponentialRampToValueAtTime(vol, t0 + 0.008);
     g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
     o.connect(g).connect(actx.destination);
     o.start(t0); o.stop(t0 + d + 0.03);
   }
   const SFX = {
-    tap:   () => tone(620, 0.07, { type: "triangle", vol: 0.07 }),
-    flip:  () => tone(320, 0.22, { vol: 0.12, to: 880 }),
-    tick:  () => tone(1150, 0.05, { type: "square", vol: 0.04 }),
-    buzz:  () => { tone(196, 0.55, { type: "sawtooth", vol: 0.09 }); tone(147, 0.55, { type: "sawtooth", vol: 0.07 }); },
-    start: () => [440, 660].forEach((f, k) => tone(f, 0.14, { type: "triangle", vol: 0.1, at: k * 0.09 })),
-    drum:  () => { for (let k = 0; k < 10; k++) tone(110 + k * 6, 0.06, { type: "triangle", vol: 0.09, at: k * 0.14 }); },
-    good:  () => [523, 784].forEach((f, k) => tone(f, 0.18, { type: "triangle", vol: 0.12, at: k * 0.1 })),
-    bad:   () => tone(392, 0.4, { type: "triangle", vol: 0.12, to: 196 }),
-    win:   () => [523, 659, 784, 1047].forEach((f, k) => tone(f, 0.25, { type: "triangle", vol: 0.13, at: k * 0.12 })),
+    tap:   () => tone(880, 0.05, { vol: 0.035 }),
+    nope:  () => { tone(220, 0.08, { vol: 0.05 }); tone(165, 0.1, { vol: 0.05, at: 0.08 }); },
+    flip:  () => tone(300, 0.2, { vol: 0.05, to: 1200 }),
+    tick:  () => tone(1320, 0.04, { vol: 0.03 }),
+    buzz:  () => { tone(196, 0.5, { type: "sawtooth", vol: 0.06 }); tone(147, 0.5, { type: "sawtooth", vol: 0.05 }); },
+    start: () => [523, 659, 784].forEach((f, k) => tone(f, 0.09, { vol: 0.045, at: k * 0.07 })),
+    drum:  () => { for (let k = 0; k < 12; k++) tone(98 + k * 8, 0.05, { type: "triangle", vol: 0.08, at: k * 0.12 }); },
+    good:  () => [659, 988].forEach((f, k) => tone(f, 0.12, { vol: 0.05, at: k * 0.08 })),
+    bad:   () => tone(440, 0.45, { vol: 0.05, to: 110 }),
+    win:   () => [523, 659, 784, 1047, 784, 1047].forEach((f, k) => tone(f, 0.12, { vol: 0.05, at: k * 0.1 })),
   };
   function play(name) { if (!prefs.sound) return; unlockAudio(); if (!actx) return; try { SFX[name](); } catch (e) {} }
   function vibrate(p) { if (prefs.sound && navigator.vibrate) try { navigator.vibrate(p); } catch (e) {} }
@@ -871,12 +976,19 @@
 
   // ---------- Toast ----------
   let toastT = null;
+  function hideToast() { clearTimeout(toastT); $("#toast").classList.remove("show"); }
   function toast(msg) {
     const t = $("#toast");
     t.textContent = msg;
     t.classList.add("show");
     clearTimeout(toastT);
-    toastT = setTimeout(() => t.classList.remove("show"), 2200);
+    toastT = setTimeout(() => t.classList.remove("show"), 2600);
+  }
+  // Action impossible : on explique pourquoi au lieu de ne rien faire
+  function deny(msg, el) {
+    toast(msg);
+    play("nope");
+    if (el) { el.classList.remove("shake"); void el.offsetWidth; el.classList.add("shake"); }
   }
 
   // ---------- Modales (feuilles du bas, dialogues, carte secrète) ----------
@@ -911,7 +1023,7 @@
         text && h("p", null, text),
         h("div", { class: "two" },
           h("button", { class: "btn ghost sm", type: "button", onclick: () => closeModal() }, "Annuler"),
-          h("button", { class: `btn sm${danger ? "" : " yellow"}`, type: "button", onclick: () => { fin(true); closeModal(); } }, okLabel))),
+          h("button", { class: `btn sm${danger ? " pink" : ""}`, type: "button", onclick: () => { fin(true); closeModal(); } }, okLabel))),
         { cls: "center", onClose: () => fin(false) });
     });
   }
@@ -938,7 +1050,7 @@
   // ÉTAT DE PARTIE & NAVIGATION
   // ============================================================
   let game = null;
-  let fxRun = 0; // incrémenté à chaque changement d'écran : coupe les confettis en cours
+  let fxRun = 0; // incrémenté à chaque changement d'écran : coupe l'animation de fin en cours
   const ui = { fresh: false, vote: null, confetti: false };
   let lobby = null; // références DOM de l'accueil
 
@@ -968,7 +1080,7 @@
       console.error(err);
       if (!game) throw err;
       game = null; store.del(K.game);
-      toast("Oups, impossible de reprendre cette partie");
+      toast("Impossible de reprendre cette partie");
       return render(true);
     }
     if (enter) {
@@ -978,6 +1090,7 @@
   }
   function go(phase) {
     stopTimer();
+    hideToast();
     fxRun++;
     game.phase = phase;
     saveGame();
@@ -998,53 +1111,55 @@
     const E = (lobby = {});
     const v = h("div", null,
       h("header", { class: "hero" },
-        h("h1", { class: "logo" }, "Undercover", h("small", null, "& Mr White")),
+        h("h1", { class: "logo" }, "UNDERCOVER"),
+        h("p", { class: "tagline hud c" }, "& Mr White", h("span", { class: "blink" }, "_")),
         h("div", { class: "hero-actions" },
-          h("button", { class: "iconbtn", type: "button", "aria-label": "Classement", onclick: openScores }, "🏆"),
-          h("button", { class: "iconbtn", type: "button", "aria-label": "Règles du jeu", onclick: openRules }, "📖"))),
+          h("button", { class: "iconbtn", type: "button", "aria-label": "Classement", onclick: openScores }, icon("trophy")),
+          h("button", { class: "iconbtn", type: "button", "aria-label": "Règles du jeu", onclick: openRules }, icon("help")))),
 
       saved && h("div", { class: "resume" },
-        h("div", null, h("b", null, "🎲 Partie en cours"), h("div", { class: "note" }, `Tour ${saved.round} · ${saved.players.length} joueurs — on reprend où vous en étiez.`)),
+        h("div", null,
+          h("div", { class: "hud y" }, "Partie en cours"),
+          h("div", { class: "title" }, `Tour ${saved.round} · ${saved.players.length} joueurs`)),
         h("div", { class: "two" },
           h("button", { class: "btn ghost sm", type: "button", onclick: async () => {
             if (await ask("Supprimer la partie ?", "La partie en cours sera perdue.", "Supprimer", true)) { store.del(K.game); render(false); }
           } }, "Supprimer"),
-          h("button", { class: "btn yellow sm", type: "button", onclick: () => resumeGame(saved) }, "▶ Reprendre"))),
+          h("button", { class: "btn accent sm", type: "button", onclick: () => resumeGame(saved) }, "Reprendre", icon("play")))),
 
-      h("section", { class: "card" },
-        h("div", { class: "card-h" }, h("h2", null, "Joueurs"), (E.pcount = h("span", { class: "pill" }))),
+      h("section", { class: "sec" },
+        h("div", { class: "sec-h" }, h("h2", null, "Joueurs"), (E.pcount = h("span", { class: "count" }))),
         (E.plist = h("div", { class: "plist" })),
         h("form", { class: "padd", onsubmit: (e) => { e.preventDefault(); addPlayer(); } },
           (E.addInput = h("input", { maxlength: "20", autocomplete: "off", autocapitalize: "words", enterkeyhint: "done", "aria-label": "Prénom du nouveau joueur" })),
-          (E.addBtn = h("button", { class: "btn cyan sm", type: "submit" }, "＋ Ajouter")))),
+          (E.addBtn = h("button", { class: "btn cyan sm", type: "submit" }, icon("plus", "px sm"), "Ajouter")))),
 
-      h("section", { class: "card" },
-        h("div", { class: "card-h" }, h("h2", null, "Rôles"),
-          (E.auto = h("button", { class: "mini", type: "button", onclick: () => { prefs.manual = false; savePrefs(); play("tap"); renderRolesBox(); refreshDock(); } }, "↺ Auto"))),
+      h("section", { class: "sec" },
+        h("div", { class: "sec-h" }, h("h2", null, "Rôles"), (E.auto = h("span"))),
         (E.roles = h("div"))),
 
-      h("section", { class: "card" },
-        h("div", { class: "card-h" }, h("h2", null, "Thèmes"), (E.pool = h("span", { class: "pill" }))),
-        h("p", { class: "note", style: "margin:0 0 12px" }, "Chaque paire reste dans le même univers, sans jamais être le jumeau évident : Sel / Farine plutôt que Sel / Poivre."),
+      h("section", { class: "sec" },
+        h("div", { class: "sec-h" }, h("h2", null, "Thèmes"), (E.pool = h("span", { class: "count" }))),
+        h("p", { class: "note top" }, "Chaque paire reste dans le même univers, sans jamais être le jumeau évident : Sel / Farine plutôt que Sel / Poivre."),
         (E.chips = h("div", { class: "chips" })),
         h("div", { class: "row-actions" },
           h("button", { class: "mini", type: "button", onclick: () => { prefs.off = []; savePrefs(); renderChips(); refreshDock(); } }, "Tout"),
           h("button", { class: "mini", type: "button", onclick: () => { prefs.off = Object.keys(bank()); savePrefs(); renderChips(); refreshDock(); } }, "Aucun"),
           (E.customBtn = h("button", { class: "mini", type: "button", onclick: openCustom })))),
 
-      h("section", { class: "card" },
-        h("div", { class: "card-h" }, h("h2", null, "Options")),
-        h("div", { class: "opt" }, h("div", { class: "opt-l" }, "⏱️ Temps de débat"),
+      h("section", { class: "sec" },
+        h("div", { class: "sec-h" }, h("h2", null, "Options")),
+        h("div", { class: "opt" }, h("div", { class: "opt-l" }, "Temps de débat"),
           seg(TIMERS, prefs.timer, (x) => { prefs.timer = x; savePrefs(); })),
-        h("div", { class: "opt" }, h("div", { class: "opt-l" }, "💬 Longueur des indices"),
-          seg([[1, "1 seul mot"], [2, "1 ou 2 mots"]], prefs.clueWords, (x) => { prefs.clueWords = x; savePrefs(); })),
-        switchRow("🙈 Rôles secrets", "Chacun ne voit que son mot : l'Undercover ne sait pas qu'il est Undercover.", prefs.hideRoles, (x) => { prefs.hideRoles = x; savePrefs(); }),
-        switchRow("🔊 Sons & vibrations", null, prefs.sound, (x) => { prefs.sound = x; savePrefs(); if (x) play("tap"); })),
+        h("div", { class: "opt" }, h("div", { class: "opt-l" }, "Longueur des indices"),
+          seg([[1, "1 mot"], [2, "1 ou 2 mots"]], prefs.clueWords, (x) => { prefs.clueWords = x; savePrefs(); })),
+        switchRow("Rôles secrets", "Chacun ne voit que son mot : l'Undercover ne sait pas qu'il est Undercover.", prefs.hideRoles, (x) => { prefs.hideRoles = x; savePrefs(); }),
+        switchRow("Sons et vibrations", null, prefs.sound, (x) => { prefs.sound = x; savePrefs(); if (x) play("tap"); })),
 
-      h("p", { class: "foot" }, "💡 Ajoute la page à ton écran d'accueil : plein écran, et ça marche même sans réseau.")
+      h("p", { class: "foot" }, "Ajoute la page à ton écran d'accueil : plein écran, et ça marche même sans réseau.")
     );
     E.msg = h("div", { class: "dock-msg" });
-    E.play = h("button", { class: "btn big", type: "button", onclick: startGame });
+    E.play = h("button", { class: "btn big accent", type: "button", onclick: startGame });
     mount(v, [E.msg, E.play]);
     refreshLobby();
   }
@@ -1052,13 +1167,13 @@
   function refreshLobby() {
     const E = lobby;
     const n = prefs.players.length;
-    E.pcount.textContent = plural(n, "joueur");
+    E.pcount.textContent = `${pad2(n)} / ${MAX_P}`;
     E.plist.replaceChildren(...(n
       ? prefs.players.map((p, i) => playerRow(p, i))
-      : [h("div", { class: "empty" }, "Ajoute au moins 3 joueurs pour lancer une partie 👇")]));
+      : [h("div", { class: "empty" }, "Ajoute au moins 3 joueurs pour lancer une partie.")]));
     E.addBtn.disabled = n >= MAX_P;
     E.addInput.disabled = n >= MAX_P;
-    E.addInput.placeholder = n >= MAX_P ? `${MAX_P} joueurs maximum` : `Prénom du joueur ${n + 1}…`;
+    E.addInput.placeholder = n >= MAX_P ? `${MAX_P} joueurs maximum` : `Prénom du joueur ${n + 1}`;
     markDups();
     renderRolesBox();
     renderChips();
@@ -1067,7 +1182,7 @@
 
   function playerRow(p, i) {
     return h("div", { class: "prow" },
-      h("button", { class: "avbtn", type: "button", "aria-label": `Changer l'avatar de ${p.name || "ce joueur"}`, onclick: () => cycleAvatar(i) }, avatar(p, "md")),
+      h("button", { class: "avbtn", type: "button", "aria-label": `Changer le monstre de ${p.name || "ce joueur"}`, onclick: () => cycleAvatar(i) }, avatar(p, "md")),
       h("input", {
         class: "pname", value: p.name, maxlength: "20", autocomplete: "off", autocapitalize: "words", enterkeyhint: "done",
         "aria-label": `Nom du joueur ${i + 1}`,
@@ -1077,7 +1192,7 @@
       }),
       h("button", { class: "x", type: "button", "aria-label": `Retirer ${p.name || "ce joueur"}`, onclick: () => {
         prefs.players.splice(i, 1); savePrefs(); play("tap"); refreshLobby();
-      } }, "✕"));
+      } }, icon("close", "px sm")));
   }
 
   function addPlayer() {
@@ -1090,16 +1205,16 @@
       name = `Joueur ${k}`;
     }
     if (prefs.players.some((p) => normName(p.name) === normName(name))) {
-      toast(`« ${name} » est déjà dans la partie`);
-      E.addInput.classList.remove("shake"); void E.addInput.offsetWidth; E.addInput.classList.add("shake");
+      deny(`« ${name} » est déjà dans la partie`, E.addInput);
       return;
     }
     const usedE = new Set(prefs.players.map((p) => p.emoji));
     const usedH = new Set(prefs.players.map((p) => p.hue));
     prefs.players.push({
       name,
-      emoji: AVATARS.find((e) => !usedE.has(e)) || AVATARS[Math.floor(Math.random() * AVATARS.length)],
+      emoji: AVATARS.find((e) => !usedE.has(e)) || AVATARS[0],
       hue: HUES.find((x) => !usedH.has(x)) ?? HUES[prefs.players.length % HUES.length],
+      seed: randomSeed(),
     });
     savePrefs();
     play("tap");
@@ -1109,13 +1224,16 @@
     E.addInput.scrollIntoView({ block: "nearest" });
   }
 
+  // Toucher son monstre : un nouveau monstre, dans une autre couleur
   function cycleAvatar(i) {
-    const used = new Set(prefs.players.map((p) => p.emoji));
-    const cur = AVATARS.indexOf(prefs.players[i].emoji);
-    for (let k = 1; k <= AVATARS.length; k++) {
-      const e = AVATARS[(cur + k + AVATARS.length) % AVATARS.length];
-      if (!used.has(e)) { prefs.players[i].emoji = e; break; }
+    const p = prefs.players[i];
+    const used = new Set(prefs.players.map((x) => x.hue));
+    const cur = HUES.indexOf(p.hue);
+    for (let k = 1; k <= HUES.length; k++) {
+      const hue = HUES[(cur + k + HUES.length) % HUES.length];
+      if (!used.has(hue)) { p.hue = hue; break; }
     }
+    p.seed = randomSeed();
     savePrefs();
     play("tap");
     refreshLobby();
@@ -1151,42 +1269,71 @@
     E.msg.textContent = issue || "";
     E.msg.classList.toggle("hidden", !issue);
     E.play.disabled = !!issue;
-    E.play.textContent = issue ? "Jouer" : `Jouer à ${prefs.players.length} ▶`;
+    E.play.replaceChildren(...(issue ? ["Jouer"] : [`Jouer à ${prefs.players.length}`, h("span", { class: "blink" }, icon("play"))]));
+  }
+
+  // Réglage des rôles. Jamais de bouton mort : chaque appui agit ou explique pourquoi il ne peut pas.
+  // Au maximum d'imposteurs, « + » sur un rôle convertit un imposteur de l'autre rôle.
+  function changeRole(key, delta, el) {
+    const n = prefs.players.length;
+    if (n < MIN_P) { deny(`Ajoute d'abord au moins ${MIN_P} joueurs`, el); return; }
+    let { u, w } = comp();
+    const m = maxImpostors(n);
+    const mine = key === "u" ? u : w;
+    const other = key === "u" ? w : u;
+    let msg = null;
+    if (delta > 0) {
+      if (u + w < m) { if (key === "u") u++; else w++; }
+      else if (other > 0) {
+        if (key === "u") { u++; w--; } else { w++; u--; }
+        msg = key === "u" ? "Maximum atteint : un Mr White devient Undercover" : "Maximum atteint : un Undercover devient Mr White";
+      } else {
+        deny(`À ${n} joueurs : ${plural(m, "imposteur")} maximum, sinon ils gagnent dès le départ`, el);
+        return;
+      }
+    } else {
+      if (mine === 0) { deny(key === "u" ? "Déjà aucun Undercover" : "Déjà aucun Mr White", el); return; }
+      if (u + w <= 1) { deny("Il faut au moins un imposteur, Undercover ou Mr White", el); return; }
+      if (key === "u") u--; else w--;
+    }
+    prefs.manual = true;
+    prefs.undercover = u;
+    prefs.mrwhite = w;
+    savePrefs();
+    play("tap");
+    if (msg) toast(msg);
+    renderRolesBox();
+    refreshDock();
   }
 
   function renderRolesBox() {
     const E = lobby;
     const n = prefs.players.length;
+    const ready = n >= MIN_P;
     const { c, u, w } = comp();
     const m = maxImpostors(n);
-    const ready = n >= MIN_P;
-    E.auto.classList.toggle("hidden", !prefs.manual);
-    const change = (du, dw) => {
-      const cc = comp();
-      prefs.manual = true;
-      prefs.undercover = cc.u + du;
-      prefs.mrwhite = cc.w + dw;
-      savePrefs(); play("tap"); renderRolesBox(); refreshDock();
-    };
-    const stepper = (val, label, canDown, canUp, onDown, onUp) => h("div", { class: "stepper" },
-      h("button", { type: "button", "aria-label": `Moins de ${label}`, disabled: !canDown, onclick: onDown }, "−"),
-      h("output", { "aria-live": "polite" }, val),
-      h("button", { type: "button", "aria-label": `Plus de ${label}`, disabled: !canUp, onclick: onUp }, "+"));
-    const roleRow = (cls, emo, name, desc, ctrl) => h("div", { class: `rrow ${cls}` },
-      h("span", { class: "ric", "aria-hidden": "true" }, emo),
+    E.auto.replaceChildren(prefs.manual && ready
+      ? h("button", { class: "mini", type: "button", onclick: () => { prefs.manual = false; savePrefs(); play("tap"); renderRolesBox(); refreshDock(); } }, "Remettre en auto")
+      : h("span", { class: "count" }, ready ? "Auto" : ""));
+    const stepper = (key, val, label, canDown, canUp) => h("div", { class: "stepper" },
+      h("button", { type: "button", "aria-label": `Moins de ${label}`, "aria-disabled": String(!canDown), onclick: (e) => changeRole(key, -1, e.currentTarget.parentNode) }, icon("minus", "px sm")),
+      h("output", { "aria-live": "polite" }, ready ? val : "–"),
+      h("button", { type: "button", "aria-label": `Plus de ${label}`, "aria-disabled": String(!canUp), onclick: (e) => changeRole(key, +1, e.currentTarget.parentNode) }, icon("plus", "px sm")));
+    const canUp = (other) => ready && (u + w < m || other > 0);
+    const canDown = (mine) => ready && mine > 0 && u + w > 1;
+    const roleRow = (role, name, desc, ctrl) => h("div", { class: `rrow ${ROLES[role].cls}` },
+      sprite(role, "md"),
       h("div", { class: "rtxt" }, h("b", null, name), h("small", null, desc)),
       ctrl);
     E.roles.replaceChildren(
       h("div", { class: "comp", "aria-label": ready ? `${c} Citizens, ${u} Undercover, ${w} Mr White` : "En attente de joueurs" },
-        ready ? [...rep(c, "😇"), ...rep(u, "🕵️"), ...rep(w, "👻")].map((e) => h("span", null, e)) : h("span", { class: "note" }, "En attente de joueurs…")),
-      roleRow("cit", "😇", "Citizens", "Ont tous le même mot", h("div", { class: "cnum" }, ready ? c : "–")),
-      roleRow("und", "🕵️", "Undercover", "Un autre mot, du même univers", stepper(u, "Undercover",
-        ready && u > 0 && u + w > 1, ready && u + w < m, () => change(-1, 0), () => change(1, 0))),
-      roleRow("mrw", "👻", "Mr White", "Aucun mot : il doit bluffer", stepper(w, "Mr White",
-        ready && w > 0 && u + w > 1, ready && u + w < m, () => change(0, -1), () => change(0, 1))),
-      h("p", { class: "note" },
-        prefs.manual ? "Composition perso. " : `Composition conseillée pour ${Math.max(n, MIN_P)} joueurs. `,
-        "Les imposteurs gagnent s'ils deviennent aussi nombreux que les Citizens."));
+        ready ? [...rep(c, "CITIZEN"), ...rep(u, "UNDERCOVER"), ...rep(w, "MRWHITE")].map((r) => sprite(r)) : h("p", { class: "note" }, "La composition apparaîtra ici.")),
+      roleRow("CITIZEN", "Citizens", "Ont tous le même mot", h("div", { class: "cnum" }, ready ? c : "–")),
+      roleRow("UNDERCOVER", "Undercover", "Un autre mot, du même univers", stepper("u", u, "Undercover", canDown(u), canUp(w))),
+      roleRow("MRWHITE", "Mr White", "Aucun mot, il doit bluffer", stepper("w", w, "Mr White", canDown(w), canUp(u))),
+      h("p", { class: "note" }, ready
+        ? `À ${n} joueurs : ${plural(m, "imposteur")} maximum, car il faut toujours plus de Citizens que d'imposteurs.${u + w >= m && n < MAX_P ? " Ajoute des joueurs pour en avoir plus." : ""}`
+        : "Ajoute au moins 3 joueurs pour régler les rôles."));
   }
 
   function renderChips() {
@@ -1194,17 +1341,16 @@
     const b = bank(), off = new Set(prefs.off);
     E.chips.replaceChildren(...Object.keys(b).map((cat) => {
       const on = !off.has(cat);
-      const [emo, ...rest] = cat.split(" ");
       return h("button", {
         class: `chip${on ? " on" : ""}`, type: "button", "aria-pressed": String(on),
         onclick: () => {
           prefs.off = on ? [...prefs.off, cat] : prefs.off.filter((c) => c !== cat);
           savePrefs(); play("tap"); renderChips(); refreshDock();
         },
-      }, h("span", { "aria-hidden": "true" }, emo), h("span", null, rest.join(" ")), h("span", { class: "chip-n" }, b[cat].length));
+      }, catLabel(cat), h("span", { class: "n" }, b[cat].length));
     }));
     E.pool.textContent = `${poolSize()} paires`;
-    E.customBtn.textContent = `✏️ Mes paires (${prefs.custom.length})`;
+    E.customBtn.replaceChildren(icon("pencil", "px sm"), `Mes paires (${prefs.custom.length})`);
   }
 
   function seg(options, value, onChange) {
@@ -1231,30 +1377,30 @@
     const draw = () => {
       list.replaceChildren(...(prefs.custom.length
         ? prefs.custom.map((pr, i) => h("div", { class: "cp-row" },
-            h("span", null, pr[0]), h("span", { class: "vs" }, "vs"), h("span", null, pr[1]),
+            h("span", null, pr[0]), h("span", { class: "vs" }, "VS"), h("span", null, pr[1]),
             h("button", { class: "x", type: "button", "aria-label": `Supprimer ${pr[0]} / ${pr[1]}`, onclick: () => {
               prefs.custom.splice(i, 1); savePrefs(); draw(); if (lobby) { renderChips(); refreshDock(); }
-            } }, "✕")))
+            } }, icon("close", "px sm"))))
         : [h("div", { class: "empty" }, "Aucune paire perso pour l'instant.")]));
     };
     const submit = (e) => {
       e.preventDefault();
       const x = a.value.trim(), y = b.value.trim();
-      if (!x || !y) { toast("Il faut deux mots"); (x ? b : a).focus(); return; }
-      if (sameWord(x, y)) { toast("Les deux mots doivent être différents"); return; }
-      if (prefs.custom.some(([p, q]) => (sameWord(p, x) && sameWord(q, y)) || (sameWord(p, y) && sameWord(q, x)))) { toast("Cette paire existe déjà"); return; }
+      if (!x || !y) { deny("Il faut deux mots", x ? b : a); (x ? b : a).focus(); return; }
+      if (sameWord(x, y)) { deny("Les deux mots doivent être différents", b); return; }
+      if (prefs.custom.some(([p, q]) => (sameWord(p, x) && sameWord(q, y)) || (sameWord(p, y) && sameWord(q, x)))) { deny("Cette paire existe déjà", a); return; }
       prefs.custom.push([x, y]);
       savePrefs(); play("tap");
       a.value = ""; b.value = ""; a.focus();
       draw();
       if (lobby) { renderChips(); refreshDock(); }
     };
-    sheet("✏️ Mes paires perso", h("div", null,
-      h("p", { class: "note", style: "margin:0 0 14px" },
-        "Deux mots du même univers, mais pas le jumeau évident. Évite Sel / Poivre (trop facile à deviner), préfère Sel / Farine. Tes paires forment le thème « Perso »."),
+    sheet("Mes paires", h("div", null,
+      h("p", { class: "note top" },
+        "Deux mots du même univers, mais pas le jumeau évident. Évite Sel / Poivre, trop facile à deviner, préfère Sel / Farine. Tes paires forment le thème « Perso »."),
       h("form", { onsubmit: submit },
-        h("div", { class: "cp-form" }, a, h("span", { class: "vs" }, "vs"), b),
-        h("button", { class: "btn cyan sm", type: "submit", style: "margin-top:10px" }, "＋ Ajouter la paire")),
+        h("div", { class: "cp-form" }, a, h("span", { class: "vs" }, "VS"), b),
+        h("button", { class: "btn cyan sm", type: "submit", style: "margin-top:12px" }, icon("plus", "px sm"), "Ajouter la paire")),
       list));
     draw();
   }
@@ -1263,13 +1409,14 @@
   // LANCEMENT / REPRISE / ABANDON
   // ============================================================
   function startGame() {
-    if (lobbyIssue()) { toast(lobbyIssue()); return; }
+    const issue = lobbyIssue();
+    if (issue) { toast(issue); return; }
     unlockAudio();
     const { c, u, w } = comp();
     const roles = shuffle([...rep(c, "CITIZEN"), ...rep(u, "UNDERCOVER"), ...rep(w, "MRWHITE")]);
     game = {
       v: 2,
-      players: prefs.players.map((p) => ({ name: p.name.trim(), emoji: p.emoji, hue: p.hue })),
+      players: prefs.players.map((p) => ({ name: p.name.trim(), emoji: p.emoji, hue: p.hue, seed: p.seed })),
       roles,
       alive: roles.map(() => true),
       seen: roles.map(() => false),
@@ -1291,7 +1438,7 @@
     if (game.phase === "debate") game.paused = true;
     keepAwake(); armBack();
     render(true);
-    toast("Partie reprise 👍");
+    toast("Partie reprise");
   }
   function quitGame() {
     stopTimer(); releaseWake(); closeAllModals();
@@ -1307,14 +1454,16 @@
       kicker = `Tour ${game.round} · ${aliveIdx().length} en jeu · ${plural(u + w, "imposteur")}`;
     }
     return h("div", { class: "topbar" },
-      h("div", { class: "tb-txt" }, h("div", { class: "tb-kick" }, kicker), h("h1", { class: "tb-title" }, title)),
-      h("button", { class: "iconbtn", type: "button", "aria-label": "Menu de la partie", onclick: openMenu }, "☰"));
+      h("div", { class: "tb-txt" }, h("div", { class: "kicker" }, kicker), h("h1", { class: "tb-title" }, title)),
+      h("button", { class: "iconbtn", type: "button", "aria-label": "Menu de la partie", onclick: openMenu }, icon("menu")));
   }
   function phases(cur) {
-    const list = [["clues", "🎤 Indices"], ...(game.cfg.timer ? [["debate", "💬 Débat"]] : []), ["vote", "🗳️ Vote"]];
+    const list = [["clues", "Indices"], ...(game.cfg.timer ? [["debate", "Débat"]] : []), ["vote", "Vote"]];
     const idx = cur === "elim" ? list.length : list.findIndex((x) => x[0] === cur);
     return h("div", { class: "phases" }, list.map(([, label], i) => h("span", { class: i === idx ? "on" : i < idx ? "done" : "" }, label)));
   }
+  const compInline = ({ c, u, w }) => h("span", { class: "ci" },
+    [["CITIZEN", c], ["UNDERCOVER", u], ["MRWHITE", w]].map(([r, k]) => h("span", null, sprite(r, "xs"), k)));
 
   // ============================================================
   // 1) DISTRIBUTION DES MOTS
@@ -1324,52 +1473,55 @@
     const seenN = game.seen.filter(Boolean).length;
     const all = seenN === n;
     const next = game.seen.indexOf(false);
-    const { c, u, w } = game.comp;
     const v = h("div", null,
-      topbar("Les mots", `${n} joueurs · ${c} 😇  ${u} 🕵️  ${w} 👻`),
+      topbar("Les mots", [`${n} joueurs`, h("span", { class: "sep" }, "·"), compInline(game.comp)]),
       h("p", { class: "lead" }, all
-        ? ["Tout le monde a son mot. ", h("b", null, "Que le bluff commence ! 😈")]
-        : ["Passe le téléphone : chacun touche ", h("b", null, "sa propre carte"), " et la regarde en cachette 🤫"]),
+        ? ["Tout le monde a son mot. ", h("b", null, "Que le bluff commence !")]
+        : ["Passe le téléphone : chacun touche ", h("b", null, "sa propre carte"), " et la regarde en cachette."]),
       h("div", { class: `pgrid${n > 8 ? " dense" : ""}` }, game.players.map((p, i) => h("button", {
         class: `pcard${game.seen[i] ? " done" : ""}${i === next ? " next" : ""}`, type: "button",
         "aria-label": game.seen[i] ? `${p.name}, mot déjà vu` : `${p.name}, voir mon mot`,
         onclick: () => tapReveal(i),
-      }, avatar(p, "lg"), h("span", { class: "nm" }, p.name), h("span", { class: "st" }, game.seen[i] ? "✓ Mot vu" : "Toucher")))));
-    mount(v, h("button", { class: `btn${all ? " yellow" : ""}`, type: "button", disabled: !all, onclick: startClues },
-      all ? "🎤 Lancer les indices" : `Encore ${plural(n - seenN, "joueur")}…`));
+      }, avatar(p, "lg"), h("span", { class: "nm" }, p.name),
+        h("span", { class: "st" }, game.seen[i] ? [icon("check", "px xs"), "Vu"] : "Toucher")))));
+    mount(v, h("button", { class: `btn${all ? " accent" : ""}`, type: "button", disabled: !all, onclick: startClues },
+      all ? ["Lancer les indices", icon("play")] : `Encore ${plural(n - seenN, "joueur")}…`));
   }
   async function tapReveal(i) {
     const markSeen = () => { game.seen[i] = true; saveGame(); if (game.phase === "reveal") renderReveal(); };
     if (game.seen[i]) {
-      if (await ask(`Revoir le mot de ${game.players[i].name} ?`, "Seulement si c'est bien toi et que personne ne regarde 👀", "Revoir")) openSecret(i);
+      if (await ask(`Revoir le mot de ${game.players[i].name} ?`, "Seulement si c'est bien toi et que personne ne regarde.", "Revoir")) openSecret(i);
     } else openSecret(i, markSeen);
   }
 
   function secretInfo(i) {
     const r = game.roles[i], W = game.words;
-    if (r === "MRWHITE") return { cls: "mrw-bg", emoji: "👻", top: "Tu es", word: "Mr White", hint: "Tu n'as pas de mot ! Écoute bien les indices des autres et bluffe pour survivre." };
+    if (r === "MRWHITE") return { role: r, cls: "mrw", top: "Tu es", word: "Mr White", hint: "Tu n'as pas de mot ! Écoute bien les indices des autres et bluffe pour survivre." };
     const word = r === "UNDERCOVER" ? W.undercover : W.citizen;
-    if (game.cfg.hideRoles) return { cls: "", emoji: "🤫", top: "Ton mot secret", word, hint: "Donne des indices assez clairs pour tes alliés… mais pas trop !" };
+    if (game.cfg.hideRoles) return { role: null, cls: "", top: "Ton mot secret", word, hint: "Donne des indices assez clairs pour tes alliés… mais pas trop !" };
     return r === "UNDERCOVER"
-      ? { cls: "und-bg", emoji: "🕵️", top: "Undercover · ton mot", word, hint: "Les autres ont un mot différent. Fonds-toi dans la masse !" }
-      : { cls: "cit-bg", emoji: "😇", top: "Citizen · ton mot", word, hint: "Tu as le mot de la majorité. Démasque les imposteurs !" };
+      ? { role: r, cls: "und", top: "Undercover · ton mot", word, hint: "Les autres ont un mot différent. Fonds-toi dans la masse !" }
+      : { role: r, cls: "cit", top: "Citizen · ton mot", word, hint: "Tu as le mot de la majorité. Démasque les imposteurs !" };
   }
 
   function openSecret(i, onSeen) {
     const p = game.players[i];
     let flipped = false;
     const back = h("div", { class: "face back" });
-    const done = h("button", { class: "btn yellow hidden", type: "button", onclick: () => closeModal() }, "👍 C'est retenu, je cache");
-    const notMe = h("button", { class: "btn ghost sm", type: "button", onclick: () => closeModal() }, `Oups, je ne suis pas ${p.name}`);
+    const done = h("button", { class: "btn accent hidden", type: "button", onclick: () => closeModal() }, "C'est retenu !");
+    const notMe = h("button", { class: "btn ghost sm", type: "button", onclick: () => closeModal() }, `Je ne suis pas ${p.name}`);
     const card = h("button", { class: "flip", type: "button", "aria-label": "Retourner la carte", onclick: () => {
       if (flipped) return;
       flipped = true;
       // Le mot n'est inséré dans la page qu'au moment où la carte se retourne
       const info = secretInfo(i);
-      back.className = `face back ${info.cls}`;
-      back.replaceChildren(
-        h("div", { class: "bemo" }, info.emoji), h("div", { class: "btop" }, info.top),
-        h("div", { class: "bword" }, info.word), h("p", { class: "bhint" }, info.hint));
+      back.className = `face back${info.cls ? ` ${info.cls}` : ""}`;
+      back.replaceChildren(...[
+        info.role && sprite(info.role, "lg"),
+        h("div", { class: "hud" }, info.top),
+        h("div", { class: "bword" }, info.word),
+        h("p", { class: "bhint" }, info.hint),
+      ].filter(Boolean));
       card.classList.add("on");
       card.setAttribute("aria-label", "Carte retournée");
       done.classList.remove("hidden");
@@ -1378,10 +1530,10 @@
       setTimeout(() => done.focus(), 50);
     } },
       h("div", { class: "flip-in" },
-        h("div", { class: "face front" }, h("div", { class: "fq" }, "?"), h("div", { class: "ft" }, "Touche pour révéler")),
+        h("div", { class: "face front" }, h("div", { class: "fq" }, "?"), h("div", { class: "hud ft blink" }, "Touche pour voir")),
         back));
     openModal(h("div", { class: "secret" },
-      h("div", { class: "s-top" }, avatar(p, "lg"), h("h2", null, p.name), h("p", null, "Personne ne regarde ? 👀")),
+      h("div", { class: "s-top" }, avatar(p, "lg"), h("h2", null, p.name), h("p", null, "Vérifie que personne ne regarde !")),
       card,
       h("div", { class: "secret-actions" }, done, notMe)),
       { cls: "secret-wrap", dismiss: false, onClose: () => { back.replaceChildren(); if (flipped && onSeen) onSeen(); } });
@@ -1407,51 +1559,52 @@
   }
   function renderClues() {
     const O = game.order, s = game.speaker, done = s >= O.length;
-    const cw = game.cfg.clueWords === 1 ? "1 seul mot" : "1 ou 2 mots";
+    const cw = game.cfg.clueWords === 1 ? "1 mot" : "1 ou 2 mots";
     let spot;
     if (done) {
       spot = h("div", { class: "spot" },
-        h("div", { class: "kick" }, "Tour d'indices terminé"),
-        h("div", { class: "bigemo" }, "🧐"),
-        h("div", { class: "who" }, "Alors, qui bluffe ?"),
+        h("div", { class: "hud y" }, "Fin du tour d'indices"),
+        h("div", { class: "who" }, "Qui bluffe ?"),
         h("div", { class: "rule" }, game.cfg.timer ? "Place au débat, puis au vote." : "Débattez librement, puis votez."));
     } else {
       const p = game.players[O[s]];
       spot = h("div", { class: "spot" },
-        h("div", { class: "kick" }, s === 0 ? "🎤 Premier indice" : `🎤 Indice ${s + 1} / ${O.length}`),
+        h("div", { class: "hud y" }, `Indice ${s + 1} / ${O.length}`),
         avatar(p, "xl"),
         h("div", { class: "who" }, p.name),
-        h("div", { class: "rule" }, `Ton indice : ${cw}`));
+        h("div", { class: "rule" }, `Un indice de ${cw}`));
     }
     const v = h("div", null,
       topbar("Indices"),
       phases("clues"),
       spot,
       h("ol", { class: "order", "aria-label": "Ordre de parole" }, O.map((i, k) => h("li", { class: k < s ? "done" : k === s ? "cur" : "" },
-        h("span", { class: "n" }, k + 1), avatar(game.players[i], "sm"), h("span", null, game.players[i].name)))),
-      h("div", { class: "tip" }, "🚫 Interdit : dire le mot, un bout du mot ou sa traduction. Pas de phrase !"));
+        h("span", { class: "n" }, pad2(k + 1)), avatar(game.players[i], "sm"), h("span", null, game.players[i].name),
+        k < s ? h("span", { class: "ok" }, icon("check", "px sm")) : null))),
+      h("div", { class: "tip" }, icon("alert", "px sm"), h("span", null, "Interdit : dire le mot, un morceau du mot ou sa traduction. Pas de phrase !")));
     let d;
     if (!done) {
       const last = s === O.length - 1;
       d = h("div", { class: "dock-row" },
-        h("button", { class: "btn ghost", type: "button", disabled: s === 0, "aria-label": "Joueur précédent", onclick: () => { game.speaker--; saveGame(); renderClues(); } }, "◀"),
+        h("button", { class: "btn ghost", type: "button", disabled: s === 0, "aria-label": "Joueur précédent", onclick: () => { game.speaker--; saveGame(); renderClues(); } }, icon("back")),
         h("button", { class: "btn", type: "button", onclick: () => { game.speaker++; saveGame(); play("tap"); renderClues(); } },
-          last ? "C'est bon ✓" : `Au tour de ${game.players[O[s + 1]].name} ▶`));
+          last ? "Terminer le tour" : [auTourDe(game.players[O[s + 1]].name), icon("play")]));
     } else {
       d = [
-        h("button", { class: "btn yellow", type: "button", onclick: game.cfg.timer ? startDebate : goVote },
-          game.cfg.timer ? `💬 Débat (${fmt(game.cfg.timer)})` : "🗳️ Passer au vote"),
+        h("button", { class: "btn accent", type: "button", onclick: game.cfg.timer ? startDebate : goVote },
+          game.cfg.timer ? `Lancer le débat · ${timerLabel(game.cfg.timer)}` : "Passer au vote"),
         h("div", { class: "two" },
-          h("button", { class: "btn ghost sm", type: "button", onclick: () => { game.speaker = 0; saveGame(); play("tap"); renderClues(); } }, "🔁 Encore un tour"),
-          game.cfg.timer ? h("button", { class: "btn ghost sm", type: "button", onclick: goVote }, "🗳️ Voter direct") : null),
+          h("button", { class: "btn ghost sm", type: "button", onclick: () => { game.speaker = 0; saveGame(); play("tap"); renderClues(); } }, "Encore un tour"),
+          game.cfg.timer ? h("button", { class: "btn ghost sm", type: "button", onclick: goVote }, "Voter directement") : null),
       ];
     }
     mount(v, d);
   }
 
   // ============================================================
-  // 3) DÉBAT (minuteur)
+  // 3) DÉBAT (compte à rebours façon arcade)
   // ============================================================
+  const SEGMENTS = 20;
   let timerId = null, ring = null;
   const fmt = (s) => (s >= 60 ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}` : String(s));
   function stopTimer() { if (timerId) { clearInterval(timerId); timerId = null; } }
@@ -1462,21 +1615,19 @@
     go("debate");
   }
   function renderDebate() {
-    const R = 90, C = 2 * Math.PI * R;
-    const box = h("div", { class: "ring", role: "timer", "aria-label": "Temps de débat restant" });
-    box.innerHTML = `<svg viewBox="0 0 200 200" aria-hidden="true"><circle class="trk" cx="100" cy="100" r="${R}"/><circle class="bar" cx="100" cy="100" r="${R}" stroke-dasharray="${C}" stroke-dashoffset="0"/></svg>`;
     const num = h("span");
     const label = h("small");
-    box.append(h("div", { class: "num" }, num, label));
+    const bar = h("div", { class: "bar", "aria-hidden": "true" }, rep(SEGMENTS, null).map(() => h("i")));
+    const box = h("div", { class: "ring", role: "timer", "aria-label": "Temps de débat restant" }, h("div", { class: "num" }, label, num), bar);
     const pauseBtn = h("button", { class: "btn ghost", type: "button", onclick: togglePause });
     const v = h("div", null,
       topbar("Débat"),
       phases("debate"),
-      h("p", { class: "lead center" }, "Qui a un mot différent ? ", h("b", null, "Accusez, défendez-vous, bluffez ! 🔥")),
+      h("p", { class: "lead center" }, "Qui a un mot différent ? ", h("b", null, "Accusez, défendez‑vous, bluffez !")),
       box,
       h("div", { class: "two" }, pauseBtn, h("button", { class: "btn ghost", type: "button", onclick: addTime }, "+30 s")));
-    mount(v, h("button", { class: "btn yellow", type: "button", onclick: goVote }, "🗳️ Voter maintenant"));
-    ring = { box, bar: box.querySelector(".bar"), num, label, pauseBtn, C };
+    mount(v, h("button", { class: "btn accent", type: "button", onclick: goVote }, "Voter maintenant"));
+    ring = { box, num, label, pauseBtn, cells: [...bar.children] };
     updateRing();
     runTimer();
   }
@@ -1484,12 +1635,13 @@
     if (!ring || !ring.box.isConnected) return;
     const r = game.remaining, t = Math.max(game.total, 1);
     ring.num.textContent = fmt(r);
-    ring.label.textContent = game.paused ? "en pause" : "restant";
-    ring.bar.style.strokeDashoffset = String(ring.C * (1 - r / t));
+    ring.label.textContent = game.paused ? "Pause" : "Temps";
+    const lit = Math.ceil((r / t) * SEGMENTS);
+    ring.cells.forEach((c, k) => c.classList.toggle("on", k < lit));
     ring.box.classList.toggle("warn", r <= 20 && r > 10);
     ring.box.classList.toggle("danger", r <= 10);
     ring.box.classList.toggle("paused", game.paused);
-    ring.pauseBtn.textContent = game.paused ? "▶ Reprendre" : "⏸ Pause";
+    ring.pauseBtn.replaceChildren(...(game.paused ? [icon("play", "px sm"), "Reprendre"] : [icon("pause", "px sm"), "Pause"]));
   }
   function runTimer() {
     stopTimer();
@@ -1505,8 +1657,8 @@
       if (r <= 0) {
         stopTimer();
         play("buzz"); vibrate([250, 120, 250]);
-        toast("⏰ Temps écoulé ! Place au vote");
         goVote();
+        toast("Temps écoulé ! Place au vote");
       }
     }, 200);
   }
@@ -1527,29 +1679,29 @@
       topbar("Vote"),
       phases("vote"),
       h("p", { class: "lead" }, V.tie
-        ? ["⚖️ Égalité : touche ", h("b", null, "tous les ex-aequo"), ", puis laisse le hasard trancher."]
-        : ["Votez à main levée 🙋 puis touchez ", h("b", null, "le joueur éliminé"), "."]),
+        ? ["Égalité : touchez ", h("b", null, "tous les ex-aequo"), ", le hasard tranchera."]
+        : ["Votez à main levée, puis touchez ", h("b", null, "le joueur éliminé"), "."]),
       h("div", { class: `pgrid${A.length > 8 ? " dense" : ""}` }, A.map((i) => {
         const on = V.tie ? V.tieSel.has(i) : V.sel === i;
         return h("button", {
-          class: `pcard${on ? " sel" : ""}${V.tie ? " tie" : ""}`, type: "button", "data-i": i,
+          class: `pcard${on ? " sel" : ""}`, type: "button", "data-i": i,
           "aria-pressed": String(on), disabled: V.spinning, onclick: () => pickVote(i),
-        }, avatar(game.players[i], "lg"), h("span", { class: "nm" }, game.players[i].name));
+        }, on ? h("span", { class: "mark" }, icon("check", "px xs")) : null, avatar(game.players[i], "lg"), h("span", { class: "nm" }, game.players[i].name));
       })));
     let d;
     if (V.tie) {
       d = [
-        h("button", { class: "btn yellow", type: "button", disabled: V.tieSel.size < 2 || V.spinning, onclick: spinTie },
-          V.spinning ? "🎲 Roulement…" : `🎲 Tirer au sort (${V.tieSel.size})`),
+        h("button", { class: "btn", type: "button", disabled: V.tieSel.size < 2 || V.spinning, onclick: spinTie },
+          V.spinning ? "Tirage…" : [icon("dice"), `Tirer au sort (${V.tieSel.size})`]),
         h("button", { class: "btn ghost sm", type: "button", disabled: V.spinning, onclick: () => { V.tie = false; V.tieSel.clear(); renderVote(); } }, "Annuler l'égalité"),
       ];
     } else {
       const name = V.sel != null ? game.players[V.sel].name : null;
       d = [
-        h("button", { class: "btn", type: "button", disabled: V.sel == null, onclick: () => eliminate(V.sel) }, name ? `❌ Éliminer ${name}` : "Touche un joueur"),
+        h("button", { class: `btn${name ? " pink" : ""}`, type: "button", disabled: V.sel == null, onclick: () => eliminate(V.sel) }, name ? `Éliminer ${name}` : "Touchez un joueur"),
         h("button", { class: "btn ghost sm", type: "button", onclick: () => {
           V.tie = true; V.tieSel = new Set(V.sel != null ? [V.sel] : []); V.sel = null; play("tap"); renderVote();
-        } }, "⚖️ Égalité ? Tirage au sort"),
+        } }, icon("dice", "px sm"), "Égalité ? Tirer au sort"),
       ];
     }
     mount(v, d);
@@ -1569,7 +1721,7 @@
     const land = () => {
       V.spinning = false; V.tie = false; V.tieSel.clear(); V.sel = winner;
       play("good");
-      toast(`🎲 Le sort a désigné ${game.players[winner].name}`);
+      toast(`Le sort a désigné ${game.players[winner].name} !`);
       renderVote();
     };
     if (reduced()) { land(); return; }
@@ -1623,30 +1775,30 @@
     ui.fresh = false;
     const needGuess = r === "MRWHITE" && E.ok === null;
     const flavor = {
-      CITIZEN: "Aïe… c'était un innocent ! 😬",
-      UNDERCOVER: "Bien vu, un imposteur démasqué ! 🎯",
-      MRWHITE: needGuess ? "Démasqué… mais il reste une dernière chance !" : E.ok ? "Et il a trouvé le mot ! 🤯" : "Pas de mot, pas de victoire ! 👻",
+      CITIZEN: "Oups… c'était un innocent !",
+      UNDERCOVER: "Bien joué, imposteur démasqué !",
+      MRWHITE: needGuess ? "Démasqué… mais il lui reste une dernière chance !" : E.ok ? "Et il a trouvé le mot !" : "Pas de mot, pas de victoire !",
     }[r];
-    const roleCard = h("div", { class: `rolecard ${R.cls}-bg` },
-      h("div", { class: "re" }, R.emoji),
-      h("div", { class: "rl" }, r === "MRWHITE" ? "C'était" : "C'était un"),
+    const roleCard = h("div", { class: `rolecard ${R.cls}` },
+      sprite(r, "xl"),
       h("div", { class: "rn" }, R.name),
       h("div", { class: "rf" }, flavor));
-    const after = h("div", { style: "width:100%;display:grid;gap:10px;justify-items:center" });
+    const after = h("div", { class: "after" });
     if (r === "MRWHITE") after.append(guessBox());
     if (!needGuess) after.append(statusLine());
-    const drum = h("div", { class: "drum", "aria-hidden": "true" }, "🥁");
+    const wait = h("div", { class: "wait", "aria-hidden": "true" }, h("span"), h("span"), h("span"));
     const v = h("div", null,
-      topbar("Élimination", `Tour ${game.round} · le verdict`),
+      topbar("Élimination", `Tour ${game.round} · Verdict`),
       phases("elim"),
       h("div", { class: "elim" },
         h("div", { class: "avwrap" }, avatar(p, "xl")),
         h("div", { class: "ename" }, p.name),
         h("div", { class: "suspense" }, "quitte la partie… et c'était :"),
-        fresh ? drum : null,
+        fresh ? wait : null,
         roleCard,
         after));
-    const cont = h("button", { class: "btn yellow", type: "button", onclick: nextFromElim }, game.outcome ? "🏁 Voir le résultat" : "▶ Tour suivant");
+    const cont = h("button", { class: "btn accent", type: "button", onclick: nextFromElim },
+      game.outcome ? ["Voir le résultat", icon("trophy")] : ["Tour suivant", icon("play")]);
     mount(v, needGuess ? null : cont);
     if (fresh) {
       roleCard.classList.add("hidden");
@@ -1654,7 +1806,7 @@
       dock.classList.add("hidden");
       setTimeout(() => {
         if (!game || game.phase !== "elim" || !roleCard.isConnected) return;
-        drum.remove();
+        wait.remove();
         roleCard.classList.remove("hidden");
         after.classList.remove("hidden");
         if (!needGuess) dock.classList.remove("hidden");
@@ -1666,32 +1818,32 @@
     }
   }
   function statusLine() {
-    if (game.outcome) return h("div", { class: "status" }, "🏁 La partie est terminée !");
+    if (game.outcome) return h("div", { class: "status" }, "La partie est terminée !");
     const { u, w } = counts();
-    return h("div", { class: "status" }, `Il reste ${plural(aliveIdx().length, "joueur")}… dont ${plural(u + w, "imposteur")} 👀`);
+    return h("div", { class: "status" }, `Il reste ${plural(aliveIdx().length, "joueur")}, dont ${plural(u + w, "imposteur")}.`);
   }
   function guessBox() {
     const E = game.elim, p = game.players[E.i];
     if (E.ok === null) {
-      const inp = h("input", { class: "field", placeholder: "Le mot des Citizens…", maxlength: "40", autocomplete: "off", autocapitalize: "off", spellcheck: "false", enterkeyhint: "done", "aria-label": "Proposition de Mr White" });
+      const inp = h("input", { class: "field", placeholder: "Le mot des Citizens", maxlength: "40", autocomplete: "off", autocapitalize: "off", spellcheck: "false", enterkeyhint: "done", "aria-label": "Proposition de Mr White" });
       const submit = (g) => { E.guess = g; E.ok = sameWord(g, game.words.citizen); resolveGuess(); };
       return h("form", { class: "guess", onsubmit: (e) => {
         e.preventDefault();
         const g = inp.value.trim();
-        if (!g) { toast("Tape un mot… ou « Je sèche »"); inp.focus(); return; }
+        if (!g) { deny("Tape un mot, ou « Je sèche »", inp); inp.focus(); return; }
         submit(g);
       } },
-        h("h3", null, "👻 Dernière chance !"),
+        h("h3", null, "Dernière chance !"),
         h("p", { class: "note" }, `${p.name}, devine le mot des Citizens pour voler la victoire. Les accents ne comptent pas.`),
         inp,
         h("div", { class: "two" },
-          h("button", { class: "btn ghost sm", type: "button", onclick: () => submit("") }, "🤷 Je sèche"),
+          h("button", { class: "btn ghost sm", type: "button", onclick: () => submit("") }, "Je sèche"),
           h("button", { class: "btn sm", type: "submit" }, "Valider")));
     }
-    if (E.ok) return h("div", { class: "verdict ok" }, "🎉 ", h("b", null, `« ${E.guess} »`), " : c'est le bon mot !");
+    if (E.ok) return h("div", { class: "verdict ok" }, h("b", null, `« ${E.guess} »`), " : c'est le bon mot !");
     return h("div", { class: "verdict bad" },
-      E.guess ? ["❌ ", h("b", null, `« ${E.guess} »`), " : raté !"] : "🤷 Pas de proposition.",
-      E.guess ? h("button", { class: "linkbtn", type: "button", onclick: acceptGuess }, "Faute de frappe ? Les Citizens peuvent valider") : null);
+      E.guess ? [h("b", null, `« ${E.guess} »`), " : raté !"] : "Pas de proposition.",
+      E.guess ? h("button", { class: "link", type: "button", onclick: acceptGuess }, "Faute de frappe ? Les Citizens peuvent valider") : null);
   }
   function resolveGuess() {
     const E = game.elim;
@@ -1714,7 +1866,7 @@
   }
 
   // ============================================================
-  // 6) RÉSULTAT & SCORES
+  // 6) RÉSULTAT & MEILLEURS SCORES
   // ============================================================
   function loadScores() {
     const s = store.get(K.scores);
@@ -1729,7 +1881,7 @@
     game.players.forEach((p, i) => {
       const key = normName(p.name);
       const e = S.players[key] || (S.players[key] = { name: p.name, pts: 0, wins: 0, games: 0 });
-      Object.assign(e, { name: p.name, emoji: p.emoji, hue: p.hue });
+      Object.assign(e, { name: p.name, emoji: p.emoji, hue: p.hue, seed: seedOf(p) });
       e.games++;
       e.pts += game.points[i];
       if (game.points[i]) e.wins++;
@@ -1747,55 +1899,62 @@
     const o = game.outcome, W = game.words;
     const mrw = o.guessed ? game.players[o.winners[0]].name : null;
     const meta = {
-      CITIZENS:   { cls: "cit", emo: "😇", title: "Les Citizens gagnent !", why: "Tous les imposteurs ont été démasqués." },
-      UNDERCOVER: { cls: "und", emo: "🕵️", title: game.comp.u > 1 ? "Les Undercovers gagnent !" : "L'Undercover gagne !", why: "Les imposteurs sont aussi nombreux que les Citizens." },
-      MRWHITE:    { cls: "mrw", emo: "👻", title: "Mr White gagne !", why: mrw ? `${mrw} a deviné le mot « ${W.citizen} » !` : "Mr White a tenu jusqu'au bout sans mot !" },
-      IMPOSTORS:  { cls: "imp", emo: "🕵️👻", title: "Les imposteurs gagnent !", why: "Ils sont aussi nombreux que les Citizens." },
+      CITIZENS:   { cls: "cit", roles: ["CITIZEN"], title: "Les Citizens gagnent !", why: "Tous les imposteurs ont été démasqués." },
+      UNDERCOVER: { cls: "und", roles: ["UNDERCOVER"], title: game.comp.u > 1 ? "Les Undercovers gagnent !" : "L'Undercover gagne !", why: "Les imposteurs sont aussi nombreux que les Citizens." },
+      MRWHITE:    { cls: "mrw", roles: ["MRWHITE"], title: "Mr White gagne !", why: mrw ? `${mrw} a deviné le mot « ${W.citizen} » !` : "Mr White a tenu jusqu'au bout, sans aucun mot !" },
+      IMPOSTORS:  { cls: "imp", roles: ["UNDERCOVER", "MRWHITE"], title: "Les imposteurs gagnent !", why: "Ils sont aussi nombreux que les Citizens." },
     }[o.type];
-    const win = new Set(o.winners);
     const outRound = {};
     game.log.forEach((l) => { outRound[l.i] = l.round; });
+    const win = new Set(o.winners);
     const order = game.players.map((p, i) => i).sort((a, b) => Number(win.has(b)) - Number(win.has(a)));
     const v = h("div", null,
       h("div", { class: `banner ${meta.cls}` },
-        h("div", { class: "be" }, meta.emo), h("div", { class: "bt" }, meta.title), h("p", { class: "br" }, meta.why)),
+        h("div", { class: "hud p blink" }, "Game over"),
+        h("div", { class: "bsprites" }, meta.roles.map((r) => sprite(r, "lg"))),
+        h("div", { class: "bt" }, meta.title),
+        h("p", { class: "br" }, meta.why)),
       h("div", { class: "words" },
-        h("div", { class: "wtile cit" }, h("small", null, "😇 Mot des Citizens"), h("b", null, W.citizen)),
+        h("div", { class: "wtile cit" }, h("div", { class: "hud" }, sprite("CITIZEN", "xs"), "Citizens"), h("b", null, W.citizen)),
         game.comp.u > 0
-          ? h("div", { class: "wtile und" }, h("small", null, "🕵️ Mot Undercover"), h("b", null, W.undercover))
-          : h("div", { class: "wtile" }, h("small", null, "🗂️ Thème"), h("b", null, W.cat))),
-      game.comp.u > 0 && h("p", { class: "note center" }, `Thème : ${W.cat}`),
-      h("section", { class: "card" },
-        h("div", { class: "card-h" }, h("h2", null, "Les rôles"), h("span", { class: "pill" }, plural(game.round, "tour"))),
+          ? h("div", { class: "wtile und" }, h("div", { class: "hud" }, sprite("UNDERCOVER", "xs"), "Undercover"), h("b", null, W.undercover))
+          : h("div", { class: "wtile mrw" }, h("div", { class: "hud" }, sprite("MRWHITE", "xs"), "Mr White"), h("b", null, "Pas de mot"))),
+      h("p", { class: "note center" }, `Thème : ${catLabel(W.cat)}`),
+      h("section", { class: "sec" },
+        h("div", { class: "sec-h" }, h("h2", null, "Les rôles"), h("span", { class: "count" }, plural(game.round, "tour"))),
         h("div", { class: "rlist" }, order.map((i) => {
-          const p = game.players[i], R = ROLES[game.roles[i]], out = !game.alive[i];
+          const p = game.players[i], role = game.roles[i], out = !game.alive[i];
           return h("div", { class: `rline${win.has(i) ? " win" : ""}${out ? " out" : ""}` },
             avatar(p, "md"),
             h("div", { class: "rn" }, h("b", null, p.name), h("small", null, out ? `Élimination au tour ${outRound[i]}` : "En jeu jusqu'au bout")),
-            h("span", { class: `tag ${R.cls}` }, `${R.emoji} ${R.name}`),
+            h("span", { class: `tag ${ROLES[role].cls}` }, sprite(role, "xs"), ROLES[role].name),
             h("span", { class: "pts" }, game.points && game.points[i] ? `+${game.points[i]}` : ""));
         }))),
       boardCard(game.players.map((p) => normName(p.name))));
     mount(v, [
-      h("button", { class: "btn yellow big", type: "button", onclick: rematch }, "🔁 Rejouer"),
-      h("button", { class: "btn ghost sm", type: "button", onclick: toLobby }, "⚙️ Joueurs & réglages"),
+      h("button", { class: "btn accent big", type: "button", onclick: rematch }, "Rejouer", icon("play")),
+      h("button", { class: "btn ghost sm", type: "button", onclick: toLobby }, "Joueurs et réglages"),
     ]);
-    if (ui.confetti) { ui.confetti = false; confetti(); play("win"); vibrate([60, 40, 60, 40, 120]); }
+    if (ui.confetti) { ui.confetti = false; pixelConfetti(); play("win"); vibrate([60, 40, 60, 40, 120]); }
   }
-  function boardCard(onlyKeys) {
+  // Tableau des meilleurs scores, façon borne d'arcade
+  function boardCard(onlyKeys, { title = true } = {}) {
     const S = loadScores();
     let rows = Object.entries(S.players);
     if (onlyKeys) rows = rows.filter(([k]) => onlyKeys.includes(k));
     rows = rows.map(([, e]) => e).sort((a, b) => b.pts - a.pts || b.wins - a.wins).slice(0, 30);
-    if (!rows.length) return h("div", { class: "empty" }, "Pas encore de partie terminée. Le classement apparaîtra ici 🏆");
-    return h("section", { class: "card" },
-      h("div", { class: "card-h" }, h("h2", null, "Classement"), h("span", { class: "pill" }, plural(S.games, "partie"))),
-      h("div", { class: "rlist" }, rows.map((e, k) => h("div", { class: "rline" },
-        h("span", { class: "rank" }, ["🥇", "🥈", "🥉"][k] || k + 1),
-        avatar(e, "sm"),
-        h("div", { class: "rn" }, h("b", null, e.name), h("small", null, `${plural(e.wins, "victoire")} · ${plural(e.games, "partie")}`)),
-        h("span", { class: "pts" }, e.pts)))),
-      h("p", { class: "note center" }, "Victoire : Citizen +2 · Mr White +6 · Undercover +10"));
+    const rank = (k) => (k === 0 ? "1er" : `${k + 1}e`);
+    const list = rows.length
+      ? h("div", { class: "rlist" }, rows.map((e, k) => h("div", { class: "rline" },
+          h("span", { class: `rank${k < 3 ? ` r${k + 1}` : ""}` }, rank(k)),
+          avatar(e, "sm"),
+          h("div", { class: "rn" }, h("b", null, e.name), h("small", null, `${plural(e.wins, "victoire")} · ${plural(e.games, "partie")}`)),
+          h("span", { class: "pts" }, String(e.pts).padStart(3, "0")))))
+      : h("p", { class: "note" }, "Pas encore de partie terminée : les meilleurs scores apparaîtront ici.");
+    return h("section", { class: title ? "sec" : null },
+      title && h("div", { class: "sec-h" }, h("h2", null, "Meilleurs scores"), h("span", { class: "count" }, plural(S.games || 0, "partie"))),
+      list,
+      rows.length ? h("p", { class: "note center" }, "Victoire : Citizen +2 · Mr White +6 · Undercover +10") : null);
   }
   function rematch() {
     if (lobbyIssue()) { toLobby(); return; }
@@ -1811,21 +1970,21 @@
   // ============================================================
   // MENUS & FEUILLES
   // ============================================================
-  function menuItem(icon, title, sub, onclick, danger) {
+  function menuItem(ic, title, sub, onclick, danger) {
     return h("button", { class: `menu-item${danger ? " danger" : ""}`, type: "button", onclick },
-      h("span", { class: "mi", "aria-hidden": "true" }, icon),
+      h("span", { class: "mi" }, icon(ic)),
       h("div", null, h("b", null, title), sub && h("small", null, sub)));
   }
   function openMenu() {
     if (!game) return;
-    sheet("Menu", h("div", null,
-      menuItem("👁️", "Revoir mon mot", "Pour ceux qui ont un trou de mémoire", () => { closeModal(); pickPeek(); }),
-      menuItem("📖", "Règles du jeu", null, () => { closeModal(); openRules(); }),
-      menuItem("🏆", "Classement", null, () => { closeModal(); openScores(); }),
-      menuItem(prefs.sound ? "🔊" : "🔇", prefs.sound ? "Couper le son" : "Activer le son", null, () => {
-        prefs.sound = !prefs.sound; savePrefs(); closeModal(); toast(prefs.sound ? "🔊 Son activé" : "🔇 Son coupé");
+    sheet("Pause", h("div", null,
+      menuItem("eye", "Revoir mon mot", "Pour ceux qui ont un trou de mémoire", () => { closeModal(); pickPeek(); }),
+      menuItem("help", "Règles du jeu", null, () => { closeModal(); openRules(); }),
+      menuItem("trophy", "Meilleurs scores", null, () => { closeModal(); openScores(); }),
+      menuItem(prefs.sound ? "sound" : "mute", prefs.sound ? "Couper le son" : "Activer le son", null, () => {
+        prefs.sound = !prefs.sound; savePrefs(); closeModal(); toast(prefs.sound ? "Son activé" : "Son coupé");
       }),
-      menuItem("🏠", "Abandonner la partie", "Retour à l'accueil, sans points", async () => {
+      menuItem("skull", "Abandonner la partie", "Retour à l'accueil, sans points", async () => {
         closeModal();
         if (await ask("Abandonner la partie ?", "La partie en cours sera perdue.", "Abandonner", true)) quitGame();
       }, true)));
@@ -1840,69 +1999,61 @@
     }, avatar(game.players[i], "lg"), h("span", { class: "nm" }, game.players[i].name)))));
   }
   function openScores() {
-    sheet("🏆 Classement", h("div", null,
-      boardCard(null),
-      h("button", { class: "linkbtn", type: "button", onclick: async () => {
+    sheet("Meilleurs scores", h("div", null,
+      boardCard(null, { title: false }),
+      h("button", { class: "link", type: "button", onclick: async () => {
         if (await ask("Remettre les scores à zéro ?", "Tout le classement sera effacé.", "Effacer", true)) {
-          store.del(K.scores); closeModal(); toast("Classement remis à zéro");
+          store.del(K.scores); closeModal(); toast("Scores remis à zéro");
         }
       } }, "Remettre les scores à zéro")));
   }
   function openRules() {
-    const info = (cls, e, name, txt) => h("div", { class: `rinfo ${cls}` }, h("span", { class: "e" }, e), h("div", null, h("b", null, name), h("span", null, txt)));
-    sheet("Comment jouer ?", h("div", { class: "rules" },
+    const info = (role, name, txt) => h("div", { class: `rinfo ${ROLES[role].cls}` }, sprite(role, "md"), h("div", null, h("b", null, name), h("span", { class: "t" }, txt)));
+    sheet("Comment jouer", h("div", { class: "rules" },
       h("p", null, "Tout le monde reçoit un mot secret… mais pas tout à fait le même ! Trouvez qui bluffe avant qu'il ne soit trop tard."),
-      info("cit", "😇", "Citizens", "Ils ont tous le même mot. Leur mission : démasquer les imposteurs."),
-      info("und", "🕵️", "Undercover", "Un autre mot, du même univers mais bien différent (ex : Sel / Farine). Avec les rôles secrets, il ne sait même pas qu'il est Undercover !"),
-      info("mrw", "👻", "Mr White", "Aucun mot ! Il écoute et bluffe. S'il est éliminé, il peut deviner le mot des Citizens pour gagner."),
-      h("h3", null, "🎬 Déroulé"),
+      info("CITIZEN", "Citizens", "Ils ont tous le même mot. Leur mission : démasquer les imposteurs."),
+      info("UNDERCOVER", "Undercover", "Un autre mot, du même univers mais bien différent (Sel / Farine). Avec les rôles secrets, il ne sait même pas qu'il est Undercover !"),
+      info("MRWHITE", "Mr White", "Aucun mot ! Il écoute et bluffe. S'il est éliminé, il peut deviner le mot des Citizens pour gagner."),
+      h("h3", null, "Déroulé"),
       h("ol", { class: "steps" },
-        h("li", null, h("b", null, "Les mots. "), "Chacun découvre son mot en cachette sur le téléphone."),
-        h("li", null, h("b", null, "Les indices. "), "À tour de rôle, un indice court sur son mot (Mr White ne commence jamais)."),
-        h("li", null, h("b", null, "Le débat. "), "On discute, on accuse, on se défend."),
-        h("li", null, h("b", null, "Le vote. "), "À main levée : le joueur éliminé révèle son rôle."),
-        h("li", null, "On recommence jusqu'à la victoire d'un camp.")),
-      h("h3", null, "🏆 Victoire"),
+        h("li", null, h("span", null, h("b", null, "Les mots. "), "Chacun découvre son mot en cachette sur le téléphone.")),
+        h("li", null, h("span", null, h("b", null, "Les indices. "), "À tour de rôle, un indice court sur son mot. Mr White ne commence jamais.")),
+        h("li", null, h("span", null, h("b", null, "Le débat. "), "On discute, on accuse, on se défend.")),
+        h("li", null, h("span", null, h("b", null, "Le vote. "), "À main levée : le joueur éliminé révèle son rôle.")),
+        h("li", null, h("span", null, "On recommence jusqu'à la victoire d'un camp."))),
+      h("h3", null, "Victoire"),
       h("ul", { class: "wins" },
-        h("li", null, "😇 Citizens : tous les imposteurs sont éliminés."),
-        h("li", null, "🕵️ Imposteurs : ils deviennent aussi nombreux que les Citizens."),
-        h("li", null, "👻 Mr White : il devine le mot des Citizens quand il est éliminé.")),
-      h("h3", null, "⭐ Points"),
+        h("li", null, sprite("CITIZEN"), h("span", null, "Citizens : tous les imposteurs sont éliminés.")),
+        h("li", null, sprite("UNDERCOVER"), h("span", null, "Imposteurs : ils deviennent aussi nombreux que les Citizens.")),
+        h("li", null, sprite("MRWHITE"), h("span", null, "Mr White : il devine le mot des Citizens quand il est éliminé."))),
+      h("h3", null, "Points"),
       h("p", null, "Chaque gagnant marque : Citizen +2 · Mr White +6 · Undercover +10."),
-      h("button", { class: "btn", type: "button", onclick: () => closeModal() }, "C'est compris !")));
+      h("button", { class: "btn", type: "button", onclick: () => closeModal() }, "Compris !")));
   }
 
-  // ---------- Confettis ----------
-  function confetti() {
+  // ---------- Fin de partie : confettis en pixels ----------
+  function pixelConfetti() {
     if (reduced()) return;
     const cv = $("#fx"), ctx = cv.getContext("2d");
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const W = (cv.width = innerWidth * dpr), H = (cv.height = innerHeight * dpr);
-    const cols = ["#ffd23f", "#ff3d81", "#2de1fc", "#8aff5e", "#ffffff", "#b18cff"];
-    const P = Array.from({ length: 170 }, (_, k) => {
-      const left = k % 2 === 0;
-      return {
-        x: left ? 0 : W, y: H * 0.72,
-        vx: (left ? 1 : -1) * (4 + Math.random() * 11) * dpr,
-        vy: -(10 + Math.random() * 13) * dpr,
-        r: (5 + Math.random() * 6) * dpr,
-        c: cols[(Math.random() * cols.length) | 0],
-        a: Math.random() * 6.28, va: (Math.random() - 0.5) * 0.3,
-        rect: Math.random() < 0.6,
-      };
-    });
-    const t0 = performance.now(), life = 3600, run = fxRun;
+    const cols = ["#ffd23f", "#ff4f8b", "#35e0ff", "#6dff9c", "#f4f4f6"];
+    const u = 4 * dpr; // taille d'un « pixel »
+    const P = Array.from({ length: 110 }, () => ({
+      x: Math.random() * W, y: -Math.random() * H * 0.7,
+      vx: (Math.random() - 0.5) * 2 * dpr, vy: (2 + Math.random() * 3) * dpr,
+      s: u * (1 + ((Math.random() * 2) | 0)), c: cols[(Math.random() * cols.length) | 0],
+    }));
+    const t0 = performance.now(), life = 3800, run = fxRun;
     (function frame(t) {
       const el = t - t0;
       ctx.clearRect(0, 0, W, H);
       if (run !== fxRun) return;
-      ctx.globalAlpha = Math.max(0, 1 - el / life);
+      ctx.globalAlpha = Math.max(0, 1 - Math.max(0, el - life + 1000) / 1000);
       for (const p of P) {
-        p.vy += 0.32 * dpr; p.vx *= 0.99; p.x += p.vx; p.y += p.vy; p.a += p.va;
-        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.fillStyle = p.c;
-        if (p.rect) ctx.fillRect(-p.r / 2, -p.r / 4, p.r, p.r / 2);
-        else { ctx.beginPath(); ctx.arc(0, 0, p.r / 2.6, 0, 6.29); ctx.fill(); }
-        ctx.restore();
+        p.vy += 0.05 * dpr; p.x += p.vx; p.y += p.vy;
+        ctx.fillStyle = p.c;
+        ctx.fillRect(Math.round(p.x / u) * u, Math.round(p.y / u) * u, p.s, p.s);
       }
       if (el < life) requestAnimationFrame(frame);
       else ctx.clearRect(0, 0, W, H);

@@ -1,14 +1,14 @@
 {
   "name": "Undercover & Mr White",
   "short_name": "Undercover",
-  "description": "Le jeu d'imposteurs à jouer entre potes sur un seul téléphone.",
+  "description": "Le jeu d'imposteurs à jouer entre amis sur un seul téléphone.",
   "lang": "fr",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#10052f",
-  "theme_color": "#2a0d63",
+  "background_color": "#0a0a0c",
+  "theme_color": "#0a0a0c",
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },

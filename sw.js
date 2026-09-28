@@ -1,7 +1,10 @@
 // Service worker : réseau d'abord (toujours la dernière version en ligne),
 // cache en secours pour pouvoir jouer sans connexion.
-const CACHE = "undercover-v2";
-const CORE = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
+const CACHE = "undercover-v4";
+const CORE = [
+  "./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png",
+  "./fonts/press-start-2p-latin-400-normal.woff2", "./fonts/jersey-10-latin-400-normal.woff2", "./fonts/inter-latin-wght-normal.woff2",
+];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()));
@@ -17,14 +20,11 @@ self.addEventListener("activate", (e) => {
 
 self.addEventListener("fetch", (e) => {
   const req = e.request;
-  if (req.method !== "GET") return;
-  const url = new URL(req.url);
-  const fonts = url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com";
-  if (url.origin !== self.location.origin && !fonts) return;
+  if (req.method !== "GET" || new URL(req.url).origin !== self.location.origin) return;
   e.respondWith(
     fetch(req)
       .then((res) => {
-        if (res.ok || res.type === "opaque") {
+        if (res.ok) {
           const copy = res.clone();
           caches.open(CACHE).then((c) => c.put(req, copy));
         }
